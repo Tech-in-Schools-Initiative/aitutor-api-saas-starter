@@ -7,7 +7,7 @@ export default function Chatbot() {
                 <div className="text-center mb-8 p-8">
                     <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 text-transparent bg-clip-text inline-block" 
                         style={{ lineHeight: '1.5', padding: '0.5em 0' }}>
-                        AI Story Generator - Chatbot
+                        AI Content Generator - Chatbot
                     </h1>
                 </div>
 

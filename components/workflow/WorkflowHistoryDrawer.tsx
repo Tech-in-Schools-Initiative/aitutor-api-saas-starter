@@ -58,7 +58,7 @@ export function WorkflowHistoryDrawer({ onSelectHistory }: WorkflowHistoryDrawer
       </SheetTrigger>
       <SheetContent className="w-[400px] sm:w-[540px]">
         <SheetHeader>
-          <SheetTitle>Workflow History</SheetTitle>
+          <SheetTitle>Ad History</SheetTitle>
         </SheetHeader>
         <div className="mt-6">
           {loading ? (
@@ -66,7 +66,7 @@ export function WorkflowHistoryDrawer({ onSelectHistory }: WorkflowHistoryDrawer
               <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
             </div>
           ) : history.length === 0 ? (
-            <p className="text-center text-gray-500 py-8">No history found</p>
+            <p className="text-center text-gray-500 py-8">No generate ads found</p>
           ) : (
             <div className="space-y-4">
               {history.map((item) => (
