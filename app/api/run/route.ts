@@ -5,11 +5,11 @@ import { checkMessageLimit, incrementMessageCount, saveWorkflowHistory } from '@
 
 export async function POST(req: NextRequest) {
   try {
-    const { story } = await req.json();
+    const { SoloChef } = await req.json();
 
-    if (!story) {
+    if (!SoloChef) {
       return NextResponse.json(
-        { error: 'Missing story parameter' },
+        { error: 'Missing SoloChef parameter' },
         { status: 400 }
       );
     }
@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
           Authorization: `Bearer ${process.env.AITUTOR_API_KEY}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ story }),
+        body: JSON.stringify({ SoloChef }),
       }
     );
 
@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
 
     if (!response.ok) {
       return NextResponse.json(
-        { error: data.error || 'Error generating story' },
+        { error: data.error || 'Error generating SoloChef' },
         { status: response.status }
       );
     }
@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
     await saveWorkflowHistory(
       team.id, 
       user.id, 
-      story, 
+      SoloChef, 
       data.result || JSON.stringify(data)
     );
 
