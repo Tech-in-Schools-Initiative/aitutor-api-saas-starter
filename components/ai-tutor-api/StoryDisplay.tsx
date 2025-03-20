@@ -24,7 +24,7 @@ export default function StoryDisplay({ result }: StoryDisplayProps) {
                 setFormattedResult(htmlContent);
             } catch (error) {
                 console.error('Error parsing markdown:', error);
-                setFormattedResult('Error formatting the story.');
+                setFormattedResult('Error formatting the Investibot.');
             }
         }
     }, [result]);
@@ -32,7 +32,7 @@ export default function StoryDisplay({ result }: StoryDisplayProps) {
     return (
         <div className="glass-morphism p-8 rounded-xl shadow-xl backdrop-blur-lg bg-white/30">
             <div 
-                className="story-content prose prose-lg max-w-none"
+                className="Investibot-content prose prose-lg max-w-none"
                 style={{
                     color: '#4B5563',
                     lineHeight: '1.8',

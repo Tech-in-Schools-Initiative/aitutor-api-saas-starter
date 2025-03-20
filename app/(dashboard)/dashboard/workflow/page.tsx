@@ -6,15 +6,15 @@ import Link from 'next/link';
 import { WorkflowHistoryDrawer } from '@/components/workflow/WorkflowHistoryDrawer';
 
 export default function Workflow() {
-    const [story, setStory] = useState('');
+    const [PrimaryIngredient, setPrimaryIngredient] = useState('');
     const [result, setResult] = useState<any>(null);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!story.trim()) {
-            setError('Please enter a story');
+        if (!PrimaryIngredient.trim()) {
+            setError('What sad lonely ingredient are you working with?');
             return;
         }
         setError('');
@@ -27,7 +27,7 @@ export default function Workflow() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ story }),
+                body: JSON.stringify({ PrimaryIngredient }),
             });
 
             const data = await response.json();
@@ -36,17 +36,17 @@ export default function Workflow() {
                 setResult(data);
                 setError('');
             } else {
-                setError(data.error || 'An error occurred while fetching the story.');
+                setError(data.error || 'An error occurred while fetching the recipes.');
             }
         } catch (err) {
-            setError('An error occurred while fetching the story.');
+            setError('An error occurred while fetching the recipes.');
         } finally {
             setLoading(false);
         }
     };
 
     const handleSelectHistory = (input: string, output: string) => {
-        setStory(input);
+        setPrimaryIngredient(input);
         try {
             // Assuming output is a JSON string or already a JSON object
             const outputData = typeof output === 'string' ? JSON.parse(output) : output;
@@ -63,7 +63,7 @@ export default function Workflow() {
                 <div className="text-center mb-8 p-8">
                     <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 text-transparent bg-clip-text inline-block" 
                         style={{ lineHeight: '1.5', padding: '0.5em 0' }}>
-                        AI Story Generator - Workflow
+                        SoloChef Looker Upper
                     </h1>
                 </div>
 
@@ -71,17 +71,17 @@ export default function Workflow() {
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="space-y-2">
                             <div className="flex justify-between items-center">
-                                <label htmlFor="story" className="block text-lg font-medium text-gray-700">
-                                    Enter your story prompt:
+                                <label htmlFor="PrimaryIngredient" className="block text-lg font-medium text-gray-700">
+                                    Enter your Primary Ingredient:
                                 </label>
                                 <WorkflowHistoryDrawer onSelectHistory={handleSelectHistory} />
                             </div>
                             <input
-                                id="story"
+                                id="PrimaryIngredient"
                                 type="text"
-                                value={story}
-                                onChange={(e) => setStory(e.target.value)}
-                                placeholder="E.g., Tell me a story about a magical forest..."
+                                value={PrimaryIngredient}
+                                onChange={(e) => setPrimaryIngredient(e.target.value)}
+                                placeholder="E.g., Bacon"
                                 className="w-full p-4 rounded-lg bg-white/50 border border-purple-200 text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent shadow-inner"
                             />
                         </div>
@@ -99,7 +99,7 @@ export default function Workflow() {
                                     Generating...
                                 </span>
                             ) : (
-                                'Generate Story'
+                                'Click for Culinary Flex!'
                             )}
                         </button>
                     </form>

@@ -119,7 +119,7 @@ The available tiers are defined in **lib/tiers.ts**:
 ### Workflow Page
 The workflow page provides an interface for users to interact with AI Tutor API workflows:
 
-- **Input Submission**: Users can enter prompts (e.g., "Tell me a story about a magical forest") and generate AI-powered responses.
+- **Input Submission**: Users can enter prompts (e.g., "Tell me a Investibot about a magical forest") and generate AI-powered responses.
   
 - **Message Limit Enforcement**: When a workflow is executed, the backend checks the team's message limit. If the limit is reached (e.g., for free users, 5 messages per month), the workflow is blocked and an error is returned.
 
