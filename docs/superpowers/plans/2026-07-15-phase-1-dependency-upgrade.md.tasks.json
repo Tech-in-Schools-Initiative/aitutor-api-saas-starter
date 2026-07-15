@@ -10,9 +10,9 @@
     {
       "id": 2,
       "subject": "Task 2: Trivial/Patch Bumps + framer-motion to motion Consolidation",
-      "status": "pending",
+      "status": "completed",
       "blockedBy": [1],
-      "description": "**Goal:** Batch every patch/minor-safe dependency bump and consolidate framer-motion/motion into a single motion dependency.\n\n**Verify:** pnpm test && pnpm build -> Test Files 4 passed (4) / Tests 22 passed (22), clean build\n\nFull diffs in the plan doc, Task 2.\n\n```json:metadata\n{\"files\": [\"package.json\", \"lib/db/drizzle.ts\", \"components/landing-page/timeline/TimelineContent.tsx\", \"components/landing-page/hero/hero.tsx\", \"components/landing-page/timeline/components/testimonial-cards.tsx\", \"components/landing-page/footer/animated-gradient-background.tsx\", \"components/landing-page/hero/components/sparkles-text.tsx\", \"tests/unit/motion-migration.test.ts\"], \"verifyCommand\": \"pnpm test && pnpm build\", \"modelTier\": \"mechanical\"}\n```"
+      "description": "**Goal:** Batch every patch/minor-safe dependency bump and consolidate framer-motion/motion into a single motion dependency.\n\n**STATUS: DONE.** One fix cycle: spec review caught dotenv and tailwindcss-react-aria-components bumped across major versions (contradicting the same-major criterion) -- reverted to ^16.4.7 and 1.2.0 respectively. Code quality review: ready to merge, no blocking issues.\n\n**Verify:** pnpm test && pnpm build -> Test Files 4 passed (4) / Tests 22 passed (22), clean build\n\nFull diffs in the plan doc, Task 2 (corrected).\n\n```json:metadata\n{\"files\": [\"package.json\", \"lib/db/drizzle.ts\", \"components/landing-page/timeline/TimelineContent.tsx\", \"components/landing-page/hero/hero.tsx\", \"components/landing-page/timeline/components/testimonial-cards.tsx\", \"components/landing-page/footer/animated-gradient-background.tsx\", \"components/landing-page/hero/components/sparkles-text.tsx\", \"tests/unit/motion-migration.test.ts\"], \"verifyCommand\": \"pnpm test && pnpm build\", \"modelTier\": \"mechanical\"}\n```"
     },
     {
       "id": 3,
