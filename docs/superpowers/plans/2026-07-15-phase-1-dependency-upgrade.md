@@ -2036,6 +2036,8 @@ git add package.json pnpm-lock.yaml app/api/chat/route.ts docs/superpowers/specs
 git commit -m "Freeze ai SDK at 4.3.19: external aitutor-api stream format incompatible with (or unverifiable against) @ai-sdk/react v5+"
 ```
 
+**STATUS: DONE — Branch B taken.** Gate check attempted first as required; confirmed this environment's `.env` has no real AI Tutor API credentials, so the check genuinely could not be run (not "confirmed incompatible" — an honest, documented "unverifiable"). `ai` pinned at `4.3.19` (confirmed true latest 4.x). `StreamingChat.tsx` untouched. See `docs/superpowers/specs/2026-07-15-ai-sdk-v4-freeze.md` for the freeze rationale and concrete instructions for whoever later has real credentials to actually run the gate check and potentially complete Branch A.
+
 ---
 
 ### Task 11: Next.js Canary→16.2.10 Stable Upgrade
