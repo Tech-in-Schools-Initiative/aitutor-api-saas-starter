@@ -1138,6 +1138,8 @@ git add package.json pnpm-lock.yaml components.json components/ui/ hooks/use-mob
 git commit -m "Bump Tailwind to 4.3.2 and regenerate all 12 shadcn ui primitives onto the unified radix-ui package + data-slot pattern"
 ```
 
+**STATUS: DONE.** Two out-of-scope fixes were necessary and confirmed correctly scoped: `components/landing-page/hero/components/confetti.tsx` (the old `ButtonProps` export was removed by the regen; replaced with `React.ComponentProps<typeof Button>`), and an `app/globals.css` addition (a newer-generation `--sidebar`/`--color-sidebar-*` token block from the CLI — confirmed harmless/redundant, not a bug fix, since the pre-existing older-generation block already resolved these identically). A real gap was found and fixed: `tests/unit/button.test.tsx` (the first DOM-rendering test) had no cleanup between cases; fixed by wiring `@testing-library/react`'s `cleanup()` into `vitest.config.ts` via a new `tests/setup.ts` + `setupFiles`, so every future DOM test gets automatic cleanup. Real, broader-than-expected shadcn registry default-styling drift was found (Avatar size, CardTitle/CardDescription tag, SheetTitle size, and more) — documented in the design spec's Phase 4 section for that later phase to address, out of scope for this task.
+
 ---
 
 ### Task 6: lucide-react 0.474 → 1.24.0 + marked ^15 → 18.0.6
