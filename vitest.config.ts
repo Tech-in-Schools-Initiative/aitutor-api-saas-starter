@@ -7,6 +7,7 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['tests/unit/**/*.test.{ts,tsx}'],
+    setupFiles: ['./tests/setup.ts'],
     env: {
       AUTH_SECRET: 'vitest-unit-test-secret-do-not-use-in-production',
     },
