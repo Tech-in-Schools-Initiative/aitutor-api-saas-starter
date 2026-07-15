@@ -38,7 +38,7 @@
     {
       "id": 6,
       "subject": "Task 6: lucide-react 0.474 to 1.24.0 + marked 15 to 18.0.6",
-      "status": "pending",
+      "status": "completed",
       "blockedBy": [5],
       "description": "**Goal:** Bump lucide-react (fixing 3 renamed-icon call sites + 1 dead brand-icon import) and marked (verifying Lexer/Parser API unaffected).\n\n**Verify:** pnpm exec tsc --noEmit && pnpm test -> no tsc output; Test Files 9 passed (9) / Tests 34 passed (34)\n\nFull diffs in the plan doc, Task 6.\n\n```json:metadata\n{\"files\": [\"package.json\", \"app/(dashboard)/dashboard/activity/page.tsx\", \"app/(dashboard)/dashboard/invite-team.tsx\", \"components/landing-page/footer/footer.tsx\", \"tests/unit/lucide-icon-renames.test.ts\", \"tests/unit/marked-api.test.ts\"], \"verifyCommand\": \"pnpm exec tsc --noEmit && pnpm test\", \"modelTier\": \"mechanical\"}\n```"
     },
