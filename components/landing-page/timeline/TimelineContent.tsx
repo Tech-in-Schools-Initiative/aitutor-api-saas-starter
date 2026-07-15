@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform } from "motion/react";
 import { Particles } from "./components/particles";
 import { GlowingEffectDemo } from "./components/glowing-effect-demo";
 import { DisplayCardsDemo } from "./components/display-cards-demo";
