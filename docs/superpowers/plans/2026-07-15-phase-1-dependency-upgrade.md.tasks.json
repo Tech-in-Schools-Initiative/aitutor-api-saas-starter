@@ -17,9 +17,9 @@
     {
       "id": 3,
       "subject": "Task 3: React 19.0.0 to 19.2.7",
-      "status": "pending",
+      "status": "completed",
       "blockedBy": [2],
-      "description": "**Goal:** Bump React, ReactDOM, and their type packages to 19.2.7/19.2.17/19.2.3.\n\n**Verify:** pnpm test && pnpm build && pnpm exec tsc --noEmit -> Test Files 5 passed (5) / Tests 24 passed (24), clean build, zero tsc errors\n\nFull code in the plan doc, Task 3. (Note: an earlier version of this task incorrectly claimed this bump would fix '60 pre-existing tsc errors' -- that was a false alarm already resolved in Task 1. Just keep the baseline clean.)\n\n```json:metadata\n{\"files\": [\"package.json\", \"tests/unit/react-version.test.ts\"], \"verifyCommand\": \"pnpm test && pnpm build && pnpm exec tsc --noEmit\", \"modelTier\": \"mechanical\"}\n```"
+      "description": "**Goal:** Bump React, ReactDOM, and their type packages to 19.2.7/19.2.17/19.2.3.\n\n**STATUS: DONE.** One necessary side-fix (verified by spec review): @types/react bump surfaced a real latent type error in components/landing-page/hero/components/glow-effect.tsx (ease: 'linear' needed 'as const'), fixed, zero runtime change. Code quality review: ready to merge, only style nits.\n\n**Verify:** pnpm test && pnpm build && pnpm exec tsc --noEmit -> Test Files 5 passed (5) / Tests 24 passed (24), clean build, zero tsc errors\n\nFull code in the plan doc, Task 3 (corrected).\n\n```json:metadata\n{\"files\": [\"package.json\", \"tests/unit/react-version.test.ts\", \"components/landing-page/hero/components/glow-effect.tsx\"], \"verifyCommand\": \"pnpm test && pnpm build && pnpm exec tsc --noEmit\", \"modelTier\": \"mechanical\"}\n```"
     },
     {
       "id": 4,

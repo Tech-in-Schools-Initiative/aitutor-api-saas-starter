@@ -867,6 +867,8 @@ git add package.json pnpm-lock.yaml tests/unit/react-version.test.ts
 git commit -m "Upgrade React and ReactDOM to 19.2.7"
 ```
 
+**STATUS: DONE.** One necessary side-fix, verified independently by spec review: bumping `@types/react` alone (isolated via a controlled test at the parent commit) surfaces a real, pre-existing latent type error in `components/landing-page/hero/components/glow-effect.tsx` — `BASE_TRANSITION.ease = 'linear'` (a plain `string`) was never actually assignable to `motion`'s `Transition['ease']` type. Fixed with `ease: 'linear' as const` (confirmed type-only, zero runtime difference; reverting it reproduces the tsc error). No other file in the repo has the same pattern. Also confirmed during review: this machine's shared pnpm store means running `pnpm install` in a *different* worktree of this same repo while another worktree is mid-verification can stomp on that worktree's `node_modules` symlinks — stay within one worktree's directory for all install/build/test commands for a given task; don't run concurrent installs across sibling worktrees of this repo.
+
 ---
 
 ### Task 4: TypeScript 5.7.3 → newest 5.x (5.9.3)
