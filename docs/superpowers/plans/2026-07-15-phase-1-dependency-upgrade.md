@@ -42,6 +42,8 @@
 - [ ] `pnpm exec tsc --noEmit` is clean with the new test files included
 - [ ] `.github/workflows/ci.yml` runs typecheck, unit tests (with a Postgres service container), build, and e2e (separate job) on push/PR
 
+**Baseline note (corrected 2026-07-15):** an earlier pass mistakenly attributed 60 `tsc` errors to a `@types/react`/`lucide-react` JSX incompatibility, based on a contaminated `node_modules` state produced by repeated non-clean `pnpm install` runs during investigation. A genuinely clean `rm -rf node_modules && pnpm install` showed only 2 real pre-existing errors (implicit-`any` drag-handler params in `components/landing-page/timeline/components/testimonial-cards.tsx`, unrelated to any dependency version), which have since been fixed directly as a tiny prep commit. The baseline is now genuinely 0 errors — no caveat needed for this or later tasks. Lesson: always verify with a full clean reinstall before asserting a baseline; incremental `pnpm add`/revert cycles can leave stale symlinks that misrepresent the true state.
+
 **Verify:** `pnpm exec tsc --noEmit && pnpm test && pnpm test:e2e` -> `tsc` prints nothing (exit 0); `pnpm test` prints `Test Files 3 passed (3)` / `Tests 12 passed (12)`; `pnpm test:e2e` prints `3 passed` for `auth-and-dashboard.spec.ts` plus either `1 passed` or `1 skipped` for `chatbot.spec.ts` depending on whether real AI Tutor API credentials are configured
 
 **Steps:**
@@ -337,7 +339,15 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [tsconfigPaths(), react()],
   test: {
-    environment: 'jsdom',
+    // 'node', not 'jsdom' (empirically confirmed during implementation): jose's
+    // token signing throws "payload must be an instance of Uint8Array" under jsdom
+    // -- a known jsdom/Vitest cross-realm issue where jose (externalized, running
+    // in Node's realm) rejects a Uint8Array produced by TextEncoder inside the
+    // jsdom-realm-executed session.ts. None of Task 1's tests render DOM. Task 5's
+    // button.test.tsx (which DOES need a DOM) overrides this per-file with a
+    // `// @vitest-environment jsdom` pragma comment at the top of that file instead
+    // of flipping this global default back to jsdom.
+    environment: 'node',
     include: ['tests/unit/**/*.test.{ts,tsx}'],
     env: {
       AUTH_SECRET: 'vitest-unit-test-secret-do-not-use-in-production',
@@ -364,7 +374,14 @@ export default defineConfig({
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
-    command: 'pnpm dev',
+    // Not `pnpm dev` (next dev --turbopack): the pinned 15.2.0-canary.33
+    // Turbopack build crashes with a TurbopackInternalError ("Next.js package
+    // not found") in this environment -- confirmed to reproduce even in a
+    // pristine checkout outside any worktree, so it's an environment/canary
+    // issue, not something this plan introduced. Plain `next dev` (webpack)
+    // works. Revisit once Task 11 lands (Next.js 16 stable) -- if that build's
+    // Turbopack doesn't hit this, switch back to `pnpm dev`.
+    command: 'pnpm exec next dev',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
@@ -747,8 +764,9 @@ git commit -m "Batch trivial/patch dependency bumps and consolidate framer-motio
 **Acceptance Criteria:**
 - [ ] `react`, `react-dom` are pinned to `19.2.7`; `@types/react` is `19.2.17`; `@types/react-dom` is `19.2.3`
 - [ ] `pnpm test` and `pnpm build` stay green with no code changes required elsewhere
+- [ ] `pnpm exec tsc --noEmit` stays clean (0 errors) after this bump
 
-**Verify:** `pnpm test && pnpm build` -> `Test Files  5 passed (5)` / `Tests  24 passed (24)`, then a clean Next.js build
+**Verify:** `pnpm test && pnpm build && pnpm exec tsc --noEmit` -> `Test Files  5 passed (5)` / `Tests  24 passed (24)`, clean Next.js build, and `tsc --noEmit` reports zero errors
 
 **Steps:**
 
@@ -947,6 +965,12 @@ git commit -m "Upgrade TypeScript to the newest 5.x release (5.9.3), staying off
 
 ```tsx
 // tests/unit/button.test.tsx
+// @vitest-environment jsdom
+//
+// vitest.config.ts's global environment is 'node' (Task 1 -- jose throws under
+// jsdom's cross-realm Uint8Array handling). This is the first test that actually
+// renders a DOM tree, so it overrides the environment for just this file via the
+// pragma above, rather than flipping the global default back to jsdom.
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { Button } from '@/components/ui/button';
@@ -2011,6 +2035,7 @@ git commit -m "Freeze ai SDK at 4.3.19: external aitutor-api stream format incom
 - [ ] Full Task-1 suite (unit + e2e) passes
 - [ ] `pnpm build` succeeds
 - [ ] Manual click-through checklist below completed at 1280px
+- [ ] Revisit `playwright.config.ts`'s `webServer.command` (currently `pnpm exec next dev`, changed in Task 1 to work around a canary-only Turbopack crash) — try switching back to `pnpm dev` (Turbopack) now that Next is on 16 stable; if it works cleanly, switch back and note it in the commit, otherwise leave the workaround in place and note why
 
 **Verify:** `pnpm exec tsc --noEmit && pnpm test && pnpm test:e2e && pnpm build` → all green, plus the manual checklist:
 - [ ] `/sign-in` — sign in with the seeded user (`test@test.com` / `admin123`)
