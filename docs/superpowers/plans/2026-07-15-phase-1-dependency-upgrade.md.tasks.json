@@ -66,7 +66,7 @@
     {
       "id": 10,
       "subject": "Task 10: ai SDK v4 to v7 Hop-by-Hop Upgrade (Chat Streaming)",
-      "status": "pending",
+      "status": "completed",
       "blockedBy": [9],
       "description": "**Goal:** Mandatory gate-check the external aitutor-api.vercel.app stream format first, then either complete the ai v4->v7 hop-by-hop upgrade (Branch A) or freeze at latest 4.x and document why (Branch B).\n\n**Verify (A):** pnpm exec tsc --noEmit && pnpm test:e2e -- tests/e2e/chatbot.spec.ts -> clean; smoke test passes against real external API\n**Verify (B):** pnpm add ai@4.3.19 && pnpm exec tsc --noEmit && pnpm test:e2e -- tests/e2e/chatbot.spec.ts -> clean; unchanged\n\nFull code for both branches in the plan doc, Task 10.\n\n```json:metadata\n{\"files\": [\"components/ai-tutor-api/StreamingChat.tsx\", \"app/api/chat/route.ts\", \"package.json\", \"docs/superpowers/specs/2026-07-15-ai-sdk-v4-freeze.md\"], \"verifyCommand\": \"pnpm exec tsc --noEmit && pnpm test:e2e -- tests/e2e/chatbot.spec.ts\", \"modelTier\": \"complex\"}\n```"
     },
