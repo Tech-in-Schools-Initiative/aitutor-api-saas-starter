@@ -9,7 +9,7 @@ import {
   CardTitle,
   CardFooter
 } from '@/components/ui/card';
-import { Loader2, PlusCircle } from 'lucide-react';
+import { Loader2, CirclePlus } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { use, useActionState } from 'react';
@@ -84,7 +84,7 @@ export function InviteTeamMember() {
               </>
             ) : (
               <>
-                <PlusCircle className="mr-2 h-4 w-4" />
+                <CirclePlus className="mr-2 h-4 w-4" />
                 Invite Member
               </>
             )}

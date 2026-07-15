@@ -5,10 +5,10 @@ import {
   UserPlus,
   Lock,
   UserCog,
-  AlertCircle,
+  CircleAlert,
   UserMinus,
   Mail,
-  CheckCircle,
+  CircleCheckBig,
   type LucideIcon,
 } from 'lucide-react';
 import { ActivityType } from '@/lib/db/schema';
@@ -24,7 +24,7 @@ const iconMap: Record<ActivityType, LucideIcon> = {
   [ActivityType.CREATE_TEAM]: UserPlus,
   [ActivityType.REMOVE_TEAM_MEMBER]: UserMinus,
   [ActivityType.INVITE_TEAM_MEMBER]: Mail,
-  [ActivityType.ACCEPT_INVITATION]: CheckCircle,
+  [ActivityType.ACCEPT_INVITATION]: CircleCheckBig,
 };
 
 function getRelativeTime(date: Date) {
@@ -109,7 +109,7 @@ export default async function ActivityPage() {
             </ul>
           ) : (
             <div className="flex flex-col items-center justify-center text-center py-12">
-              <AlertCircle className="h-12 w-12 text-pink-500 mb-4" />
+              <CircleAlert className="h-12 w-12 text-pink-500 mb-4" />
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
                 No activity yet
               </h3>
