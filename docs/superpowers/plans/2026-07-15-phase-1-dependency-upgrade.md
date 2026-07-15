@@ -39,12 +39,12 @@
 - [ ] `pnpm test` runs 3 unit test files (12 assertions) against the current, un-upgraded code and all pass
 - [ ] `pnpm test:e2e` runs `auth-and-dashboard.spec.ts` (3 tests) against a locally-running `pnpm dev` server and all pass
 - [ ] `tests/e2e/chatbot.spec.ts` exercises a real chatbot streaming reply when real `AITUTOR_API_KEY`/`WORKFLOW_ID`/`NEXT_PUBLIC_AITUTOR_TOKEN` credentials are present in the environment, and **self-skips** (not fails) when they are not — this repo's fresh `.env` has no real AI Tutor API credentials by default, and CI only ever has placeholder values, so this test cannot be a hard CI gate
-- [ ] `pnpm exec tsc --noEmit` introduces no NEW errors beyond the 60 pre-existing ones (see note below) — the new test files themselves typecheck cleanly
+- [ ] `pnpm exec tsc --noEmit` is clean with the new test files included
 - [ ] `.github/workflows/ci.yml` runs typecheck, unit tests (with a Postgres service container), build, and e2e (separate job) on push/PR
 
-**Known pre-existing baseline issue (confirmed 2026-07-15, before any Phase 1 change):** `pnpm exec tsc --noEmit` on the untouched clone already reports 60 errors, all of the shape `'X' cannot be used as a JSX component ... Property 'children' is missing in type 'ReactPortal'` — a documented `@types/react@19.0.8` incompatibility with `ForwardRefExoticComponent`-typed icon exports from `lucide-react@0.474.0` and the pre-refresh `@radix-ui/react-icons`-based `components/ui/*` primitives. This is NOT something Task 1 introduces or should try to fix — it is exactly what Task 3 (React/`@types/react` bump) and Task 6 (`lucide-react` v1 bump) are expected to resolve as a side effect later in this same plan. Task 1's actual gate is that the new test files compile cleanly and add no new errors on top of these 60; do not chase the pre-existing ones here.
+**Baseline note (corrected 2026-07-15):** an earlier pass mistakenly attributed 60 `tsc` errors to a `@types/react`/`lucide-react` JSX incompatibility, based on a contaminated `node_modules` state produced by repeated non-clean `pnpm install` runs during investigation. A genuinely clean `rm -rf node_modules && pnpm install` showed only 2 real pre-existing errors (implicit-`any` drag-handler params in `components/landing-page/timeline/components/testimonial-cards.tsx`, unrelated to any dependency version), which have since been fixed directly as a tiny prep commit. The baseline is now genuinely 0 errors — no caveat needed for this or later tasks. Lesson: always verify with a full clean reinstall before asserting a baseline; incremental `pnpm add`/revert cycles can leave stale symlinks that misrepresent the true state.
 
-**Verify:** `pnpm exec tsc --noEmit && pnpm test && pnpm test:e2e` -> `tsc` reports the same 60 pre-existing errors and no others; `pnpm test` prints `Test Files 3 passed (3)` / `Tests 12 passed (12)`; `pnpm test:e2e` prints `3 passed` for `auth-and-dashboard.spec.ts` plus either `1 passed` or `1 skipped` for `chatbot.spec.ts` depending on whether real AI Tutor API credentials are configured
+**Verify:** `pnpm exec tsc --noEmit && pnpm test && pnpm test:e2e` -> `tsc` prints nothing (exit 0); `pnpm test` prints `Test Files 3 passed (3)` / `Tests 12 passed (12)`; `pnpm test:e2e` prints `3 passed` for `auth-and-dashboard.spec.ts` plus either `1 passed` or `1 skipped` for `chatbot.spec.ts` depending on whether real AI Tutor API credentials are configured
 
 **Steps:**
 
@@ -339,7 +339,15 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [tsconfigPaths(), react()],
   test: {
-    environment: 'jsdom',
+    // 'node', not 'jsdom' (empirically confirmed during implementation): jose's
+    // token signing throws "payload must be an instance of Uint8Array" under jsdom
+    // -- a known jsdom/Vitest cross-realm issue where jose (externalized, running
+    // in Node's realm) rejects a Uint8Array produced by TextEncoder inside the
+    // jsdom-realm-executed session.ts. None of Task 1's tests render DOM. Task 5's
+    // button.test.tsx (which DOES need a DOM) overrides this per-file with a
+    // `// @vitest-environment jsdom` pragma comment at the top of that file instead
+    // of flipping this global default back to jsdom.
+    environment: 'node',
     include: ['tests/unit/**/*.test.{ts,tsx}'],
     env: {
       AUTH_SECRET: 'vitest-unit-test-secret-do-not-use-in-production',
@@ -749,9 +757,9 @@ git commit -m "Batch trivial/patch dependency bumps and consolidate framer-motio
 **Acceptance Criteria:**
 - [ ] `react`, `react-dom` are pinned to `19.2.7`; `@types/react` is `19.2.17`; `@types/react-dom` is `19.2.3`
 - [ ] `pnpm test` and `pnpm build` stay green with no code changes required elsewhere
-- [ ] `pnpm exec tsc --noEmit` drops from the 60 pre-existing errors (documented in Task 1) to **0** — confirmed empirically on 2026-07-15: bumping just `@types/react`/`@types/react-dom` to `19.2.17`/`19.2.3` alone (no other change) resolves every one of the 60 `'X' cannot be used as a JSX component` errors from `lucide-react`/`@radix-ui/react-icons` forwardRef exports. If any errors remain after this task's full bump, treat it as a real regression, not an expected leftover.
+- [ ] `pnpm exec tsc --noEmit` stays clean (0 errors) after this bump
 
-**Verify:** `pnpm test && pnpm build && pnpm exec tsc --noEmit` -> `Test Files  5 passed (5)` / `Tests  24 passed (24)`, clean Next.js build, and `tsc --noEmit` reports **zero** errors (not just "no new" ones — the pre-existing 60 should be fully gone after this task)
+**Verify:** `pnpm test && pnpm build && pnpm exec tsc --noEmit` -> `Test Files  5 passed (5)` / `Tests  24 passed (24)`, clean Next.js build, and `tsc --noEmit` reports zero errors
 
 **Steps:**
 
@@ -950,6 +958,12 @@ git commit -m "Upgrade TypeScript to the newest 5.x release (5.9.3), staying off
 
 ```tsx
 // tests/unit/button.test.tsx
+// @vitest-environment jsdom
+//
+// vitest.config.ts's global environment is 'node' (Task 1 -- jose throws under
+// jsdom's cross-realm Uint8Array handling). This is the first test that actually
+// renders a DOM tree, so it overrides the environment for just this file via the
+// pragma above, rather than flipping the global default back to jsdom.
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { Button } from '@/components/ui/button';
