@@ -59,7 +59,7 @@
     {
       "id": 9,
       "subject": "Task 9: Stripe SDK 17.6.0 to 22.3.1 Upgrade",
-      "status": "pending",
+      "status": "completed",
       "blockedBy": [8],
       "description": "**Goal:** Bump stripe to 22.3.1, update the pinned apiVersion literal, verify everything verifiable without Stripe test-mode access (checkout+webhook round trip explicitly flagged as the user's manual step).\n\n**Verify:** pnpm exec tsc --noEmit && pnpm build && pnpm test && pnpm test:e2e -> tsc clean, build succeeds, unit+e2e suites green\n\nFull code in the plan doc, Task 9.\n\n```json:metadata\n{\"files\": [\"package.json\", \"lib/payments/stripe.ts\", \"tests/unit/stripe-config.test.ts\"], \"verifyCommand\": \"pnpm exec tsc --noEmit && pnpm build && pnpm test && pnpm test:e2e\", \"modelTier\": \"standard\"}\n```"
     },
