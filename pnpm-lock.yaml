@@ -25,7 +25,7 @@ importers:
         version: 19.2.3(@types/react@19.2.17)
       ai:
         specifier: ^4.1.44
-        version: 4.1.44(react@19.2.7)(zod@3.24.1)
+        version: 4.1.44(react@19.2.7)(zod@4.4.3)
       autoprefixer:
         specifier: ^10.5.3
         version: 10.5.3(postcss@8.5.1)
@@ -105,8 +105,8 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
       zod:
-        specifier: ^3.24.1
-        version: 3.24.1
+        specifier: ^4.4.3
+        version: 4.4.3
     devDependencies:
       '@playwright/test':
         specifier: ^1.61.1
@@ -2934,41 +2934,41 @@ packages:
     peerDependencies:
       zod: ^3.24.1
 
-  zod@3.24.1:
-    resolution: {integrity: sha512-muH7gBL9sI1nciMZV67X5fTKKBLtwpZ5VBp1vsOQzj1MhrBZ4wlVCm3gedKZWLp0Oyel8sIGfeiz54Su+OVT+A==}
+  zod@4.4.3:
+    resolution: {integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==}
 
 snapshots:
 
-  '@ai-sdk/provider-utils@2.1.9(zod@3.24.1)':
+  '@ai-sdk/provider-utils@2.1.9(zod@4.4.3)':
     dependencies:
       '@ai-sdk/provider': 1.0.8
       eventsource-parser: 3.0.0
       nanoid: 3.3.8
       secure-json-parse: 2.7.0
     optionalDependencies:
-      zod: 3.24.1
+      zod: 4.4.3
 
   '@ai-sdk/provider@1.0.8':
     dependencies:
       json-schema: 0.4.0
 
-  '@ai-sdk/react@1.1.17(react@19.2.7)(zod@3.24.1)':
+  '@ai-sdk/react@1.1.17(react@19.2.7)(zod@4.4.3)':
     dependencies:
-      '@ai-sdk/provider-utils': 2.1.9(zod@3.24.1)
-      '@ai-sdk/ui-utils': 1.1.15(zod@3.24.1)
+      '@ai-sdk/provider-utils': 2.1.9(zod@4.4.3)
+      '@ai-sdk/ui-utils': 1.1.15(zod@4.4.3)
       swr: 2.3.2(react@19.2.7)
       throttleit: 2.1.0
     optionalDependencies:
       react: 19.2.7
-      zod: 3.24.1
+      zod: 4.4.3
 
-  '@ai-sdk/ui-utils@1.1.15(zod@3.24.1)':
+  '@ai-sdk/ui-utils@1.1.15(zod@4.4.3)':
     dependencies:
       '@ai-sdk/provider': 1.0.8
-      '@ai-sdk/provider-utils': 2.1.9(zod@3.24.1)
-      zod-to-json-schema: 3.24.1(zod@3.24.1)
+      '@ai-sdk/provider-utils': 2.1.9(zod@4.4.3)
+      zod-to-json-schema: 3.24.1(zod@4.4.3)
     optionalDependencies:
-      zod: 3.24.1
+      zod: 4.4.3
 
   '@alloc/quick-lru@5.2.0': {}
 
@@ -4414,17 +4414,17 @@ snapshots:
       convert-source-map: 2.0.0
       tinyrainbow: 3.1.0
 
-  ai@4.1.44(react@19.2.7)(zod@3.24.1):
+  ai@4.1.44(react@19.2.7)(zod@4.4.3):
     dependencies:
       '@ai-sdk/provider': 1.0.8
-      '@ai-sdk/provider-utils': 2.1.9(zod@3.24.1)
-      '@ai-sdk/react': 1.1.17(react@19.2.7)(zod@3.24.1)
-      '@ai-sdk/ui-utils': 1.1.15(zod@3.24.1)
+      '@ai-sdk/provider-utils': 2.1.9(zod@4.4.3)
+      '@ai-sdk/react': 1.1.17(react@19.2.7)(zod@4.4.3)
+      '@ai-sdk/ui-utils': 1.1.15(zod@4.4.3)
       '@opentelemetry/api': 1.9.0
       jsondiffpatch: 0.6.0
     optionalDependencies:
       react: 19.2.7
-      zod: 3.24.1
+      zod: 4.4.3
 
   ansi-regex@5.0.1: {}
 
@@ -5361,8 +5361,8 @@ snapshots:
 
   xmlchars@2.2.0: {}
 
-  zod-to-json-schema@3.24.1(zod@3.24.1):
+  zod-to-json-schema@3.24.1(zod@4.4.3):
     dependencies:
-      zod: 3.24.1
+      zod: 4.4.3
 
-  zod@3.24.1: {}
+  zod@4.4.3: {}
