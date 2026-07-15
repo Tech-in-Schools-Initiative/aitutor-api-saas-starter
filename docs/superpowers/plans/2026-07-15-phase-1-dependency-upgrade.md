@@ -1751,6 +1751,8 @@ git commit -m "Bump stripe to 22.3.1 and re-pin apiVersion to 2026-06-24.dahlia;
 
 **Goal:** Gate-check whether the external `aitutor-api.vercel.app` stream is compatible with `@ai-sdk/react` v7's wire protocol, then either complete the v4→v5→v6→v7 hop-by-hop upgrade of the chatbot, or freeze `ai` at its latest 4.x patch and document why.
 
+**Forward note from Task 8 (zod v4 upgrade):** installing zod 4.4.3 produced peer-dependency warnings from `ai@4.1.44`, `@ai-sdk/react`, `@ai-sdk/provider-utils`, `@ai-sdk/ui-utils`, and `zod-to-json-schema` (all want `zod@^3.x`). Confirmed harmless today — nothing in this repo currently exercises `ai`'s zod-schema handling (`StreamingChat.tsx` only calls `useChat` with no schema; `app/api/chat/route.ts` doesn't touch the `ai` package server-side at all, it's a raw byte-proxy). But if this task's hop-by-hop upgrade introduces any server-side tool-calling or structured-output usage of the `ai`/`@ai-sdk/*` packages that internally validates with zod, re-check peer compatibility against zod 4 at that point — this is genuinely untested territory.
+
 **Files:**
 - Modify: `components/ai-tutor-api/StreamingChat.tsx` (full file, rewritten per hop — compatible branch only)
 - Modify: `app/api/chat/route.ts` (full file — compatible branch: request/response adaptation; incompatible branch: unchanged except a doc comment)
