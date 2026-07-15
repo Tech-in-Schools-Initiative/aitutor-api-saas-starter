@@ -374,7 +374,14 @@ export default defineConfig({
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
-    command: 'pnpm dev',
+    // Not `pnpm dev` (next dev --turbopack): the pinned 15.2.0-canary.33
+    // Turbopack build crashes with a TurbopackInternalError ("Next.js package
+    // not found") in this environment -- confirmed to reproduce even in a
+    // pristine checkout outside any worktree, so it's an environment/canary
+    // issue, not something this plan introduced. Plain `next dev` (webpack)
+    // works. Revisit once Task 11 lands (Next.js 16 stable) -- if that build's
+    // Turbopack doesn't hit this, switch back to `pnpm dev`.
+    command: 'pnpm exec next dev',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
@@ -2028,6 +2035,7 @@ git commit -m "Freeze ai SDK at 4.3.19: external aitutor-api stream format incom
 - [ ] Full Task-1 suite (unit + e2e) passes
 - [ ] `pnpm build` succeeds
 - [ ] Manual click-through checklist below completed at 1280px
+- [ ] Revisit `playwright.config.ts`'s `webServer.command` (currently `pnpm exec next dev`, changed in Task 1 to work around a canary-only Turbopack crash) — try switching back to `pnpm dev` (Turbopack) now that Next is on 16 stable; if it works cleanly, switch back and note it in the commit, otherwise leave the workaround in place and note why
 
 **Verify:** `pnpm exec tsc --noEmit && pnpm test && pnpm test:e2e && pnpm build` → all green, plus the manual checklist:
 - [ ] `/sign-in` — sign in with the seeded user (`test@test.com` / `admin123`)
