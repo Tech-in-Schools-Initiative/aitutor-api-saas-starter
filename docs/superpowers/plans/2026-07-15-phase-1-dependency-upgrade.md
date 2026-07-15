@@ -17,6 +17,18 @@
 
 ---
 
+## Operational note for every task in this plan (read before dispatching any task)
+
+This machine's pnpm store (`/c/.pnpm-store`) is shared machine-wide across many unrelated projects and has shown intermittent, non-deterministic corruption during Phase 1 implementation: `pnpm install` or `pnpm add` alone can leave a stale/broken symlink (a dependency resolving to a store path that doesn't exist, or that belongs to a different project's version), and even `pnpm install --force` does not reliably fix it. Confirmed 3 separate times during Task 1: `tsc --noEmit` reported spurious errors (once 60, once 20, both involving `ForwardRefExoticComponent`/JSX-component and duplicate-`csstype`-version errors that were **not real code issues**) that fully disappeared only after a genuinely full clean reinstall.
+
+**If `tsc --noEmit`, `pnpm test`, or `pnpm build` shows unexpected errors after any dependency change in this plan, before concluding it's a real regression, run:**
+```bash
+rm -rf node_modules && pnpm install
+```
+**and recheck.** If the errors disappear, it was store flakiness, not a real bug — do not "fix" the phantom errors in source code. If they persist after a genuinely clean reinstall, it's real and should be investigated as such.
+
+---
+
 ### Task 1: Test Harness (Vitest + Playwright + CI)
 
 **Goal:** Stand up Vitest and Playwright with a baseline red/green test suite against the current, pre-upgrade code, plus a CI workflow that runs it.
