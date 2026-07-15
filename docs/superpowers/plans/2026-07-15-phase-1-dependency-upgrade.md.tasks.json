@@ -1,0 +1,82 @@
+{
+  "planPath": "docs/superpowers/plans/2026-07-15-phase-1-dependency-upgrade.md",
+  "tasks": [
+    {
+      "id": 1,
+      "subject": "Task 1: Test Harness (Vitest + Playwright + CI)",
+      "status": "pending",
+      "description": "**Goal:** Stand up Vitest and Playwright with a baseline red/green test suite against the current, pre-upgrade code, plus a CI workflow that runs it.\n\n**Files:**\n- Create: vitest.config.ts, playwright.config.ts, lib/db/seed-test.ts, .github/workflows/ci.yml\n- Modify: package.json (scripts + devDependencies)\n- Test: tests/unit/session.test.ts, tests/unit/utils.test.ts, tests/unit/tiers-limit.test.ts, tests/e2e/auth-and-dashboard.spec.ts, tests/e2e/chatbot.spec.ts\n\n**Verify:** pnpm exec tsc --noEmit && pnpm test && pnpm test:e2e -> tsc clean; 3 files/12 tests pass; e2e 3 passed + chatbot passed-or-skipped\n\nFull code in the plan doc, Task 1.\n\n```json:metadata\n{\"files\": [\"vitest.config.ts\", \"playwright.config.ts\", \"lib/db/seed-test.ts\", \".github/workflows/ci.yml\", \"package.json\", \"tests/unit/session.test.ts\", \"tests/unit/utils.test.ts\", \"tests/unit/tiers-limit.test.ts\", \"tests/e2e/auth-and-dashboard.spec.ts\", \"tests/e2e/chatbot.spec.ts\"], \"verifyCommand\": \"pnpm exec tsc --noEmit && pnpm test && pnpm test:e2e\", \"modelTier\": \"standard\"}\n```"
+    },
+    {
+      "id": 2,
+      "subject": "Task 2: Trivial/Patch Bumps + framer-motion to motion Consolidation",
+      "status": "pending",
+      "blockedBy": [1],
+      "description": "**Goal:** Batch every patch/minor-safe dependency bump and consolidate framer-motion/motion into a single motion dependency.\n\n**Verify:** pnpm test && pnpm build -> Test Files 4 passed (4) / Tests 22 passed (22), clean build\n\nFull diffs in the plan doc, Task 2.\n\n```json:metadata\n{\"files\": [\"package.json\", \"lib/db/drizzle.ts\", \"components/landing-page/timeline/TimelineContent.tsx\", \"components/landing-page/hero/hero.tsx\", \"components/landing-page/timeline/components/testimonial-cards.tsx\", \"components/landing-page/footer/animated-gradient-background.tsx\", \"components/landing-page/hero/components/sparkles-text.tsx\", \"tests/unit/motion-migration.test.ts\"], \"verifyCommand\": \"pnpm test && pnpm build\", \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 3,
+      "subject": "Task 3: React 19.0.0 to 19.2.7",
+      "status": "pending",
+      "blockedBy": [2],
+      "description": "**Goal:** Bump React, ReactDOM, and their type packages to 19.2.7/19.2.17/19.2.3.\n\n**Verify:** pnpm test && pnpm build -> Test Files 5 passed (5) / Tests 24 passed (24), clean build\n\nFull code in the plan doc, Task 3.\n\n```json:metadata\n{\"files\": [\"package.json\", \"tests/unit/react-version.test.ts\"], \"verifyCommand\": \"pnpm test && pnpm build\", \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 4,
+      "subject": "Task 4: TypeScript 5.7.3 to newest 5.x (5.9.3)",
+      "status": "pending",
+      "blockedBy": [3],
+      "description": "**Goal:** Bump TypeScript to 5.9.3, explicitly staying off the 7.0 tsgo rewrite.\n\n**Verify:** pnpm exec tsc --noEmit -> no output, exit code 0\n\nFull code in the plan doc, Task 4.\n\n```json:metadata\n{\"files\": [\"package.json\", \"tests/unit/typescript-version.test.ts\"], \"verifyCommand\": \"pnpm exec tsc --noEmit\", \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 5,
+      "subject": "Task 5: Tailwind 4.3.2 + shadcn Component Regeneration",
+      "status": "pending",
+      "blockedBy": [4],
+      "description": "**Goal:** Bump Tailwind to 4.3.2 and regenerate all 12 components/ui/*.tsx primitives from the current shadcn registry (unified radix-ui package + data-slot).\n\n**Verify:** pnpm test && pnpm exec tsc --noEmit && pnpm build -> Test Files 7 passed (7) / Tests 29 passed (29), no tsc output, clean build\n\nFull diffs and expected-shape checklist in the plan doc, Task 5.\n\n```json:metadata\n{\"files\": [\"package.json\", \"components/ui/avatar.tsx\", \"components/ui/button.tsx\", \"components/ui/card.tsx\", \"components/ui/dropdown-menu.tsx\", \"components/ui/input.tsx\", \"components/ui/label.tsx\", \"components/ui/radio-group.tsx\", \"components/ui/separator.tsx\", \"components/ui/sheet.tsx\", \"components/ui/sidebar.tsx\", \"components/ui/skeleton.tsx\", \"components/ui/tooltip.tsx\", \"hooks/use-mobile.tsx\", \"tests/unit/button.test.tsx\"], \"verifyCommand\": \"pnpm test && pnpm exec tsc --noEmit && pnpm build\", \"modelTier\": \"standard\"}\n```"
+    },
+    {
+      "id": 6,
+      "subject": "Task 6: lucide-react 0.474 to 1.24.0 + marked 15 to 18.0.6",
+      "status": "pending",
+      "blockedBy": [5],
+      "description": "**Goal:** Bump lucide-react (fixing 3 renamed-icon call sites + 1 dead brand-icon import) and marked (verifying Lexer/Parser API unaffected).\n\n**Verify:** pnpm exec tsc --noEmit && pnpm test -> no tsc output; Test Files 9 passed (9) / Tests 34 passed (34)\n\nFull diffs in the plan doc, Task 6.\n\n```json:metadata\n{\"files\": [\"package.json\", \"app/(dashboard)/dashboard/activity/page.tsx\", \"app/(dashboard)/dashboard/invite-team.tsx\", \"components/landing-page/footer/footer.tsx\", \"tests/unit/lucide-icon-renames.test.ts\", \"tests/unit/marked-api.test.ts\"], \"verifyCommand\": \"pnpm exec tsc --noEmit && pnpm test\", \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 7,
+      "subject": "Task 7: Drizzle ORM / Drizzle Kit Upgrade",
+      "status": "pending",
+      "blockedBy": [6],
+      "description": "**Goal:** Bump drizzle-orm to 0.45.2 and drizzle-kit to 0.31.10, verified end-to-end against local Postgres.\n\n**Verify:** pnpm exec tsc --noEmit && pnpm db:generate && pnpm db:migrate && pnpm db:seed && pnpm test -- tests/unit/tiers-limit.test.ts -> tsc clean; no unreviewed schema diff; migrate/seed exit 0; 5 tests passed\n\nFull test code and inspection checklist in the plan doc, Task 7.\n\n```json:metadata\n{\"files\": [\"package.json\", \"pnpm-lock.yaml\", \"tests/unit/tiers-limit.test.ts\"], \"verifyCommand\": \"pnpm exec tsc --noEmit && pnpm db:generate && pnpm db:migrate && pnpm db:seed && pnpm test -- tests/unit/tiers-limit.test.ts\", \"modelTier\": \"standard\"}\n```"
+    },
+    {
+      "id": 8,
+      "subject": "Task 8: Zod v3 to v4 Upgrade",
+      "status": "pending",
+      "blockedBy": [7],
+      "description": "**Goal:** Bump zod to 4.4.3, fixing the ZodError.errors -> .issues call site in lib/auth/middleware.ts.\n\n**Verify:** pnpm exec tsc --noEmit && pnpm test -- tests/unit/validated-action.test.ts && pnpm test:e2e -- tests/e2e/auth-and-dashboard.spec.ts -> tsc clean; unit 3/3 passed; e2e passed\n\nFull code in the plan doc, Task 8.\n\n```json:metadata\n{\"files\": [\"package.json\", \"lib/auth/middleware.ts\", \"tests/unit/validated-action.test.ts\"], \"verifyCommand\": \"pnpm exec tsc --noEmit && pnpm test -- tests/unit/validated-action.test.ts && pnpm test:e2e -- tests/e2e/auth-and-dashboard.spec.ts\", \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 9,
+      "subject": "Task 9: Stripe SDK 17.6.0 to 22.3.1 Upgrade",
+      "status": "pending",
+      "blockedBy": [8],
+      "description": "**Goal:** Bump stripe to 22.3.1, update the pinned apiVersion literal, verify everything verifiable without Stripe test-mode access (checkout+webhook round trip explicitly flagged as the user's manual step).\n\n**Verify:** pnpm exec tsc --noEmit && pnpm build && pnpm test && pnpm test:e2e -> tsc clean, build succeeds, unit+e2e suites green\n\nFull code in the plan doc, Task 9.\n\n```json:metadata\n{\"files\": [\"package.json\", \"lib/payments/stripe.ts\", \"tests/unit/stripe-config.test.ts\"], \"verifyCommand\": \"pnpm exec tsc --noEmit && pnpm build && pnpm test && pnpm test:e2e\", \"modelTier\": \"standard\"}\n```"
+    },
+    {
+      "id": 10,
+      "subject": "Task 10: ai SDK v4 to v7 Hop-by-Hop Upgrade (Chat Streaming)",
+      "status": "pending",
+      "blockedBy": [9],
+      "description": "**Goal:** Mandatory gate-check the external aitutor-api.vercel.app stream format first, then either complete the ai v4->v7 hop-by-hop upgrade (Branch A) or freeze at latest 4.x and document why (Branch B).\n\n**Verify (A):** pnpm exec tsc --noEmit && pnpm test:e2e -- tests/e2e/chatbot.spec.ts -> clean; smoke test passes against real external API\n**Verify (B):** pnpm add ai@4.3.19 && pnpm exec tsc --noEmit && pnpm test:e2e -- tests/e2e/chatbot.spec.ts -> clean; unchanged\n\nFull code for both branches in the plan doc, Task 10.\n\n```json:metadata\n{\"files\": [\"components/ai-tutor-api/StreamingChat.tsx\", \"app/api/chat/route.ts\", \"package.json\", \"docs/superpowers/specs/2026-07-15-ai-sdk-v4-freeze.md\"], \"verifyCommand\": \"pnpm exec tsc --noEmit && pnpm test:e2e -- tests/e2e/chatbot.spec.ts\", \"modelTier\": \"complex\"}\n```"
+    },
+    {
+      "id": 11,
+      "subject": "Task 11: Next.js Canary to 16.2.10 Stable Upgrade",
+      "status": "pending",
+      "blockedBy": [10],
+      "description": "**Goal:** Move off 15.2.0-canary.33 onto Next.js 16.2.10 stable via the official codemod, drop experimental.ppr/newDevOverlay, rename middleware.ts to proxy.ts.\n\n**Verify:** pnpm exec tsc --noEmit && pnpm test && pnpm test:e2e && pnpm build -> all green, plus manual click-through of 13 routes\n\nFull before/after code in the plan doc, Task 11.\n\n```json:metadata\n{\"files\": [\"package.json\", \"next.config.ts\", \"middleware.ts\", \"proxy.ts\", \"tests/unit/next-version.test.ts\"], \"verifyCommand\": \"pnpm exec tsc --noEmit && pnpm test && pnpm test:e2e && pnpm build\", \"modelTier\": \"standard\"}\n```"
+    }
+  ],
+  "lastUpdated": "2026-07-15T00:00:00Z"
+}
