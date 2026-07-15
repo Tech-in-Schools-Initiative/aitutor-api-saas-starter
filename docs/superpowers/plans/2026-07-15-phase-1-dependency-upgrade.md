@@ -1156,11 +1156,11 @@ git commit -m "Bump Tailwind to 4.3.2 and regenerate all 12 shadcn ui primitives
 
 **Acceptance Criteria:**
 - [ ] `pnpm exec tsc --noEmit` is clean after the `lucide-react` bump (renamed/removed icons compile)
-- [ ] `activity/page.tsx` uses `CircleAlert`/`CircleCheck`, `invite-team.tsx` uses `CirclePlus` (their pre-1.0 names — `AlertCircle`/`CheckCircle`/`PlusCircle` — no longer exist in `lucide-react@1`)
+- [ ] `activity/page.tsx` uses `CircleAlert`/`CircleCheckBig`, `invite-team.tsx` uses `CirclePlus`. **Correction (found during implementation, confirmed by review):** the pre-1.0 names `AlertCircle`/`CheckCircle`/`PlusCircle` actually still exist in `lucide-react@1` as deprecated backward-compat aliases (so `tsc` alone won't catch a missed rename) — but critically, `CheckCircle`'s real alias target is `CircleCheckBig`, NOT `CircleCheck` (a distinct, differently-drawn icon: `CircleCheck` was called `CheckCircle2` pre-1.0). Using `CircleCheck` would silently render the wrong glyph. Rename for consistency/future-proofing regardless of the aliases still working.
 - [ ] `footer.tsx` no longer imports the removed `Facebook`/`Instagram`/`Linkedin` brand icons (they were dead/unused imports already — never rendered, only `Icons.twitter`/`Icons.gitHub` from the local `./icons` file are used)
 - [ ] `StoryDisplay.tsx`'s `new marked.Lexer()` / `new marked.Parser()` call site needs no code change — verified against the marked 18.0.0 changelog (trailing-blank-line trimming and a TS6 internal bump; the `Lexer`/`Parser` class shape and default-synchronous `parse()` return type are unchanged since v15)
 
-**Verify:** `pnpm exec tsc --noEmit && pnpm test` -> no tsc output; `Test Files 9 passed (9)` / `Tests 34 passed (34)`
+**Verify:** `pnpm exec tsc --noEmit && pnpm test` -> no tsc output; `Test Files 9 passed (9)` / `Tests 37 passed (37)`
 
 **Steps:**
 
@@ -1182,7 +1182,7 @@ describe('lucide-react v1 icon renames', () => {
     expect(source).not.toMatch(/\bAlertCircle\b/);
     expect(source).not.toMatch(/\bCheckCircle\b/);
     expect(source).toMatch(/\bCircleAlert\b/);
-    expect(source).toMatch(/\bCircleCheck\b/);
+    expect(source).toMatch(/\bCircleCheckBig\b/);
   });
 
   it('invite-team.tsx uses CirclePlus, not the removed PlusCircle', () => {
@@ -1264,7 +1264,7 @@ pnpm install
    UserMinus,
    Mail,
 -  CheckCircle,
-+  CircleCheck,
++  CircleCheckBig,
    type LucideIcon,
  } from 'lucide-react';
 ```
@@ -1316,6 +1316,8 @@ Expected: PASS — `Test Files 9 passed (9)` / `Tests 34 passed (34)`
 git add package.json pnpm-lock.yaml "app/(dashboard)/dashboard/activity/page.tsx" "app/(dashboard)/dashboard/invite-team.tsx" components/landing-page/footer/footer.tsx tests/unit/lucide-icon-renames.test.ts tests/unit/marked-api.test.ts
 git commit -m "Upgrade lucide-react to 1.24.0 (fixing renamed icons + a dead brand-icon import) and marked to 18.0.6"
 ```
+
+**STATUS: DONE.** Confirmed with hard evidence (installed package source + runtime checks), not just tsc passing: the old names still resolve as deprecated aliases in lucide-react 1.x, so tsc alone wouldn't have caught a missed rename — renamed anyway for consistency. `marked` needed no code change, verified directly against the installed package.
 
 ---
 
