@@ -39,10 +39,12 @@
 - [ ] `pnpm test` runs 3 unit test files (12 assertions) against the current, un-upgraded code and all pass
 - [ ] `pnpm test:e2e` runs `auth-and-dashboard.spec.ts` (3 tests) against a locally-running `pnpm dev` server and all pass
 - [ ] `tests/e2e/chatbot.spec.ts` exercises a real chatbot streaming reply when real `AITUTOR_API_KEY`/`WORKFLOW_ID`/`NEXT_PUBLIC_AITUTOR_TOKEN` credentials are present in the environment, and **self-skips** (not fails) when they are not — this repo's fresh `.env` has no real AI Tutor API credentials by default, and CI only ever has placeholder values, so this test cannot be a hard CI gate
-- [ ] `pnpm exec tsc --noEmit` is clean with the new test files included
+- [ ] `pnpm exec tsc --noEmit` introduces no NEW errors beyond the 60 pre-existing ones (see note below) — the new test files themselves typecheck cleanly
 - [ ] `.github/workflows/ci.yml` runs typecheck, unit tests (with a Postgres service container), build, and e2e (separate job) on push/PR
 
-**Verify:** `pnpm exec tsc --noEmit && pnpm test && pnpm test:e2e` -> `tsc` prints nothing (exit 0); `pnpm test` prints `Test Files 3 passed (3)` / `Tests 12 passed (12)`; `pnpm test:e2e` prints `3 passed` for `auth-and-dashboard.spec.ts` plus either `1 passed` or `1 skipped` for `chatbot.spec.ts` depending on whether real AI Tutor API credentials are configured
+**Known pre-existing baseline issue (confirmed 2026-07-15, before any Phase 1 change):** `pnpm exec tsc --noEmit` on the untouched clone already reports 60 errors, all of the shape `'X' cannot be used as a JSX component ... Property 'children' is missing in type 'ReactPortal'` — a documented `@types/react@19.0.8` incompatibility with `ForwardRefExoticComponent`-typed icon exports from `lucide-react@0.474.0` and the pre-refresh `@radix-ui/react-icons`-based `components/ui/*` primitives. This is NOT something Task 1 introduces or should try to fix — it is exactly what Task 3 (React/`@types/react` bump) and Task 6 (`lucide-react` v1 bump) are expected to resolve as a side effect later in this same plan. Task 1's actual gate is that the new test files compile cleanly and add no new errors on top of these 60; do not chase the pre-existing ones here.
+
+**Verify:** `pnpm exec tsc --noEmit && pnpm test && pnpm test:e2e` -> `tsc` reports the same 60 pre-existing errors and no others; `pnpm test` prints `Test Files 3 passed (3)` / `Tests 12 passed (12)`; `pnpm test:e2e` prints `3 passed` for `auth-and-dashboard.spec.ts` plus either `1 passed` or `1 skipped` for `chatbot.spec.ts` depending on whether real AI Tutor API credentials are configured
 
 **Steps:**
 
@@ -747,8 +749,9 @@ git commit -m "Batch trivial/patch dependency bumps and consolidate framer-motio
 **Acceptance Criteria:**
 - [ ] `react`, `react-dom` are pinned to `19.2.7`; `@types/react` is `19.2.17`; `@types/react-dom` is `19.2.3`
 - [ ] `pnpm test` and `pnpm build` stay green with no code changes required elsewhere
+- [ ] `pnpm exec tsc --noEmit` drops from the 60 pre-existing errors (documented in Task 1) to **0** — confirmed empirically on 2026-07-15: bumping just `@types/react`/`@types/react-dom` to `19.2.17`/`19.2.3` alone (no other change) resolves every one of the 60 `'X' cannot be used as a JSX component` errors from `lucide-react`/`@radix-ui/react-icons` forwardRef exports. If any errors remain after this task's full bump, treat it as a real regression, not an expected leftover.
 
-**Verify:** `pnpm test && pnpm build` -> `Test Files  5 passed (5)` / `Tests  24 passed (24)`, then a clean Next.js build
+**Verify:** `pnpm test && pnpm build && pnpm exec tsc --noEmit` -> `Test Files  5 passed (5)` / `Tests  24 passed (24)`, clean Next.js build, and `tsc --noEmit` reports **zero** errors (not just "no new" ones — the pre-existing 60 should be fully gone after this task)
 
 **Steps:**
 
