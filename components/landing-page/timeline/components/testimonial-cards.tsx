@@ -45,11 +45,11 @@ export function TestimonialCard({
       dragElastic={0.35}
       dragListener={isFront}
       dragConstraints={{ top: 0, left: 0, right: 0, bottom: 0 }}
-      onDragStart={(e) => {
+      onDragStart={(e: MouseEvent | PointerEvent | TouchEvent) => {
         const clientX = getClientX(e);
         dragRef.current = clientX;
       }}
-      onDragEnd={(e) => {
+      onDragEnd={(e: MouseEvent | PointerEvent | TouchEvent) => {
         const clientX = getClientX(e);
         if (dragRef.current - clientX > 150) {
           handleShuffle();
