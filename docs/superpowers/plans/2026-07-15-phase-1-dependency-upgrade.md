@@ -677,9 +677,8 @@ Expected: FAIL — the first `it.each` block passes (nothing to do with a stale 
      "class-variance-authority": "^0.7.1",
      "clsx": "^2.1.1",
 -    "date-fns": "^4.1.0",
--    "dotenv": "^16.4.7",
 +    "date-fns": "^4.4.0",
-+    "dotenv": "^17.4.2",
+     "dotenv": "^16.4.7",
      "drizzle-kit": "^0.30.4",
      "drizzle-orm": "^0.39.1",
 -    "framer-motion": "^12.4.7",
@@ -700,14 +699,15 @@ Expected: FAIL — the first `it.each` block passes (nothing to do with a stale 
 +    "tailwind-merge": "^3.6.0",
      "tailwindcss": "4.0.3",
      "tailwindcss-animate": "^1.0.7",
--    "tailwindcss-react-aria-components": "1.2.0",
-+    "tailwindcss-react-aria-components": "2.2.0",
+     "tailwindcss-react-aria-components": "1.2.0",
      "typescript": "^5.7.3",
      "zod": "^3.24.1"
    },
 ```
 
-`lib/db/drizzle.ts` diff — dotenv 17 turns on a verbose "injecting env" console log by default; keep the previous silent behavior:
+**Correction (found by Task 2's spec-compliance review):** `dotenv` and `tailwindcss-react-aria-components` are intentionally left UNCHANGED above — an earlier draft of this diff incorrectly bumped both across a major-version boundary (`dotenv` 16→17, `tailwindcss-react-aria-components` 1→2), contradicting this task's own "same-major release" acceptance criterion. `dotenv` stays at `^16.4.7` (latest 16.x is `16.6.1`, which already supports the `{ quiet: true }` option used below — no major bump was ever needed for that). `tailwindcss-react-aria-components` stays at `1.2.0` unchanged (already the latest 1.x release; also confirmed to have zero actual usage anywhere in source/CSS, but removing unused dependencies is out of this task's scope).
+
+`lib/db/drizzle.ts` diff — suppress dotenv's verbose "injecting env" console log:
 
 ```diff
 -dotenv.config();
@@ -926,7 +926,7 @@ Expected: FAIL — `expected false to be true` (installed `typescript` is `5.7.3
 - [ ] **Step 3: Write minimal implementation**
 
 ```diff
-     "tailwindcss-react-aria-components": "2.2.0",
+     "tailwindcss-react-aria-components": "1.2.0",
 -    "typescript": "^5.7.3",
 +    "typescript": "^5.9.3",
      "zod": "^3.24.1"
@@ -1100,7 +1100,7 @@ Prune the now-dead individual packages and confirm the new unified one is presen
      "class-variance-authority": "^0.7.1",
      "clsx": "^2.1.1",
      "date-fns": "^4.4.0",
-     "dotenv": "^17.4.2",
+     "dotenv": "^16.4.7",
      "drizzle-kit": "^0.30.4",
      "drizzle-orm": "^0.39.1",
      "jose": "^5.9.6",
