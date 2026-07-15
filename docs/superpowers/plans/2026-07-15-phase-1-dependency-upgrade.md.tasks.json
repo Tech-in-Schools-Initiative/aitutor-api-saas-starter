@@ -24,7 +24,7 @@
     {
       "id": 4,
       "subject": "Task 4: TypeScript 5.7.3 to newest 5.x (5.9.3)",
-      "status": "pending",
+      "status": "completed",
       "blockedBy": [3],
       "description": "**Goal:** Bump TypeScript to 5.9.3, explicitly staying off the 7.0 tsgo rewrite.\n\n**Verify:** pnpm exec tsc --noEmit -> no output, exit code 0\n\nFull code in the plan doc, Task 4.\n\n```json:metadata\n{\"files\": [\"package.json\", \"tests/unit/typescript-version.test.ts\"], \"verifyCommand\": \"pnpm exec tsc --noEmit\", \"modelTier\": \"mechanical\"}\n```"
     },
