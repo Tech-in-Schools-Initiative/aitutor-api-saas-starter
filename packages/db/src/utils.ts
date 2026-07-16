@@ -1,8 +1,7 @@
-// lib/db/utils.ts
-import { db } from './drizzle';
+import { db } from './client';
 import { teams, Team } from './schema';
 import { eq, sql, desc } from 'drizzle-orm';
-import { tiers, Tier } from '../tiers';
+import { tiers, Tier } from './tiers';
 import { workflowHistory, NewWorkflowHistory } from './schema';
 
 // This function checks the monthly message limit for a team.

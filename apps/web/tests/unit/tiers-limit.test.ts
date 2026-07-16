@@ -3,9 +3,9 @@ import { eq } from 'drizzle-orm';
 import { createRequire } from 'node:module';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
-import { db } from '@/lib/db/drizzle';
-import { teams } from '@/lib/db/schema';
-import { checkMessageLimit, incrementMessageCount } from '@/lib/db/utils';
+import { db } from '@repo/db/client';
+import { teams } from '@repo/db/schema';
+import { checkMessageLimit, incrementMessageCount } from '@repo/db/utils';
 
 const require = createRequire(import.meta.url);
 

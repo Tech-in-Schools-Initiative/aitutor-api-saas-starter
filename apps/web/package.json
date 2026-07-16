@@ -17,6 +17,7 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@repo/db": "workspace:*",
     "@repo/ui": "workspace:*",
     "@tailwindcss/postcss": "4.3.2",
     "@types/bcryptjs": "^2.4.6",
@@ -30,7 +31,6 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",
-    "dotenv": "^16.6.1",
     "drizzle-kit": "^0.31.10",
     "drizzle-orm": "^0.45.2",
     "jose": "^5.9.6",
@@ -39,7 +39,6 @@
     "motion": "^12.42.2",
     "next": "16.2.10",
     "postcss": "^8.5.1",
-    "postgres": "^3.4.9",
     "radix-ui": "^1.6.2",
     "react": "19.2.7",
     "react-dom": "19.2.7",
