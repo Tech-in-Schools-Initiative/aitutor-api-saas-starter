@@ -1,0 +1,195 @@
+{
+  "planPath": "docs/superpowers/plans/2026-07-15-phase-4-design-cleanup.md",
+  "tasks": [
+    {
+      "id": 1,
+      "subject": "Task 1: Delete dead terminal.tsx",
+      "status": "pending",
+      "description": "**Goal:** Remove the never-imported apps/web/app/(front)/terminal.tsx, which still shows the original Vercel starter's clone URL.\n\n**Open question:** design doc offers reviving it instead of deleting; mechanical default here is delete (zero import sites).\n\n**Verify:** pnpm --filter web test -- tests/unit/terminal-removed.test.ts -> Test Files 1 passed, Tests 1 passed\n\nFull code in the plan doc, Task 1.\n\n```json:metadata\n{\"files\": [\"apps/web/app/(front)/terminal.tsx\", \"apps/web/tests/unit/terminal-removed.test.ts\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/terminal-removed.test.ts\", \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 2,
+      "subject": "Task 2: Dedupe TimelineContent.tsx vs typo'd TImelineSecion.tsx",
+      "status": "pending",
+      "description": "**Goal:** Delete the unused TimelineContent.tsx duplicate and rename the typo'd, live TImelineSecion.tsx to TimelineSection.tsx, updating its one import site.\n\n**Open question:** design doc's alternative is porting the dead file's scroll-linked animation into the live component instead of discarding it.\n\n**Verify:** pnpm --filter web test -- tests/unit/timeline-dedupe.test.ts -> Test Files 1 passed, Tests 3 passed\n\nFull code in the plan doc, Task 2.\n\n```json:metadata\n{\"files\": [\"apps/web/components/landing-page/timeline/TimelineContent.tsx\", \"apps/web/components/landing-page/timeline/TImelineSecion.tsx\", \"apps/web/components/landing-page/timeline/TimelineSection.tsx\", \"apps/web/app/(front)/page.tsx\", \"apps/web/tests/unit/timeline-dedupe.test.ts\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/timeline-dedupe.test.ts\", \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 3,
+      "subject": "Task 3: Fix invalid text-spektr-cyan-50 class and hero grammar",
+      "status": "pending",
+      "description": "**Goal:** Replace the undefined text-spektr-cyan-50 class in hero.tsx with a real design-token class, and fix the grammatically broken hero subcopy.\n\n**Verify:** pnpm --filter web test -- tests/unit/hero.test.tsx -> Test Files 1 passed, Tests 3 passed\n\nFull code in the plan doc, Task 3.\n\n```json:metadata\n{\"files\": [\"apps/web/components/landing-page/hero/hero.tsx\", \"apps/web/tests/unit/hero.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/hero.test.tsx\", \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 4,
+      "subject": "Task 4: Fix invalid font-medium bold class on security page heading",
+      "status": "pending",
+      "description": "**Goal:** Replace the meaningless two-class combo font-medium bold with font-bold.\n\n**Verify:** pnpm --filter web test -- tests/unit/security-page-heading.test.ts -> Test Files 1 passed, Tests 2 passed\n\nFull code in the plan doc, Task 4.\n\n```json:metadata\n{\"files\": [\"apps/web/app/(dashboard)/dashboard/security/page.tsx\", \"apps/web/tests/unit/security-page-heading.test.ts\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/security-page-heading.test.ts\", \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 5,
+      "subject": "Task 5: Fix dynamic Tailwind class in pricing/page.tsx",
+      "status": "pending",
+      "description": "**Goal:** Replace the dynamic `text-${color}-500` template (invisible to Tailwind's static scanner) with a static lookup object; stub STRIPE_SECRET_KEY in the Vitest env so tests can import this route module.\n\n**Verify:** pnpm --filter web test -- tests/unit/pricing-tier-color.test.ts -> Test Files 1 passed, Tests 3 passed\n\nFull code in the plan doc, Task 5.\n\n```json:metadata\n{\"files\": [\"apps/web/app/(front)/pricing/page.tsx\", \"apps/web/vitest.config.ts\", \"apps/web/tests/unit/pricing-tier-color.test.ts\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/pricing-tier-color.test.ts\", \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 6,
+      "subject": "Task 6: Fix testimonial typos",
+      "status": "pending",
+      "description": "**Goal:** Fix the run-on/mangled testimonial copy in testimonial-cards.tsx without altering substantive claims or handles.\n\n**Open question:** design doc calls the testimonial handles/authors fabricated-looking; this task only fixes clear copy typos, leaves names/handles/claims untouched.\n\n**Verify:** pnpm --filter web test -- tests/unit/testimonial-cards.test.tsx -> Test Files 1 passed, Tests 2 passed\n\nFull code in the plan doc, Task 6.\n\n```json:metadata\n{\"files\": [\"apps/web/components/landing-page/timeline/components/testimonial-cards.tsx\", \"apps/web/tests/unit/testimonial-cards.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/testimonial-cards.test.tsx\", \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 7,
+      "subject": "Task 7: Footer - remove commented-out newsletter form and fix dead Home link",
+      "status": "pending",
+      "description": "**Goal:** Remove the dead, commented-out newsletter subscribe form and point the footer's Home link at / instead of #.\n\n**Open question:** design doc's alternative is shipping the newsletter form for real (needs a subscribe backend that doesn't exist); mechanical default is removal.\n\n**Verify:** pnpm --filter web test -- tests/unit/footer.test.tsx -> Test Files 1 passed, Tests 2 passed\n\nFull code in the plan doc, Task 7.\n\n```json:metadata\n{\"files\": [\"apps/web/components/landing-page/footer/footer.tsx\", \"apps/web/tests/unit/footer.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/footer.test.tsx\", \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 8,
+      "subject": "Task 8: Fix contradictory Sign In button classes",
+      "status": "pending",
+      "description": "**Goal:** Replace the Sign In button's self-contradicting classes (bg-black + bg-transparent + text-black) with Button variant=\"outline\".\n\n**Verify:** pnpm --filter web test -- tests/unit/front-layout-sign-in.test.tsx -> Test Files 1 passed, Tests 2 passed\n\nFull code in the plan doc, Task 8.\n\n```json:metadata\n{\"files\": [\"apps/web/app/(front)/layout.tsx\", \"apps/web/tests/unit/front-layout-sign-in.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/front-layout-sign-in.test.tsx\", \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 9,
+      "subject": "Task 9: Add the missing public/placeholder.svg",
+      "status": "pending",
+      "description": "**Goal:** Stop every team-member avatar image request from 404ing by adding the placeholder asset settings.tsx already references.\n\n**Verify:** pnpm --filter web test -- tests/unit/placeholder-asset.test.ts -> Test Files 1 passed, Tests 1 passed\n\nFull code in the plan doc, Task 9.\n\n```json:metadata\n{\"files\": [\"apps/web/public/placeholder.svg\", \"apps/web/tests/unit/placeholder-asset.test.ts\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/placeholder-asset.test.ts\", \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 10,
+      "subject": "Task 10: Settings remove-member gate - replace hardcoded index > 1 with a real isOwner/self-protection rule",
+      "status": "pending",
+      "description": "**Goal:** Replace the meaningless index > 1 gate in settings.tsx with canRemoveTeamMember: only owners can remove members, owners can't be removed, nobody removes themselves.\n\n**Note:** first of three tasks touching settings.tsx in sequence (10 -> 11 -> 15); this one is a full-file rewrite.\n\n**Verify:** pnpm --filter web test -- tests/unit/permissions.test.ts -> Test Files 1 passed, Tests 5 passed\n\nFull code in the plan doc, Task 10.\n\n```json:metadata\n{\"files\": [\"apps/web/lib/auth/permissions.ts\", \"apps/web/app/(dashboard)/dashboard/settings.tsx\", \"apps/web/tests/unit/permissions.test.ts\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/permissions.test.ts\", \"modelTier\": \"standard\"}\n```"
+    },
+    {
+      "id": 11,
+      "subject": "Task 11: Centralize avatar-initials logic into one helper",
+      "status": "pending",
+      "description": "**Goal:** Add getInitials(name, email) to packages/ui/src/lib/utils.ts (splits on name first, falls back to email local-part) and use it everywhere an avatar derives initials from email.split(' ').\n\n**Note:** patches the settings.tsx that Task 10 rewrote (AvatarFallback body only), plus front layout.tsx and nav-user.tsx.\n\n**Verify:** pnpm --filter web test -- tests/unit/utils.test.ts tests/unit/front-layout-avatar-initials.test.tsx -> Test Files 2 passed\n\nFull code in the plan doc, Task 11.\n\n```json:metadata\n{\"files\": [\"packages/ui/src/lib/utils.ts\", \"apps/web/app/(front)/layout.tsx\", \"apps/web/app/(dashboard)/dashboard/settings.tsx\", \"apps/web/components/nav-user.tsx\", \"apps/web/tests/unit/utils.test.ts\", \"apps/web/tests/unit/front-layout-avatar-initials.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/utils.test.ts tests/unit/front-layout-avatar-initials.test.tsx\", \"modelTier\": \"standard\"}\n```",
+      "blockedBy": [10]
+    },
+    {
+      "id": 12,
+      "subject": "Task 12: Fix empty priceId in tiers.ts and guard the broken checkout CTA",
+      "status": "pending",
+      "description": "**Goal:** Replace priceId: '' with an explicit priceId: null in tiers.ts; make pricing/page.tsx's CTA disable itself (\"Coming Soon\") instead of silently POSTing an empty priceId.\n\n**Open question:** real Stripe priceId/productId values are still needed before checkout works in production - this task only stops the silent-empty-string landmine.\n\n**Verify:** pnpm --filter web test -- tests/unit/tiers.test.ts tests/unit/pricing-card-checkout.test.tsx -> Test Files 2 passed, Tests 5 passed\n\nFull code in the plan doc, Task 12.\n\n```json:metadata\n{\"files\": [\"packages/db/src/tiers.ts\", \"apps/web/app/(front)/pricing/page.tsx\", \"apps/web/tests/unit/tiers.test.ts\", \"apps/web/tests/unit/pricing-card-checkout.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/tiers.test.ts tests/unit/pricing-card-checkout.test.tsx\", \"modelTier\": \"standard\"}\n```",
+      "blockedBy": [5]
+    },
+    {
+      "id": 13,
+      "subject": "Task 13: Make get-token reachable from the dashboard nav",
+      "status": "pending",
+      "description": "**Goal:** Extract the sidebar's nav-item list into getDashboardNavItems and add a Get Token entry.\n\n**Open question:** design doc leaves get-token/page.tsx's reachability open (add nav entry or delete) - mechanical default here is add a nav entry.\n\n**Verify:** pnpm --filter web test -- tests/unit/dashboard-nav-items.test.ts -> Test Files 1 passed, Tests 3 passed\n\nFull code in the plan doc, Task 13.\n\n```json:metadata\n{\"files\": [\"apps/web/lib/navigation/dashboard-nav-items.ts\", \"apps/web/components/app-sidebar.tsx\", \"apps/web/tests/unit/dashboard-nav-items.test.ts\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/dashboard-nav-items.test.ts\", \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 14,
+      "subject": "Task 14: Collapse the dashboard/team duplicate of root /dashboard",
+      "status": "pending",
+      "description": "**Goal:** Stop /dashboard/team from re-rendering the exact same Settings tree as root /dashboard; redirect to the canonical route instead.\n\n**Open question:** design doc leaves this open (distinct page vs. collapse) - mechanical default here is redirect, since the two routes render byte-identical content today.\n\n**Verify:** pnpm --filter web test:e2e -- tests/e2e/dashboard-routes.spec.ts -> 1 passed\n\nFull code in the plan doc, Task 14.\n\n```json:metadata\n{\"files\": [\"apps/web/app/(dashboard)/dashboard/team/page.tsx\", \"apps/web/tests/e2e/dashboard-routes.spec.ts\"], \"verifyCommand\": \"pnpm --filter web test:e2e -- tests/e2e/dashboard-routes.spec.ts\", \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 15,
+      "subject": "Task 15: Restore Avatar's original 40px footprint in dashboard/settings.tsx",
+      "status": "pending",
+      "description": "**Goal:** Phase 1's shadcn regen shrank Avatar's default from h-10 w-10 (40px) to size-8 (32px); override with size=\"lg\" at the one bare call site.\n\n**Note:** third of three tasks touching settings.tsx in sequence (10 -> 11 -> 15).\n\n**Verify:** pnpm --filter web test -- tests/unit/settings-avatar-size.test.tsx -> Test Files 1 passed, Tests 1 passed\n\nFull code in the plan doc, Task 15.\n\n```json:metadata\n{\"files\": [\"apps/web/app/(dashboard)/dashboard/settings.tsx\", \"apps/web/tests/unit/settings-avatar-size.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/settings-avatar-size.test.tsx\", \"modelTier\": \"mechanical\"}\n```",
+      "blockedBy": [10, 11]
+    },
+    {
+      "id": 16,
+      "subject": "Task 16: Restore CardTitle/CardDescription semantic tags",
+      "status": "pending",
+      "description": "**Goal:** Phase 1's shadcn regen changed CardTitle/CardDescription from h3/p to div, breaking heading hierarchy on activity/security/general/settings/invite-team. Restore h3/p.\n\n**Verify:** pnpm --filter web test -- tests/unit/card-semantics.test.tsx -> Test Files 1 passed, Tests 2 passed\n\nFull code in the plan doc, Task 16.\n\n```json:metadata\n{\"files\": [\"packages/ui/src/components/ui/card.tsx\", \"apps/web/tests/unit/card-semantics.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/card-semantics.test.tsx\", \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 17,
+      "subject": "Task 17: Restore SheetTitle's text-lg class",
+      "status": "pending",
+      "description": "**Goal:** Phase 1's shadcn regen dropped text-lg from SheetTitle, shrinking WorkflowHistoryDrawer.tsx's title. Restore it.\n\n**Verify:** pnpm --filter web test -- tests/unit/sheet-title-size.test.tsx -> Test Files 1 passed, Tests 1 passed\n\nFull code in the plan doc, Task 17.\n\n```json:metadata\n{\"files\": [\"packages/ui/src/components/ui/sheet.tsx\", \"apps/web/tests/unit/sheet-title-size.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/sheet-title-size.test.tsx\", \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 18,
+      "subject": "Task 18: Restore TooltipContent's brand colors",
+      "status": "pending",
+      "description": "**Goal:** Phase 1's shadcn regen flipped TooltipContent from brand-colored to neutral. Restore bg-primary/text-primary-foreground. Confirmed still inert today (no tooltip= call site exists yet) - preventative fix.\n\n**Verify:** pnpm --filter web test -- tests/unit/tooltip-colors.test.tsx -> Test Files 1 passed, Tests 1 passed\n\nFull code in the plan doc, Task 18.\n\n```json:metadata\n{\"files\": [\"packages/ui/src/components/ui/tooltip.tsx\", \"apps/web/tests/unit/tooltip-colors.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/tooltip-colors.test.tsx\", \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 19,
+      "subject": "Task 19: Restore Skeleton's brand-tinted background",
+      "status": "pending",
+      "description": "**Goal:** Phase 1's shadcn regen changed Skeleton's background from bg-primary/10 to bg-accent. Restore it. Confirmed still inert today (SidebarMenuSkeleton has no call site).\n\n**Verify:** pnpm --filter web test -- tests/unit/skeleton-color.test.tsx -> Test Files 1 passed, Tests 1 passed\n\nFull code in the plan doc, Task 19.\n\n```json:metadata\n{\"files\": [\"packages/ui/src/components/ui/skeleton.tsx\", \"apps/web/tests/unit/skeleton-color.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/skeleton-color.test.tsx\", \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 20,
+      "subject": "Task 20: Restore RadioGroupItem's unchecked border color",
+      "status": "pending",
+      "description": "**Goal:** Phase 1's shadcn regen changed RadioGroupItem's unchecked border from border-primary to border-input. Restore it - confirmed LIVE today in invite-team.tsx's role picker, correcting the design doc's blanket \"dead code\" characterization.\n\n**Verify:** pnpm --filter web test -- tests/unit/radio-group-colors.test.tsx -> Test Files 1 passed, Tests 1 passed\n\nFull code in the plan doc, Task 20.\n\n```json:metadata\n{\"files\": [\"packages/ui/src/components/ui/radio-group.tsx\", \"apps/web/tests/unit/radio-group-colors.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/radio-group-colors.test.tsx\", \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 21,
+      "subject": "Task 21: Restore DropdownMenuSeparator's color",
+      "status": "pending",
+      "description": "**Goal:** Phase 1's shadcn regen changed DropdownMenuSeparator from bg-muted to bg-border. Restore it - confirmed LIVE today in nav-user.tsx's user menu (used twice), correcting the design doc's blanket \"dead code\" characterization.\n\n**Verify:** pnpm --filter web test -- tests/unit/dropdown-menu-separator-color.test.tsx -> Test Files 1 passed, Tests 1 passed\n\nFull code in the plan doc, Task 21.\n\n```json:metadata\n{\"files\": [\"packages/ui/src/components/ui/dropdown-menu.tsx\", \"apps/web/tests/unit/dropdown-menu-separator-color.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/dropdown-menu-separator-color.test.tsx\", \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 22,
+      "subject": "Task 22: Restore Button variants' shadow depth",
+      "status": "pending",
+      "description": "**Goal:** Phase 1's shadcn regen dropped shadow/shadow-sm from most Button variants. Button is the most-used component in the app - restore shadow-xs on default/secondary/destructive.\n\n**Open question:** this is a visual-depth preference, not a functional bug - confirm the flatter look isn't intentionally preferred before merging.\n\n**Verify:** pnpm --filter web test -- tests/unit/button-shadow.test.tsx -> Test Files 1 passed, Tests 3 passed\n\nFull code in the plan doc, Task 22.\n\n```json:metadata\n{\"files\": [\"packages/ui/src/components/ui/button.tsx\", \"apps/web/tests/unit/button-shadow.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/button-shadow.test.tsx\", \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 23,
+      "subject": "Task 23: Rebuild the Chatbot page onto the shared Card",
+      "status": "pending",
+      "description": "**Goal:** Replace the mismatched 'AI Story Generator' hero heading and glass-morphism panel on /dashboard/chatbot with the shared Card + header pattern. First of six dashboard-reconciliation tasks (the biggest diff in this plan).\n\n**Verify:** pnpm --filter web test -- tests/unit/chatbot-page.test.tsx && pnpm --filter web build -> Tests 4 passed, build succeeds\n\nFull code in the plan doc, Task 23.\n\n```json:metadata\n{\"files\": [\"apps/web/app/(dashboard)/dashboard/chatbot/page.tsx\", \"apps/web/tests/unit/chatbot-page.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/chatbot-page.test.tsx && pnpm --filter web build\", \"modelTier\": \"standard\"}\n```",
+      "blockedBy": [16, 22]
+    },
+    {
+      "id": 24,
+      "subject": "Task 24: Fix StoryDisplay.tsx's glass-morphism panel and no-op prose classes",
+      "status": "pending",
+      "description": "**Goal:** Rebuild the story-result panel onto the shared Card; drop prose/prose-lg (no @tailwindcss/typography installed, invisible to Tailwind) for explicit utility classes. Rendered by the Workflow page (Task 25), so fixed first.\n\n**Verify:** pnpm --filter web test -- tests/unit/story-display.test.tsx -> Test Files 1 passed, Tests 2 passed\n\nFull code in the plan doc, Task 24.\n\n```json:metadata\n{\"files\": [\"apps/web/components/ai-tutor-api/StoryDisplay.tsx\", \"apps/web/tests/unit/story-display.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/story-display.test.tsx\", \"modelTier\": \"standard\"}\n```",
+      "blockedBy": [16]
+    },
+    {
+      "id": 25,
+      "subject": "Task 25: Rebuild the Workflow page onto shared Card/Button/Input/Label",
+      "status": "pending",
+      "description": "**Goal:** Replace the mismatched hero heading, glass-morphism panel, and raw input/button on /dashboard/workflow with the shared UI kit.\n\n**Verify:** pnpm --filter web test -- tests/unit/workflow-page.test.tsx && pnpm --filter web build -> Tests 3 passed, build succeeds\n\nFull code in the plan doc, Task 25.\n\n```json:metadata\n{\"files\": [\"apps/web/app/(dashboard)/dashboard/workflow/page.tsx\", \"apps/web/tests/unit/workflow-page.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/workflow-page.test.tsx && pnpm --filter web build\", \"modelTier\": \"standard\"}\n```",
+      "blockedBy": [16, 22, 24]
+    },
+    {
+      "id": 26,
+      "subject": "Task 26: Rebuild StreamingChat.tsx onto shared Input/Button, add empty state and aria-label",
+      "status": "pending",
+      "description": "**Goal:** Replace raw input/button (no focus-visible styling) with shared kit; add empty state and aria-label. Keeps ai/react's legacy useChat (ai frozen at 4.3.19 per Phase 1) untouched - only markup changes.\n\n**Verify:** pnpm --filter web test -- tests/unit/streaming-chat.test.tsx && pnpm --filter web build -> Tests 3 passed, build succeeds\n\nFull code in the plan doc, Task 26.\n\n```json:metadata\n{\"files\": [\"apps/web/components/ai-tutor-api/StreamingChat.tsx\", \"apps/web/tests/e2e/chatbot.spec.ts\", \"apps/web/tests/unit/streaming-chat.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/streaming-chat.test.tsx && pnpm --filter web build\", \"modelTier\": \"standard\"}\n```",
+      "blockedBy": [22]
+    },
+    {
+      "id": 27,
+      "subject": "Task 27: Rebuild the Streaming page wrapper onto shared Card",
+      "status": "pending",
+      "description": "**Goal:** Replace the mismatched hero heading and glass-morphism panel wrapping StreamingChat with the shared Card + header pattern.\n\n**Verify:** pnpm --filter web test -- tests/unit/streaming-page.test.tsx && pnpm --filter web build -> Tests 3 passed, build succeeds\n\nFull code in the plan doc, Task 27.\n\n```json:metadata\n{\"files\": [\"apps/web/app/(dashboard)/dashboard/streaming/page.tsx\", \"apps/web/tests/unit/streaming-page.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/streaming-page.test.tsx && pnpm --filter web build\", \"modelTier\": \"standard\"}\n```",
+      "blockedBy": [16, 26]
+    },
+    {
+      "id": 28,
+      "subject": "Task 28: Rebuild the Get Token page onto shared Card/Button/Label",
+      "status": "pending",
+      "description": "**Goal:** Replace the mismatched hero heading, glass-morphism panel, and raw button on /dashboard/get-token with the shared UI kit. Last of the four mismatched pages - after this, glass-morphism should not appear anywhere in the repo.\n\n**Verify:** pnpm --filter web test -- tests/unit/get-token-page.test.tsx && grep -rl \"glass-morphism\" apps/web/app apps/web/components; pnpm --filter web build -> Tests 4 passed, grep prints nothing, build succeeds\n\nFull code in the plan doc, Task 28.\n\n```json:metadata\n{\"files\": [\"apps/web/app/(dashboard)/dashboard/get-token/page.tsx\", \"apps/web/tests/unit/get-token-page.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/get-token-page.test.tsx && pnpm --filter web build\", \"modelTier\": \"standard\"}\n```",
+      "blockedBy": [16, 22]
+    },
+    {
+      "id": 29,
+      "subject": "Task 29: Make DisplayCard width responsive instead of fixed w-[42rem]",
+      "status": "pending",
+      "description": "**Goal:** Replace DisplayCard's hardcoded w-[42rem] (672px) with a responsive width so the card doesn't overflow narrow viewports. Optional polish, not launch-blocking.\n\n**Verify:** pnpm --filter web test -- tests/unit/display-card.test.tsx -> Test Files 1 passed, Tests 1 passed\n\nFull code in the plan doc, Task 29.\n\n```json:metadata\n{\"files\": [\"apps/web/components/landing-page/timeline/components/display-cards.tsx\", \"apps/web/tests/unit/display-card.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/display-card.test.tsx\", \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 30,
+      "subject": "Task 30: Fix ShuffleCards pushing cards off-screen under 375px",
+      "status": "pending",
+      "description": "**Goal:** Shrink the testimonial-card stack and its negative-margin desktop offset to a mobile-safe base size, applying the fixed 350px/negative-margin layout only from sm: upward. Optional polish, not launch-blocking.\n\n**Verify:** pnpm --filter web test -- tests/unit/shuffle-cards.test.tsx -> Test Files 1 passed, Tests 2 passed\n\nFull code in the plan doc, Task 30.\n\n```json:metadata\n{\"files\": [\"apps/web/components/landing-page/timeline/components/testimonial-cards.tsx\", \"apps/web/tests/unit/shuffle-cards.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/shuffle-cards.test.tsx\", \"modelTier\": \"mechanical\"}\n```"
+    }
+  ],
+  "lastUpdated": "2026-07-16T00:00:00Z"
+}
