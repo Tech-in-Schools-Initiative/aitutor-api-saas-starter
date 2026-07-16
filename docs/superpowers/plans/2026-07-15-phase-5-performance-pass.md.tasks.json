@@ -1,0 +1,67 @@
+{
+  "planPath": "docs/superpowers/plans/2026-07-15-phase-5-performance-pass.md",
+  "tasks": [
+    {
+      "id": 1,
+      "subject": "Task 1: React Query provider wiring",
+      "status": "pending",
+      "description": "**Goal:** Add `@tanstack/react-query` as an `apps/web`-only dependency and wrap the dashboard route group in a `QueryClientProvider` so every later task in this phase has a client to call `useQuery`/`useMutation` against.\n\n**Verify:** `pnpm --filter web test -- tests/unit/dashboard-query-client-provider.test.tsx` -> `1 passed`\n\nFull code in the plan doc, Task 1.\n\n```json:metadata\n{\"files\": [\"apps/web/package.json\", \"pnpm-lock.yaml\", \"apps/web/app/(dashboard)/dashboard/layout.tsx\", \"apps/web/tests/unit/dashboard-query-client-provider.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/dashboard-query-client-provider.test.tsx\", \"modelTier\": \"standard\"}\n```"
+    },
+    {
+      "id": 2,
+      "subject": "Task 2: Convert SubscriptionStatus polling to useQuery",
+      "status": "pending",
+      "blockedBy": [1],
+      "description": "**Goal:** Replace `subscription-status.tsx`'s three `useState`s and two `useEffect`s (initial fetch + a `setInterval(fetchMessageData, 20000)` whose comment incorrectly says \"every 10 seconds\") with a single `useQuery` that polls every 20s and refetches on window focus.\n\n**Verify:** `pnpm --filter web test -- tests/unit/subscription-status.test.tsx` -> `3 passed`\n\nFull code in the plan doc, Task 2.\n\n```json:metadata\n{\"files\": [\"apps/web/components/subscription-status.tsx\", \"apps/web/tests/unit/subscription-status.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/subscription-status.test.tsx\", \"modelTier\": \"standard\"}\n```"
+    },
+    {
+      "id": 3,
+      "subject": "Task 3: Convert WorkflowHistoryDrawer's open-gated fetch to useQuery",
+      "status": "pending",
+      "blockedBy": [1],
+      "description": "**Goal:** Replace `WorkflowHistoryDrawer.tsx`'s `open`-gated `useEffect`/`fetch` with `useQuery({ queryKey: ['workflow-history'], enabled: open })` so history is fetched exactly once per open, cached, and shareable with the invalidation added in Task 4.\n\n**Note:** This is a behavior-preserving refactor -- two of the three tests already pass against the current `useEffect`-based implementation; the genuine red signal is the added assertion that the query is registered in the `QueryClient`'s cache under `['workflow-history']`.\n\n**Verify:** `pnpm --filter web test -- tests/unit/workflow-history-drawer.test.tsx` -> `3 passed`\n\nFull code in the plan doc, Task 3.\n\n```json:metadata\n{\"files\": [\"apps/web/components/workflow/WorkflowHistoryDrawer.tsx\", \"apps/web/tests/unit/workflow-history-drawer.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/workflow-history-drawer.test.tsx\", \"modelTier\": \"standard\"}\n```"
+    },
+    {
+      "id": 4,
+      "subject": "Task 4: Convert workflow/page.tsx's /api/run call to useMutation with invalidation",
+      "status": "pending",
+      "blockedBy": [3],
+      "description": "**Goal:** Replace the manual `fetch('/api/run', ...)` call and its `loading`/`result`/`error` `useState`s with `useMutation`, invalidating `['team-limit']` and `['workflow-history']` on success so the sidebar badge and history drawer reflect a just-consumed message immediately instead of waiting up to 20s.\n\n**Verify:** `pnpm --filter web test -- tests/unit/workflow-page-mutation.test.tsx` -> `3 passed`\n\nFull code in the plan doc, Task 4.\n\n```json:metadata\n{\"files\": [\"apps/web/app/(dashboard)/dashboard/workflow/page.tsx\", \"apps/web/tests/unit/workflow-page-mutation.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/workflow-page-mutation.test.tsx\", \"modelTier\": \"standard\"}\n```"
+    },
+    {
+      "id": 5,
+      "subject": "Task 5: Convert get-token/page.tsx's /api/token call to useMutation",
+      "status": "pending",
+      "blockedBy": [1],
+      "description": "**Goal:** Replace the manual `fetch('/api/token', ...)` call and its `tokenResponse`/`error`/`tokenLoading` `useState`s with `useMutation`.\n\n**Note:** Behavior-preserving refactor -- both tests already pass against the current implementation; there is no red state to observe, which is expected, not a plan defect.\n\n**Verify:** `pnpm --filter web test -- tests/unit/get-token-page-mutation.test.tsx` -> `2 passed`\n\nFull code in the plan doc, Task 5.\n\n```json:metadata\n{\"files\": [\"apps/web/app/(dashboard)/dashboard/get-token/page.tsx\", \"apps/web/tests/unit/get-token-page-mutation.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/get-token-page-mutation.test.tsx\", \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 6,
+      "subject": "Task 6: Add lean getTeamCore query to packages/db",
+      "status": "pending",
+      "description": "**Goal:** Add `getTeamCore(userId)` to `packages/db/src/queries.ts` -- a single scalar-only join (`users` -> `teamMembers` -> `teams`) that returns just the team row, with no nested member roster, for call sites that don't need it.\n\n**Requires:** `POSTGRES_URL` pointed at a reachable test database (same requirement as the existing `tiers-limit.test.ts`).\n\n**Verify:** `pnpm --filter web test -- tests/unit/get-team-core.test.ts` -> `2 passed`\n\nFull code in the plan doc, Task 6.\n\n```json:metadata\n{\"files\": [\"packages/db/src/queries.ts\", \"apps/web/tests/unit/get-team-core.test.ts\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/get-team-core.test.ts\", \"modelTier\": \"standard\"}\n```"
+    },
+    {
+      "id": 7,
+      "subject": "Task 7: Trim checkMessageLimit's signature and update its two heavy call sites",
+      "status": "pending",
+      "blockedBy": [6],
+      "description": "**Goal:** Change `checkMessageLimit(teamId: number)` to `checkMessageLimit(team: Team)`, removing its internal re-fetch of the team row, and switch `/api/team/limit` and `/api/run` to call the new `getTeamCore` + the trimmed `checkMessageLimit`, collapsing what was a double team-fetch into one.\n\n**Requires:** `POSTGRES_URL` pointed at a reachable test database.\n\n**Verify:** `pnpm --filter web test -- tests/unit/tiers-limit.test.ts` -> `3 passed`\n\nFull code in the plan doc, Task 7.\n\n```json:metadata\n{\"files\": [\"packages/db/src/utils.ts\", \"apps/web/app/api/team/limit/route.ts\", \"apps/web/app/api/run/route.ts\", \"apps/web/tests/unit/tiers-limit.test.ts\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/tiers-limit.test.ts\", \"modelTier\": \"complex\"}\n```"
+    },
+    {
+      "id": 8,
+      "subject": "Task 8: Swap /api/workflow/history's team lookup from getTeamForUser to getUserWithTeam",
+      "status": "pending",
+      "blockedBy": [6],
+      "description": "**Goal:** `/api/workflow/history/route.ts` only ever needs `teamId` to call `getWorkflowHistory(teamId, limit)` -- it doesn't need `getTeamForUser`'s 4-level member-roster join. Switch it to the already-present-but-unused-here `getUserWithTeam`.\n\n**Verify:** `pnpm --filter web test -- tests/unit/workflow-history-route.test.ts` -> `2 passed`\n\nFull code in the plan doc, Task 8.\n\n```json:metadata\n{\"files\": [\"apps/web/app/api/workflow/history/route.ts\", \"apps/web/tests/unit/workflow-history-route.test.ts\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/workflow-history-route.test.ts\", \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 9,
+      "subject": "Task 9: Manual Network-tab verification of the polling collapse and invalidation",
+      "status": "pending",
+      "blockedBy": [4, 7, 8],
+      "description": "**Goal:** Confirm in a real browser, via DevTools' Network panel, that the sidebar's 20s poll and any concurrent `['team-limit']` consumer share a single in-flight request, and that submitting a story triggers immediate `/api/team/limit` (and `/api/workflow/history`, if primed) invalidation instead of waiting for the next poll tick.\n\n**Verify:** Manual -- no CLI command. Perform the 5 steps in the plan doc against a running `pnpm --filter web dev` instance with DevTools Network panel open, and record pass/fail with a screenshot in the PR description.\n\n```json:metadata\n{\"files\": [], \"verifyCommand\": \"manual\", \"modelTier\": \"mechanical\"}\n```"
+    }
+  ],
+  "lastUpdated": "2026-07-16T00:00:00Z"
+}
