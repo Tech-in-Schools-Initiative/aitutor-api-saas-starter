@@ -38,13 +38,13 @@ The **AI Tutor API Subscription Starter** is your complete starting point to bui
 
 3. **Environment Setup:**
 
-   - Copy the example environment file and rename it to `.env`:
+   - Copy the example environment file and rename it to `.env`, inside `apps/web/` (this is a pnpm workspace — the Next.js app lives at `apps/web/`, and that's where it resolves `.env` from, not the repo root):
 
      ```bash
-     cp .env.example .env
+     cp apps/web/.env.example apps/web/.env
      ```
 
-   - Update the following keys in your `.env` file:
+   - Update the following keys in your `apps/web/.env` file:
      - `POSTGRES_URL` – Your database URL.
      - `STRIPE_SECRET_KEY` – Your Stripe secret key.
      - `STRIPE_WEBHOOK_SECRET` – Your Stripe webhook secret.
