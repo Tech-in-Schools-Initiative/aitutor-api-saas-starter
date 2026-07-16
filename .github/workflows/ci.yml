@@ -48,7 +48,7 @@ jobs:
       - name: Run database migrations
         run: pnpm db:migrate
       - name: Type check
-        run: pnpm exec tsc --noEmit
+        run: pnpm --filter web exec tsc --noEmit && pnpm --filter @repo/ui exec tsc --noEmit && pnpm --filter @repo/db exec tsc --noEmit && pnpm --filter @repo/email exec tsc --noEmit
       - name: Unit tests
         run: pnpm test
       - name: Build
@@ -87,6 +87,6 @@ jobs:
       - name: Seed database (test fixtures only, no Stripe)
         run: pnpm db:seed:test
       - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps chromium
+        run: pnpm --filter web exec playwright install --with-deps chromium
       - name: Run e2e tests
         run: pnpm test:e2e
