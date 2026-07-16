@@ -1,5 +1,3 @@
-// lib/tiers.ts
-
 export interface Tier {
     id: string;
     name: string;

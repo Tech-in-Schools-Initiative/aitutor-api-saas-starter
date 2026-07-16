@@ -83,11 +83,11 @@ The **AI Tutor API Subscription Starter** is your complete starting point to bui
    Run `stripe login` and follow the instructions.
 
 3. **Set Up Products and Prices:**  
-   In your Stripe Dashboard, create your products and corresponding prices for your subscription tiers. Then edit the file `lib/tiers.ts` with the proper details for each tier.
+   In your Stripe Dashboard, create your products and corresponding prices for your subscription tiers. Then edit the file `packages/db/src/tiers.ts` with the proper details for each tier.
 
 ### Tiers & Message Limits
 
-The available tiers are defined in **lib/tiers.ts**:
+The available tiers are defined in **packages/db/src/tiers.ts**:
 
 - **Free:**
   - Price: `null` (no payment required)
@@ -179,7 +179,7 @@ This display automatically updates (using a polling mechanism) to reflect usage 
 
 Ensure the database schema includes:
 - The teams table with `messageLimit` and `currentMessages` columns.
-- Correct associations for users, team members, activity logs, invitations, and messages as defined in **lib/db/schema.ts**.
+- Correct associations for users, team members, activity logs, invitations, and messages as defined in **packages/db/src/schema.ts**.
   
 Run the seed script using:
   

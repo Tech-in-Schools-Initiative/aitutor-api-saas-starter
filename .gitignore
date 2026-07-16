@@ -45,3 +45,6 @@ postgres_data/
 
 # worktrees
 /.worktrees
+
+# turborepo
+.turbo/
