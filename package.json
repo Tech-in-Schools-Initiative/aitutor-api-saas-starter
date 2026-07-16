@@ -13,7 +13,10 @@
     "test:e2e": "turbo run test:e2e",
     "db:generate": "turbo run db:generate",
     "db:migrate": "turbo run db:migrate",
-    "db:studio": "pnpm --filter @repo/db run db:studio"
+    "db:studio": "pnpm --filter @repo/db run db:studio",
+    "db:seed": "pnpm --filter @repo/db run db:seed",
+    "db:seed:test": "pnpm --filter @repo/db run db:seed:test",
+    "db:setup": "pnpm --filter @repo/db run db:setup"
   },
   "pnpm": {
     "overrides": {

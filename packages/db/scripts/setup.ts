@@ -130,7 +130,7 @@ volumes:
 `;
 
   await fs.writeFile(
-    path.join(process.cwd(), 'docker-compose.yml'),
+    path.resolve(__dirname, '../../..', 'docker-compose.yml'),
     dockerComposeContent
   );
   console.log('docker-compose.yml file created.');
@@ -184,13 +184,14 @@ function generateAuthSecret(): string {
 }
 
 async function writeEnvFile(envVars: Record<string, string>) {
-  console.log('Step 6: Writing environment variables to .env');
+  console.log('Step 6: Writing environment variables to apps/web/.env');
   const envContent = Object.entries(envVars)
     .map(([key, value]) => `${key}=${value}`)
     .join('\n');
 
-  await fs.writeFile(path.join(process.cwd(), '.env'), envContent);
-  console.log('.env file created with the necessary variables.');
+  const envPath = path.resolve(__dirname, '../../../apps/web/.env');
+  await fs.writeFile(envPath, envContent);
+  console.log(`${envPath} created with the necessary variables.`);
 }
 
 async function main() {

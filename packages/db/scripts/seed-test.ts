@@ -1,6 +1,12 @@
-import { db } from './drizzle';
-import { users, teams, teamMembers } from './schema';
-import { hashPassword } from '@/lib/auth/session';
+import { hash } from 'bcryptjs';
+import { db } from '../src/client';
+import { users, teams, teamMembers } from '../src/schema';
+
+const SALT_ROUNDS = 10;
+
+async function hashPassword(password: string) {
+  return hash(password, SALT_ROUNDS);
+}
 
 async function seedTest() {
   const email = 'test@test.com';

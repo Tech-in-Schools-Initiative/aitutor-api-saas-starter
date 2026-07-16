@@ -6,9 +6,6 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint .",
-    "db:setup": "npx tsx lib/db/setup.ts",
-    "db:seed": "npx tsx lib/db/seed.ts",
-    "db:seed:test": "npx tsx lib/db/seed-test.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test"
