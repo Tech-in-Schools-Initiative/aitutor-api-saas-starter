@@ -5,7 +5,7 @@
   "exports": {
     "./typescript/*": "./typescript/*",
     "./eslint/*": "./eslint/*.mjs",
-    "./tailwind/*": "./tailwind/*.css"
+    "./tailwind/*": "./tailwind/*"
   },
   "dependencies": {
     "@eslint/js": "^9.39.5"
