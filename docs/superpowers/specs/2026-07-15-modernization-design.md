@@ -82,24 +82,24 @@ Package naming uses the generic `@repo/*` scope (no real npm org exists today �
     **Hard gate before this can succeed:** `app/api/chat/route.ts` does not call the `ai` server SDK at all today — it blindly proxies raw bytes from `https://aitutor-api.vercel.app/api/v1/chat/{token}/stream`, an external service outside this repo. Before rewriting the client, first capture and inspect what that endpoint actually emits (e.g. `curl`/manual request against the real streaming endpoint, or add temporary logging around the proxy). If its wire format matches (or can be adapted to) what `@ai-sdk/react` v7's `useChat` expects, proceed with the rewrite. If it doesn't — and the format can't be changed since it's an external service — the upgrade cannot be completed safely; fall back to freezing at the newest `ai` v4.x patch, document why in this repo, and scope the v5+ migration as a follow-up once the external API's contract is either confirmed compatible or a translation layer is added to the proxy route.
 12. **Next.js off canary → 16.2.10 stable, last**, once React/TypeScript/Tailwind/shadcn are settled. "Latest stable" today means Next 16, not a Next 15 point release. Use `npx @next/codemod@latest upgrade latest` for the mechanical pass, then resolve `next.config.ts`'s `experimental` block by hand: **drop `experimental.ppr` entirely** — full/boolean PPR has historically been canary-only on stable channels, and with zero `<Suspense>` usage anywhere in the app today it's already an inert flag providing no benefit, so removing it now (rather than carrying the decision into Phase 5) is the concrete resolution this document adopts. Check whether `newDevOverlay` has stabilized/renamed/removed and update accordingly — verify against actual release notes/codemod output at execution time, not assumed. After the bump, do a full manual click-through of every route plus the Phase-0 automated suite.
 
-**Dependency version baseline (what every later phase assumes is installed):**
+**Dependency version baseline (corrected 2026-07-15 to reflect what Phase 1 actually shipped, not the original pre-execution targets — this is what every later phase should actually assume is installed):**
 
-| Package | Target |
-|---|---|
-| next | 16.2.10 |
-| react / react-dom | 19.2.7 |
-| typescript | newest 5.x (not 7.0 tsgo) |
-| tailwindcss / @tailwindcss/postcss | 4.3.2 |
-| drizzle-orm / drizzle-kit | 0.45.2 / 0.31.10 |
-| stripe | 22.3.1 |
-| ai / @ai-sdk/react | 7.0.28 (hop 4→5→6→7; falls back to latest 4.x only if the external aitutor-api.vercel.app stream format proves incompatible) |
-| jose | 6.2.3 |
-| bcryptjs | 3.0.3 |
-| zod | 4.4.3 |
-| lucide-react | 1.24.0 |
-| marked | 18.0.6 |
-| motion (framer-motion dropped) | 12.42.2 |
-| @radix-ui/react-* | latest minor/patch, same major |
+| Package | Target | Actual outcome |
+|---|---|---|
+| next | 16.2.10 | ✅ as planned |
+| react / react-dom | 19.2.7 | ✅ as planned |
+| typescript | newest 5.x (not 7.0 tsgo) | ✅ 5.9.3 |
+| tailwindcss / @tailwindcss/postcss | 4.3.2 | ✅ as planned |
+| drizzle-orm / drizzle-kit | 0.45.2 / 0.31.10 | ✅ as planned |
+| stripe | 22.3.1 | ✅ as planned |
+| ai / @ai-sdk/react | ~~7.0.28~~ | **Frozen at `ai@4.3.19`, not upgraded.** The mandatory gate check against the external `aitutor-api.vercel.app` stream could not be run (no real AI Tutor API credentials available in the execution environment) — an unverifiable unknown, not a confirmed incompatibility. See `docs/superpowers/specs/2026-07-15-ai-sdk-v4-freeze.md`. Phase 2+ must NOT assume `@ai-sdk/react`/v5+ APIs are available — `components/ai-tutor-api/StreamingChat.tsx` still uses `ai/react`'s legacy `useChat`. |
+| jose | ~~6.2.3~~ | **Not bumped — still `5.9.6`.** Out of the 11 executed tasks' scope; this baseline row was aspirational and never actually assigned to a task. `jose@6` is an ESM-only breaking major, so bumping it is a real decision for whoever picks it up, not a mechanical patch. |
+| bcryptjs | ~~3.0.3~~ | **Not bumped — still `2.4.3`.** Same gap as `jose` above — never assigned to a task in the executed plan. |
+| zod | 4.4.3 | ✅ as planned |
+| lucide-react | 1.24.0 | ✅ as planned |
+| marked | 18.0.6 | ✅ as planned |
+| motion (framer-motion dropped) | 12.42.2 | ✅ as planned |
+| @radix-ui/react-* | ~~latest minor/patch, same major~~ | **Consolidated into the single unified `radix-ui@^1.6.2` package** as part of Task 5's shadcn regen (the current shadcn registry itself moved off per-package `@radix-ui/react-*` imports) — the 10 individual packages no longer exist in `package.json` at all.
 | tailwindcss-react-aria-components | 2.2.0 |
 
 **Verification approach:** `tsc --noEmit`, `npm run build`, the new unit suite, and the new Playwright suite after *every* step, not batched at the end. Sanity-check `git diff --stat` at each commit.
@@ -204,11 +204,24 @@ No test infrastructure exists at the start of this effort — the harness is del
 
 ---
 
+## Manual Verification Debt (post-Phase-1, updated 2026-07-15)
+
+Everything below requires the user's own hands-on action before this could go to production — consolidated here in one place (from a whole-phase review) rather than scattered across 11 task sections:
+
+1. **Stripe checkout + webhook round trip** — run `stripe listen --forward-to localhost:3000/api/stripe/webhook` in test mode and walk through an actual checkout; never exercised in Phase 1 (no Stripe test-mode/CLI access was available in the execution environment).
+2. **`ai` SDK v4→v7 gate check** — once real `AITUTOR_API_KEY`/`WORKFLOW_ID`/`NEXT_PUBLIC_AITUTOR_TOKEN` credentials exist, run the curl check documented in `docs/superpowers/specs/2026-07-15-ai-sdk-v4-freeze.md` against the real `aitutor-api.vercel.app` stream to determine whether the v5+ hop-by-hop upgrade can now proceed.
+3. **`tests/e2e/chatbot.spec.ts`** — currently self-skips; needs a real run against real credentials as the actual signal for #2.
+4. **CI Turbopack re-verification** — determine in the real CI/deploy environment (not the sandbox this phase was built in) whether `next build`/`next dev` can drop the `--webpack` flag Phase 1 had to force due to a sandbox-specific Turbopack resolution failure.
+5. **`pnpm db:seed` idempotency** — pre-existing, documented gap (Task 7): fails with a duplicate-key error if run after `db:seed:test` or twice; waived as out of scope for a dependency-upgrade phase, not fixed.
+6. **`jose`/`bcryptjs` currency decision** — neither was bumped in Phase 1 (this doc's original baseline table incorrectly assumed they had been); confirm whether to bump them (note `jose@6` is an ESM-only breaking major) or explicitly defer further.
+
+---
+
 ## Risks & Open Questions
 
 **Decisions confirmed with the user (2026-07-15):**
 
-1. **`ai` SDK: attempt the full v4→v7 upgrade**, hop by hop, gated on confirming the external `aitutor-api.vercel.app` stream format is actually compatible (see Phase 1 step 11). Falls back to freezing at v4.x only if that gate fails.
+1. **`ai` SDK: attempt the full v4→v7 upgrade**, hop by hop, gated on confirming the external `aitutor-api.vercel.app` stream format is actually compatible (see Phase 1 step 11). Falls back to freezing at v4.x only if that gate fails. **Outcome (2026-07-15): the gate failed to run at all** — no real AI Tutor API credentials were available in the execution environment, so the check is unverifiable rather than confirmed compatible or incompatible. `ai` is frozen at `4.3.19`. See `docs/superpowers/specs/2026-07-15-ai-sdk-v4-freeze.md` for how to actually run the gate check and potentially complete the upgrade later.
 2. **No Stripe test-mode/CLI access available** — Phase 1's Stripe verification is typecheck/build/code-review only; the checkout+webhook round trip is the user's manual verification step before production.
 3. **Password reset auto-signs the user in** after success, matching the existing signIn/signUp UX.
 
