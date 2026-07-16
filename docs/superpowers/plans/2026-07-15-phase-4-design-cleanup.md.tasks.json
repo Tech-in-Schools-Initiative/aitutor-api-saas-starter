@@ -98,43 +98,43 @@
       "id": 16,
       "subject": "Task 16: Restore CardTitle/CardDescription semantic tags",
       "status": "pending",
-      "description": "**Goal:** Phase 1's shadcn regen changed CardTitle/CardDescription from h3/p to div, breaking heading hierarchy on activity/security/general/settings/invite-team. Restore h3/p.\n\n**Verify:** pnpm --filter web test -- tests/unit/card-semantics.test.tsx -> Test Files 1 passed, Tests 2 passed\n\nFull code in the plan doc, Task 16.\n\n```json:metadata\n{\"files\": [\"packages/ui/src/components/ui/card.tsx\", \"apps/web/tests/unit/card-semantics.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/card-semantics.test.tsx\", \"modelTier\": \"mechanical\"}\n```"
+      "description": "**Goal:** Phase 1's shadcn regen changed CardTitle/CardDescription from h3/p to div, breaking heading hierarchy on activity/security/general/settings/invite-team. Restore h3/p.\n\n**Verify:** pnpm --filter web test -- tests/unit/card-semantics.test.tsx -> Test Files 1 passed, Tests 2 passed\n\nFull code in the plan doc, Task 16.\n\n```json:metadata\n{\"files\": [\"packages/ui/src/components/card.tsx\", \"apps/web/tests/unit/card-semantics.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/card-semantics.test.tsx\", \"modelTier\": \"mechanical\"}\n```"
     },
     {
       "id": 17,
       "subject": "Task 17: Restore SheetTitle's text-lg class",
       "status": "pending",
-      "description": "**Goal:** Phase 1's shadcn regen dropped text-lg from SheetTitle, shrinking WorkflowHistoryDrawer.tsx's title. Restore it.\n\n**Verify:** pnpm --filter web test -- tests/unit/sheet-title-size.test.tsx -> Test Files 1 passed, Tests 1 passed\n\nFull code in the plan doc, Task 17.\n\n```json:metadata\n{\"files\": [\"packages/ui/src/components/ui/sheet.tsx\", \"apps/web/tests/unit/sheet-title-size.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/sheet-title-size.test.tsx\", \"modelTier\": \"mechanical\"}\n```"
+      "description": "**Goal:** Phase 1's shadcn regen dropped text-lg from SheetTitle, shrinking WorkflowHistoryDrawer.tsx's title. Restore it.\n\n**Verify:** pnpm --filter web test -- tests/unit/sheet-title-size.test.tsx -> Test Files 1 passed, Tests 1 passed\n\nFull code in the plan doc, Task 17.\n\n```json:metadata\n{\"files\": [\"packages/ui/src/components/sheet.tsx\", \"apps/web/tests/unit/sheet-title-size.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/sheet-title-size.test.tsx\", \"modelTier\": \"mechanical\"}\n```"
     },
     {
       "id": 18,
       "subject": "Task 18: Restore TooltipContent's brand colors",
       "status": "pending",
-      "description": "**Goal:** Phase 1's shadcn regen flipped TooltipContent from brand-colored to neutral. Restore bg-primary/text-primary-foreground. Confirmed still inert today (no tooltip= call site exists yet) - preventative fix.\n\n**Verify:** pnpm --filter web test -- tests/unit/tooltip-colors.test.tsx -> Test Files 1 passed, Tests 1 passed\n\nFull code in the plan doc, Task 18.\n\n```json:metadata\n{\"files\": [\"packages/ui/src/components/ui/tooltip.tsx\", \"apps/web/tests/unit/tooltip-colors.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/tooltip-colors.test.tsx\", \"modelTier\": \"mechanical\"}\n```"
+      "description": "**Goal:** Phase 1's shadcn regen flipped TooltipContent from brand-colored to neutral. Restore bg-primary/text-primary-foreground. Confirmed still inert today (no tooltip= call site exists yet) - preventative fix.\n\n**Verify:** pnpm --filter web test -- tests/unit/tooltip-colors.test.tsx -> Test Files 1 passed, Tests 1 passed\n\nFull code in the plan doc, Task 18.\n\n```json:metadata\n{\"files\": [\"packages/ui/src/components/tooltip.tsx\", \"apps/web/tests/unit/tooltip-colors.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/tooltip-colors.test.tsx\", \"modelTier\": \"mechanical\"}\n```"
     },
     {
       "id": 19,
       "subject": "Task 19: Restore Skeleton's brand-tinted background",
       "status": "pending",
-      "description": "**Goal:** Phase 1's shadcn regen changed Skeleton's background from bg-primary/10 to bg-accent. Restore it. Confirmed still inert today (SidebarMenuSkeleton has no call site).\n\n**Verify:** pnpm --filter web test -- tests/unit/skeleton-color.test.tsx -> Test Files 1 passed, Tests 1 passed\n\nFull code in the plan doc, Task 19.\n\n```json:metadata\n{\"files\": [\"packages/ui/src/components/ui/skeleton.tsx\", \"apps/web/tests/unit/skeleton-color.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/skeleton-color.test.tsx\", \"modelTier\": \"mechanical\"}\n```"
+      "description": "**Goal:** Phase 1's shadcn regen changed Skeleton's background from bg-primary/10 to bg-accent. Restore it. Confirmed still inert today (SidebarMenuSkeleton has no call site).\n\n**Verify:** pnpm --filter web test -- tests/unit/skeleton-color.test.tsx -> Test Files 1 passed, Tests 1 passed\n\nFull code in the plan doc, Task 19.\n\n```json:metadata\n{\"files\": [\"packages/ui/src/components/skeleton.tsx\", \"apps/web/tests/unit/skeleton-color.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/skeleton-color.test.tsx\", \"modelTier\": \"mechanical\"}\n```"
     },
     {
       "id": 20,
       "subject": "Task 20: Restore RadioGroupItem's unchecked border color",
       "status": "pending",
-      "description": "**Goal:** Phase 1's shadcn regen changed RadioGroupItem's unchecked border from border-primary to border-input. Restore it - confirmed LIVE today in invite-team.tsx's role picker, correcting the design doc's blanket \"dead code\" characterization.\n\n**Verify:** pnpm --filter web test -- tests/unit/radio-group-colors.test.tsx -> Test Files 1 passed, Tests 1 passed\n\nFull code in the plan doc, Task 20.\n\n```json:metadata\n{\"files\": [\"packages/ui/src/components/ui/radio-group.tsx\", \"apps/web/tests/unit/radio-group-colors.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/radio-group-colors.test.tsx\", \"modelTier\": \"mechanical\"}\n```"
+      "description": "**Goal:** Phase 1's shadcn regen changed RadioGroupItem's unchecked border from border-primary to border-input. Restore it - confirmed LIVE today in invite-team.tsx's role picker, correcting the design doc's blanket \"dead code\" characterization.\n\n**Verify:** pnpm --filter web test -- tests/unit/radio-group-colors.test.tsx -> Test Files 1 passed, Tests 1 passed\n\nFull code in the plan doc, Task 20.\n\n```json:metadata\n{\"files\": [\"packages/ui/src/components/radio-group.tsx\", \"apps/web/tests/unit/radio-group-colors.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/radio-group-colors.test.tsx\", \"modelTier\": \"mechanical\"}\n```"
     },
     {
       "id": 21,
       "subject": "Task 21: Restore DropdownMenuSeparator's color",
       "status": "pending",
-      "description": "**Goal:** Phase 1's shadcn regen changed DropdownMenuSeparator from bg-muted to bg-border. Restore it - confirmed LIVE today in nav-user.tsx's user menu (used twice), correcting the design doc's blanket \"dead code\" characterization.\n\n**Verify:** pnpm --filter web test -- tests/unit/dropdown-menu-separator-color.test.tsx -> Test Files 1 passed, Tests 1 passed\n\nFull code in the plan doc, Task 21.\n\n```json:metadata\n{\"files\": [\"packages/ui/src/components/ui/dropdown-menu.tsx\", \"apps/web/tests/unit/dropdown-menu-separator-color.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/dropdown-menu-separator-color.test.tsx\", \"modelTier\": \"mechanical\"}\n```"
+      "description": "**Goal:** Phase 1's shadcn regen changed DropdownMenuSeparator from bg-muted to bg-border. Restore it - confirmed LIVE today in nav-user.tsx's user menu (used twice), correcting the design doc's blanket \"dead code\" characterization.\n\n**Verify:** pnpm --filter web test -- tests/unit/dropdown-menu-separator-color.test.tsx -> Test Files 1 passed, Tests 1 passed\n\nFull code in the plan doc, Task 21.\n\n```json:metadata\n{\"files\": [\"packages/ui/src/components/dropdown-menu.tsx\", \"apps/web/tests/unit/dropdown-menu-separator-color.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/dropdown-menu-separator-color.test.tsx\", \"modelTier\": \"mechanical\"}\n```"
     },
     {
       "id": 22,
       "subject": "Task 22: Restore Button variants' shadow depth",
       "status": "pending",
-      "description": "**Goal:** Phase 1's shadcn regen dropped shadow/shadow-sm from most Button variants. Button is the most-used component in the app - restore shadow-xs on default/secondary/destructive.\n\n**Open question:** this is a visual-depth preference, not a functional bug - confirm the flatter look isn't intentionally preferred before merging.\n\n**Verify:** pnpm --filter web test -- tests/unit/button-shadow.test.tsx -> Test Files 1 passed, Tests 3 passed\n\nFull code in the plan doc, Task 22.\n\n```json:metadata\n{\"files\": [\"packages/ui/src/components/ui/button.tsx\", \"apps/web/tests/unit/button-shadow.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/button-shadow.test.tsx\", \"modelTier\": \"mechanical\"}\n```"
+      "description": "**Goal:** Phase 1's shadcn regen dropped shadow/shadow-sm from most Button variants. Button is the most-used component in the app - restore shadow-xs on default/secondary/destructive.\n\n**Open question:** this is a visual-depth preference, not a functional bug - confirm the flatter look isn't intentionally preferred before merging.\n\n**Verify:** pnpm --filter web test -- tests/unit/button-shadow.test.tsx -> Test Files 1 passed, Tests 3 passed\n\nFull code in the plan doc, Task 22.\n\n```json:metadata\n{\"files\": [\"packages/ui/src/components/button.tsx\", \"apps/web/tests/unit/button-shadow.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- tests/unit/button-shadow.test.tsx\", \"modelTier\": \"mechanical\"}\n```"
     },
     {
       "id": 23,

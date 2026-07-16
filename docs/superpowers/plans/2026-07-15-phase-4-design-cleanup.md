@@ -4,7 +4,7 @@
 
 **Goal:** Reconcile the app's two divergent visual languages (the shared `@repo/ui` kit used by `activity`/`general`/`security`/`team`/`settings` vs. the mismatched hand-rolled `chatbot`/`get-token`/`streaming`/`workflow` pages), fix every dead-code/no-op-class/contradictory-class/broken-routing issue on the landing page and dashboard, and restore the handful of shadcn component defaults that Phase 1's registry regeneration silently changed from what this repo's design relied on — leaving `glass-morphism` (a class defined nowhere) gone from the codebase entirely and every dashboard page sharing one consistent header/`Card` pattern.
 
-**Architecture:** This plan assumes Phase 2 (monorepo conversion) and Phase 3 (email feature) have both already landed, so every file path below is the post-Phase-2 location: app code under `apps/web/`, the 12 shadcn primitives + `cn()` under `packages/ui/src/`, and `tiers.ts` under `packages/db/src/`. Because Phase 2's own plan has not been written yet at the time this document was assembled, this plan makes one concrete assumption about a detail Phase 2 doesn't pin down explicitly: `packages/ui` exposes its primitives via `exports` subpaths that mirror their `src`-relative path (e.g. `packages/ui/src/components/ui/button.tsx` is imported as `@repo/ui/components/ui/button`, `packages/ui/src/lib/utils.ts` as `@repo/ui/lib/utils`), and every consumer's `@/components/ui/*`/`@/lib/utils` import is mechanically rewritten to that `@repo/ui/...` form — matching the design doc's description of Phase 2's "single largest diff." Internal imports *within* `packages/ui` itself (e.g. `card.tsx` importing `cn` for its own use) keep the shadcn-standard `@/lib/utils` form, relying on that package's own local `tsconfig` path alias, per the design doc's "moved verbatim" language for Phase 2. If Phase 2's actual plan picks a different subpath convention, every `@repo/ui/...` and `@repo/db/...` import path in this document needs a mechanical find/replace to match — the *content* of each fix does not change.
+**Architecture:** This plan assumes Phase 2 (monorepo conversion) and Phase 3 (email feature) have both already landed, so every file path below is the post-Phase-2 location: app code under `apps/web/`, the 12 shadcn primitives + `cn()` under `packages/ui/src/`, and `tiers.ts` under `packages/db/src/`. The exact subpath convention below was cross-checked against `docs/superpowers/plans/2026-07-15-phase-2-monorepo-conversion.md` (written in parallel and available by the time this plan was finalized): `packages/ui` flattens `components/ui/*.tsx` into `packages/ui/src/components/*.tsx` (the `ui/` folder segment is dropped, not preserved) and exposes it via an `exports` map as `@repo/ui/components/*` — e.g. `packages/ui/src/components/button.tsx` is imported as `@repo/ui/components/button`, `packages/ui/src/lib/utils.ts` as `@repo/ui/lib/utils` — and every consumer's `@/components/ui/*`/`@/lib/utils` import is mechanically rewritten to that `@repo/ui/...` form via Phase 2's own sed-based rewrite step, matching the design doc's description of Phase 2's "single largest diff." Internal imports *within* `packages/ui` itself (e.g. `card.tsx` importing `cn` for its own use) keep the shadcn-standard `@/lib/utils` form, relying on that package's own local `tsconfig` path alias. If Phase 2's plan changes this convention before execution, every `@repo/ui/...` and `@repo/db/...` import path in this document needs a mechanical find/replace to match — the *content* of each fix does not change.
 
 Sequencing follows the design doc's own guidance: dead code, no-op classes, contradictory classes, and functional/routing fixes ship first (Tasks 1-14), then the shadcn registry default-styling drift restorations (Tasks 15-22, still cheap single-file/single-primitive fixes, but grouped after the dashboard's own functional fixes since two of them patch the same file a functional fix just rewrote), then the dashboard visual-language reconciliation itself — the biggest diff — as its own contiguous block (Tasks 23-28), and finally the two mobile-only fixes, which are optional polish (Tasks 29-30).
 
@@ -580,7 +580,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import AnimatedGradientBackground from "./animated-gradient-background";
 import { Icons } from "./icons"
-import { Button } from "@repo/ui/components/ui/button"
+import { Button } from "@repo/ui/components/button"
 ```
 
 Update the Home link:
@@ -917,9 +917,9 @@ Then wire it into `apps/web/app/(dashboard)/dashboard/settings.tsx` (full replac
 ```tsx
 'use client';
 
-import { Button } from '@repo/ui/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/components/ui/avatar';
-import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui/components/ui/card';
+import { Button } from '@repo/ui/components/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/components/avatar';
+import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui/components/card';
 import { customerPortalAction } from '@/lib/payments/actions';
 import { use, useActionState } from 'react';
 import { TeamDataWithMembers, User } from '@repo/db/schema';
@@ -1634,7 +1634,7 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
-} from '@repo/ui/components/ui/sidebar';
+} from '@repo/ui/components/sidebar';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import { usePathname } from 'next/navigation';
@@ -1824,7 +1824,7 @@ git commit -m "Restore original 40px Avatar footprint in team-member list via si
 **Goal:** The Phase-1 shadcn regen changed `CardTitle`/`CardDescription` from `h3`/`p` to `div`, breaking the heading hierarchy on every dashboard page that pairs a page `<h1>` with `CardTitle`s underneath (confirmed live in `activity`, `security`, `general`, `settings`, and `invite-team.tsx` — five call sites, cross-checked against the live repo). Restore the semantic tags.
 
 **Files:**
-- Modify: `packages/ui/src/components/ui/card.tsx`
+- Modify: `packages/ui/src/components/card.tsx`
 - Test: `apps/web/tests/unit/card-semantics.test.tsx`
 
 **Acceptance Criteria:**
@@ -1842,7 +1842,7 @@ git commit -m "Restore original 40px Avatar footprint in team-member list via si
 // @vitest-environment jsdom
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { Card, CardHeader, CardTitle, CardDescription } from '@repo/ui/components/ui/card';
+import { Card, CardHeader, CardTitle, CardDescription } from '@repo/ui/components/card';
 
 describe('Card heading semantics', () => {
   it('renders CardTitle as an <h3> so dashboard cards keep a real heading in the accessibility tree', () => {
@@ -1870,7 +1870,7 @@ Expected: FAIL — both currently render as `<div>`, so no `heading` role exists
 
 - [ ] **Step 3: Write minimal implementation**
 
-In `packages/ui/src/components/ui/card.tsx`:
+In `packages/ui/src/components/card.tsx`:
 ```tsx
 function CardTitle({ className, ...props }: React.ComponentProps<"h3">) {
   return (
@@ -1899,7 +1899,7 @@ Expected: PASS
 
 - [ ] **Step 5: Commit**
 ```bash
-git add packages/ui/src/components/ui/card.tsx apps/web/tests/unit/card-semantics.test.tsx
+git add packages/ui/src/components/card.tsx apps/web/tests/unit/card-semantics.test.tsx
 git commit -m "Restore CardTitle/CardDescription semantic h3/p tags lost in the shadcn regen"
 ```
 
@@ -1910,7 +1910,7 @@ git commit -m "Restore CardTitle/CardDescription semantic h3/p tags lost in the 
 **Goal:** The Phase-1 shadcn regen dropped `text-lg` from `SheetTitle`, visibly shrinking `WorkflowHistoryDrawer.tsx`'s "Workflow History" title (the sidebar's own `SheetTitle` usage is `sr-only`, so unaffected visually, but the primitive fix covers both).
 
 **Files:**
-- Modify: `packages/ui/src/components/ui/sheet.tsx`
+- Modify: `packages/ui/src/components/sheet.tsx`
 - Test: `apps/web/tests/unit/sheet-title-size.test.tsx`
 
 **Acceptance Criteria:**
@@ -1927,7 +1927,7 @@ git commit -m "Restore CardTitle/CardDescription semantic h3/p tags lost in the 
 // @vitest-environment jsdom
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/components/sheet';
 
 describe('SheetTitle default size', () => {
   it('keeps the text-lg class the current shadcn registry default dropped', () => {
@@ -1952,7 +1952,7 @@ Expected: FAIL — current `SheetTitle` className is only `"font-semibold text-f
 
 - [ ] **Step 3: Write minimal implementation**
 
-In `packages/ui/src/components/ui/sheet.tsx`:
+In `packages/ui/src/components/sheet.tsx`:
 ```tsx
 function SheetTitle({
   className,
@@ -1974,7 +1974,7 @@ Expected: PASS
 
 - [ ] **Step 5: Commit**
 ```bash
-git add packages/ui/src/components/ui/sheet.tsx apps/web/tests/unit/sheet-title-size.test.tsx
+git add packages/ui/src/components/sheet.tsx apps/web/tests/unit/sheet-title-size.test.tsx
 git commit -m "Restore SheetTitle's text-lg class lost in the shadcn regen"
 ```
 
@@ -1985,7 +1985,7 @@ git commit -m "Restore SheetTitle's text-lg class lost in the shadcn regen"
 **Goal:** The Phase-1 shadcn regen flipped `TooltipContent` from brand-colored (`bg-primary`/`text-primary-foreground`) to neutral (`bg-foreground`/`text-background`). Restore the brand colors before the sidebar's first real `tooltip=` call site is added.
 
 **Files:**
-- Modify: `packages/ui/src/components/ui/tooltip.tsx`
+- Modify: `packages/ui/src/components/tooltip.tsx`
 - Test: `apps/web/tests/unit/tooltip-colors.test.tsx`
 
 **Acceptance Criteria:**
@@ -2002,7 +2002,7 @@ git commit -m "Restore SheetTitle's text-lg class lost in the shadcn regen"
 // @vitest-environment jsdom
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/components/ui/tooltip';
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/components/tooltip';
 
 describe('TooltipContent brand colors', () => {
   it('restores the brand-colored background instead of the neutral shadcn-registry default', () => {
@@ -2027,7 +2027,7 @@ Expected: FAIL — current classes are `bg-foreground`/`text-background`, not `b
 
 - [ ] **Step 3: Write minimal implementation**
 
-In `packages/ui/src/components/ui/tooltip.tsx`:
+In `packages/ui/src/components/tooltip.tsx`:
 ```tsx
         className={cn(
           "z-50 w-fit origin-(--radix-tooltip-content-transform-origin) animate-in rounded-md bg-primary px-3 py-1.5 text-xs text-balance text-primary-foreground fade-in-0 zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95",
@@ -2045,7 +2045,7 @@ Expected: PASS
 
 - [ ] **Step 5: Commit**
 ```bash
-git add packages/ui/src/components/ui/tooltip.tsx apps/web/tests/unit/tooltip-colors.test.tsx
+git add packages/ui/src/components/tooltip.tsx apps/web/tests/unit/tooltip-colors.test.tsx
 git commit -m "Restore TooltipContent's brand colors lost in the shadcn regen"
 ```
 
@@ -2056,7 +2056,7 @@ git commit -m "Restore TooltipContent's brand colors lost in the shadcn regen"
 **Goal:** The Phase-1 shadcn regen changed `Skeleton`'s background from `bg-primary/10` to neutral `bg-accent`. Restore it before `SidebarMenuSkeleton` gets a real call site.
 
 **Files:**
-- Modify: `packages/ui/src/components/ui/skeleton.tsx`
+- Modify: `packages/ui/src/components/skeleton.tsx`
 - Test: `apps/web/tests/unit/skeleton-color.test.tsx`
 
 **Acceptance Criteria:**
@@ -2073,7 +2073,7 @@ git commit -m "Restore TooltipContent's brand colors lost in the shadcn regen"
 // @vitest-environment jsdom
 import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/react';
-import { Skeleton } from '@repo/ui/components/ui/skeleton';
+import { Skeleton } from '@repo/ui/components/skeleton';
 
 describe('Skeleton background color', () => {
   it('restores the brand-tinted bg-primary/10 instead of the neutral bg-accent default', () => {
@@ -2090,7 +2090,7 @@ Expected: FAIL — current class is `bg-accent`, not `bg-primary/10`.
 
 - [ ] **Step 3: Write minimal implementation**
 
-In `packages/ui/src/components/ui/skeleton.tsx`:
+In `packages/ui/src/components/skeleton.tsx`:
 ```tsx
 import { cn } from "@/lib/utils"
 
@@ -2113,7 +2113,7 @@ Expected: PASS
 
 - [ ] **Step 5: Commit**
 ```bash
-git add packages/ui/src/components/ui/skeleton.tsx apps/web/tests/unit/skeleton-color.test.tsx
+git add packages/ui/src/components/skeleton.tsx apps/web/tests/unit/skeleton-color.test.tsx
 git commit -m "Restore Skeleton's brand-tinted bg-primary/10 background lost in the shadcn regen"
 ```
 
@@ -2124,7 +2124,7 @@ git commit -m "Restore Skeleton's brand-tinted bg-primary/10 background lost in 
 **Goal:** The Phase-1 shadcn regen changed `RadioGroupItem`'s unchecked border from `border-primary` to `border-input`. This is confirmed **live today** in `invite-team.tsx`'s role picker — correcting the design doc's blanket "not yet exercised anywhere" characterization, which a fresh sweep shows does not hold for this component.
 
 **Files:**
-- Modify: `packages/ui/src/components/ui/radio-group.tsx`
+- Modify: `packages/ui/src/components/radio-group.tsx`
 - Test: `apps/web/tests/unit/radio-group-colors.test.tsx`
 
 **Acceptance Criteria:**
@@ -2141,7 +2141,7 @@ git commit -m "Restore Skeleton's brand-tinted bg-primary/10 background lost in 
 // @vitest-environment jsdom
 import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/react';
-import { RadioGroup, RadioGroupItem } from '@repo/ui/components/ui/radio-group';
+import { RadioGroup, RadioGroupItem } from '@repo/ui/components/radio-group';
 
 describe('RadioGroupItem unchecked border color', () => {
   it('restores border-primary so the invite-team role picker keeps its original look (live call site, not dead code)', () => {
@@ -2162,7 +2162,7 @@ Expected: FAIL — current class is `border-input`, not `border-primary`.
 
 - [ ] **Step 3: Write minimal implementation**
 
-In `packages/ui/src/components/ui/radio-group.tsx`:
+In `packages/ui/src/components/radio-group.tsx`:
 ```tsx
       className={cn(
         "aspect-square size-4 shrink-0 rounded-full border border-primary text-primary shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:bg-input/30 dark:aria-invalid:ring-destructive/40",
@@ -2176,7 +2176,7 @@ Expected: PASS
 
 - [ ] **Step 5: Commit**
 ```bash
-git add packages/ui/src/components/ui/radio-group.tsx apps/web/tests/unit/radio-group-colors.test.tsx
+git add packages/ui/src/components/radio-group.tsx apps/web/tests/unit/radio-group-colors.test.tsx
 git commit -m "Restore RadioGroupItem's border-primary (live in invite-team.tsx's role picker, not dead code)"
 ```
 
@@ -2187,7 +2187,7 @@ git commit -m "Restore RadioGroupItem's border-primary (live in invite-team.tsx'
 **Goal:** The Phase-1 shadcn regen changed `DropdownMenuSeparator` from `bg-muted` to `bg-border`. This is confirmed **live today** in `nav-user.tsx`'s user menu (used twice) — correcting the design doc's blanket "not yet exercised anywhere" characterization for this component too.
 
 **Files:**
-- Modify: `packages/ui/src/components/ui/dropdown-menu.tsx`
+- Modify: `packages/ui/src/components/dropdown-menu.tsx`
 - Test: `apps/web/tests/unit/dropdown-menu-separator-color.test.tsx`
 
 **Acceptance Criteria:**
@@ -2210,7 +2210,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@repo/ui/components/ui/dropdown-menu';
+} from '@repo/ui/components/dropdown-menu';
 
 describe('DropdownMenuSeparator color', () => {
   it('restores bg-muted so the nav-user menu divider keeps its original look (live call site, not dead code)', () => {
@@ -2237,7 +2237,7 @@ Expected: FAIL — current class is `bg-border`, not `bg-muted`.
 
 - [ ] **Step 3: Write minimal implementation**
 
-In `packages/ui/src/components/ui/dropdown-menu.tsx`:
+In `packages/ui/src/components/dropdown-menu.tsx`:
 ```tsx
 function DropdownMenuSeparator({
   className,
@@ -2259,7 +2259,7 @@ Expected: PASS
 
 - [ ] **Step 5: Commit**
 ```bash
-git add packages/ui/src/components/ui/dropdown-menu.tsx apps/web/tests/unit/dropdown-menu-separator-color.test.tsx
+git add packages/ui/src/components/dropdown-menu.tsx apps/web/tests/unit/dropdown-menu-separator-color.test.tsx
 git commit -m "Restore DropdownMenuSeparator's bg-muted (live in nav-user.tsx's user menu, not dead code)"
 ```
 
@@ -2270,7 +2270,7 @@ git commit -m "Restore DropdownMenuSeparator's bg-muted (live in nav-user.tsx's 
 **Goal:** The Phase-1 shadcn regen dropped `shadow`/`shadow-sm` depth from most stock `Button` variants. `Button` is the single most-used component in this app (landing CTAs, all dashboard forms, nav menus) — correcting the design doc's characterization of this as a "not-yet-exercised-anywhere" item, which a fresh sweep shows is clearly wrong for `Button` specifically.
 
 **Files:**
-- Modify: `packages/ui/src/components/ui/button.tsx`
+- Modify: `packages/ui/src/components/button.tsx`
 - Test: `apps/web/tests/unit/button-shadow.test.tsx`
 
 **Acceptance Criteria:**
@@ -2288,7 +2288,7 @@ git commit -m "Restore DropdownMenuSeparator's bg-muted (live in nav-user.tsx's 
 // @vitest-environment jsdom
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { Button } from '@repo/ui/components/ui/button';
+import { Button } from '@repo/ui/components/button';
 
 describe('Button variant shadow depth', () => {
   it('restores shadow-xs on the default variant', () => {
@@ -2314,7 +2314,7 @@ Expected: FAIL — none of `default`/`secondary`/`destructive` currently include
 
 - [ ] **Step 3: Write minimal implementation**
 
-In `packages/ui/src/components/ui/button.tsx`:
+In `packages/ui/src/components/button.tsx`:
 ```tsx
       variant: {
         default: "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90",
@@ -2336,7 +2336,7 @@ Expected: PASS
 
 - [ ] **Step 5: Commit**
 ```bash
-git add packages/ui/src/components/ui/button.tsx apps/web/tests/unit/button-shadow.test.tsx
+git add packages/ui/src/components/button.tsx apps/web/tests/unit/button-shadow.test.tsx
 git commit -m "Restore shadow-xs on default/secondary/destructive Button variants"
 ```
 
@@ -2405,7 +2405,7 @@ Expected: FAIL — `[data-slot="card"]` not found, heading `Chatbot` not found, 
 - [ ] **Step 3: Write minimal implementation**
 ```tsx
 // apps/web/app/(dashboard)/dashboard/chatbot/page.tsx
-import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui/components/card';
 
 export default function Chatbot() {
   return (
@@ -2494,7 +2494,7 @@ Expected: FAIL — `[data-slot="card"]` not found, `.glass-morphism` element pre
 "use client";
 import { marked } from 'marked';
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui/components/card';
 
 interface StoryDisplayProps {
   result: {
@@ -2626,10 +2626,10 @@ Expected: FAIL — `[data-slot="input"]`/`[data-slot="button"]` not found (raw `
 // apps/web/app/(dashboard)/dashboard/workflow/page.tsx
 "use client";
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui/components/ui/card';
-import { Button } from '@repo/ui/components/ui/button';
-import { Input } from '@repo/ui/components/ui/input';
-import { Label } from '@repo/ui/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui/components/card';
+import { Button } from '@repo/ui/components/button';
+import { Input } from '@repo/ui/components/input';
+import { Label } from '@repo/ui/components/label';
 import { Loader2 } from 'lucide-react';
 import StoryDisplay from '@/components/ai-tutor-api/StoryDisplay';
 import { WorkflowHistoryDrawer } from '@/components/workflow/WorkflowHistoryDrawer';
@@ -2799,8 +2799,8 @@ Expected: FAIL — `[data-slot="input"]`/`[data-slot="button"]` not found, no el
 'use client';
 
 import { useChat, Message } from 'ai/react';
-import { Input } from '@repo/ui/components/ui/input';
-import { Button } from '@repo/ui/components/ui/button';
+import { Input } from '@repo/ui/components/input';
+import { Button } from '@repo/ui/components/button';
 import { Loader2, MessageCircle } from 'lucide-react';
 
 export default function StreamingChat() {
@@ -2940,7 +2940,7 @@ Expected: FAIL — `[data-slot="card"]` not found, heading `Streaming` not found
 - [ ] **Step 3: Write minimal implementation**
 ```tsx
 // apps/web/app/(dashboard)/dashboard/streaming/page.tsx
-import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui/components/card';
 import StreamingChat from '@/components/ai-tutor-api/StreamingChat';
 
 export default function Streaming() {
@@ -3048,9 +3048,9 @@ Expected: FAIL — `[data-slot="card"]`/`[data-slot="button"]` not found, `.glas
 // apps/web/app/(dashboard)/dashboard/get-token/page.tsx
 "use client";
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui/components/ui/card';
-import { Button } from '@repo/ui/components/ui/button';
-import { Label } from '@repo/ui/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui/components/card';
+import { Button } from '@repo/ui/components/button';
+import { Label } from '@repo/ui/components/label';
 import { Loader2 } from 'lucide-react';
 
 interface TokenResponse {
