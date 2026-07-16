@@ -5,6 +5,7 @@
   "exports": {
     "./schema": "./src/schema.ts",
     "./client": "./src/client.ts",
+    "./queries": "./src/queries.ts",
     "./tiers": "./src/tiers.ts",
     "./utils": "./src/utils.ts"
   },
