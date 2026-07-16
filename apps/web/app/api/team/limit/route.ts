@@ -1,8 +1,9 @@
 // app/api/team/limit/route.ts
-import { getUser, getTeamForUser } from '@/lib/db/queries';
-import { checkMessageLimit } from '@/lib/db/utils';
+import { getTeamForUser } from '@repo/db/queries';
+import { getUser } from '@/lib/auth/session';
+import { checkMessageLimit } from '@repo/db/utils';
 import { NextResponse } from 'next/server';
-import { tiers } from '@/lib/tiers';
+import { tiers } from '@repo/db/tiers';
 
 export async function GET() {
   const user = await getUser();

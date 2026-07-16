@@ -2,9 +2,9 @@
 import Stripe from 'stripe';
 import { handleSubscriptionChange, stripe } from '@/lib/payments/stripe';
 import { NextRequest, NextResponse } from 'next/server';
-import { tiers } from '@/lib/tiers'; // Import tiers
-import { db } from '@/lib/db/drizzle';
-import { teams } from '@/lib/db/schema';
+import { tiers } from '@repo/db/tiers'; // Import tiers
+import { db } from '@repo/db/client';
+import { teams } from '@repo/db/schema';
 import { eq } from 'drizzle-orm';
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;

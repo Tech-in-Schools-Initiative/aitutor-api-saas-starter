@@ -1,7 +1,8 @@
 // app/api/workflow/history/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getUser, getTeamForUser } from '@/lib/db/queries';
-import { getWorkflowHistory } from '@/lib/db/utils';
+import { getTeamForUser } from '@repo/db/queries';
+import { getUser } from '@/lib/auth/session';
+import { getWorkflowHistory } from '@repo/db/utils';
 
 export async function GET(req: NextRequest) {
   try {

@@ -2,7 +2,7 @@
 
 import { z } from 'zod';
 import { and, eq, sql } from 'drizzle-orm';
-import { db } from '@/lib/db/drizzle';
+import { db } from '@repo/db/client';
 import {
   User,
   users,
@@ -15,12 +15,12 @@ import {
   type NewActivityLog,
   ActivityType,
   invitations,
-} from '@/lib/db/schema';
-import { comparePasswords, hashPassword, setSession } from '@/lib/auth/session';
+} from '@repo/db/schema';
+import { comparePasswords, hashPassword, setSession, getUser } from '@/lib/auth/session';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { createCheckoutSession } from '@/lib/payments/stripe';
-import { getUser, getUserWithTeam } from '@/lib/db/queries';
+import { getUserWithTeam } from '@repo/db/queries';
 import {
   validatedAction,
   validatedActionWithUser,

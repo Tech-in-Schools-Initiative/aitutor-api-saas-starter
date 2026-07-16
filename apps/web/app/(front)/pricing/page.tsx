@@ -1,7 +1,7 @@
 // dashboard-pricing-page-tsx
 import { checkoutAction } from '@/lib/payments/actions';
 import { Check, MoveRight, PhoneCall } from 'lucide-react';
-import { tiers, Tier } from '@/lib/tiers'; // Import tiers
+import { tiers, Tier } from '@repo/db/tiers'; // Import tiers
 import { SubmitButton } from './submit-button';
 import { Button } from "@repo/ui/components/button";
 import { cn } from "@repo/ui/lib/utils";

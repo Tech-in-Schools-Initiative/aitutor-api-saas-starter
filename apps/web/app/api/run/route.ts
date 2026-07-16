@@ -1,7 +1,8 @@
 // app/api/run/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getUser, getTeamForUser } from '@/lib/db/queries';
-import { checkMessageLimit, incrementMessageCount, saveWorkflowHistory } from '@/lib/db/utils';
+import { getUser } from '@/lib/auth/session';
+import { getTeamForUser } from '@repo/db/queries';
+import { checkMessageLimit, incrementMessageCount, saveWorkflowHistory } from '@repo/db/utils';
 
 export async function POST(req: NextRequest) {
   try {

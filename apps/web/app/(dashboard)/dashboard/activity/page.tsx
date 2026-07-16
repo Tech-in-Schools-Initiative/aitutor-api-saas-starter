@@ -11,8 +11,10 @@ import {
   CircleCheckBig,
   type LucideIcon,
 } from 'lucide-react';
-import { ActivityType } from '@/lib/db/schema';
-import { getActivityLogs } from '@/lib/db/queries';
+import { redirect } from 'next/navigation';
+import { ActivityType } from '@repo/db/schema';
+import { getActivityLogs } from '@repo/db/queries';
+import { getUser } from '@/lib/auth/session';
 
 const iconMap: Record<ActivityType, LucideIcon> = {
   [ActivityType.SIGN_UP]: UserPlus,
@@ -69,7 +71,13 @@ function formatAction(action: ActivityType): string {
 }
 
 export default async function ActivityPage() {
-  const logs = await getActivityLogs();
+  const user = await getUser();
+
+  if (!user) {
+    redirect('/sign-in');
+  }
+
+  const logs = await getActivityLogs(user.id);
 
   return (
     <section className="flex-1 p-4 lg:p-8">
