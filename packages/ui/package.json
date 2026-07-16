@@ -2,6 +2,9 @@
   "name": "@repo/ui",
   "version": "0.0.0",
   "private": true,
+  "scripts": {
+    "lint": "eslint ."
+  },
   "exports": {
     "./components/*": "./src/components/*.tsx",
     "./hooks/*": "./src/hooks/*.tsx",
@@ -19,8 +22,10 @@
     "react-dom": "^19.2.7"
   },
   "devDependencies": {
+    "@repo/config": "workspace:*",
     "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",
+    "eslint": "^9.39.5",
     "react": "19.2.7",
     "react-dom": "19.2.7",
     "typescript": "^5.9.3"
