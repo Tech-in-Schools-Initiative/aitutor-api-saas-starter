@@ -1,0 +1,103 @@
+{
+  "planPath": "docs/superpowers/plans/2026-07-15-phase-2-monorepo-conversion.md",
+  "tasks": [
+    {
+      "id": 1,
+      "subject": "Task 1: Root pnpm + Turborepo workspace scaffold",
+      "status": "pending",
+      "description": "**Goal:** Create pnpm-workspace.yaml and turbo.json at the repo root as net-new, inert config files, before anything else moves.\n\n**Files:**\n- Create: pnpm-workspace.yaml, turbo.json\n\n**Verify:** node -e \"JSON.parse(require('fs').readFileSync('turbo.json','utf8'))\" && pnpm ls -r --depth -1 -> exits 0, no parse errors\n\nFull code in the plan doc, Task 1.\n\n```json:metadata\n{\"files\": [\"pnpm-workspace.yaml\", \"turbo.json\"], \"verifyCommand\": \"node -e \\\"JSON.parse(require('fs').readFileSync('turbo.json','utf8'))\\\" && pnpm ls -r --depth -1\", \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 2,
+      "subject": "Task 2: Relocate the app into apps/web/ via git mv",
+      "status": "pending",
+      "blockedBy": [1],
+      "description": "**Goal:** Move every tracked app file into apps/web/ preserving git history, stand up a fresh minimal root package.json (packageManager pin + turbo devDep), fix .gitignore anchoring, regenerate the workspace-aware lockfile.\n\n**Files:**\n- Create: package.json (new root content)\n- Modify: .gitignore, apps/web/package.json\n- Move (git mv): .env.example, app/, components/, components.json, drizzle.config.ts, eslint.config.mjs, hooks/, lib/, next.config.ts, package.json, playwright.config.ts, postcss.config.mjs, proxy.ts, public/, tests/, tsconfig.json, vitest.config.ts -> apps/web/...\n\n**Verify:** pnpm --filter web build && pnpm --filter web test -> Next.js production build completes, all existing unit tests pass\n\nFull code in the plan doc, Task 2.\n\n```json:metadata\n{\"files\": [\"package.json\", \"apps/web/package.json\", \".gitignore\", \"pnpm-lock.yaml\"], \"verifyCommand\": \"pnpm --filter web build && pnpm --filter web test\", \"modelTier\": \"standard\"}\n```"
+    },
+    {
+      "id": 3,
+      "subject": "Task 3: Extract packages/ui and rewrite every consumer import",
+      "status": "pending",
+      "blockedBy": [2],
+      "description": "**Goal:** Move the 12 shadcn primitives, hooks/use-mobile.tsx, and lib/utils.ts's cn() into packages/ui/src verbatim, fix internal cross-imports, and rewrite every @/components/ui/*, @/lib/utils, @/hooks/use-mobile import across apps/web (29 files) to @repo/ui/....\n\n**Note:** packages/ui/components.json's baseColor is \"slate\" (matching the app's real palette, confirmed against the current repo), not \"zinc\".\n\n**Files:**\n- Create: packages/ui/package.json, packages/ui/tsconfig.json\n- Move: 12 components/ui/*.tsx, hooks/use-mobile.tsx, lib/utils.ts, components.json -> packages/ui/\n- Modify: 29 external consumer files (see plan doc for the full list)\n\n**Verify:** pnpm --filter web test && pnpm --filter @repo/ui exec tsc --noEmit -> unit suite green including rewritten button.test.tsx/utils.test.ts; tsc clean\n\nFull code and the 29-file consumer list in the plan doc, Task 3.\n\n```json:metadata\n{\"files\": [\"packages/ui/package.json\", \"packages/ui/tsconfig.json\", \"packages/ui/components.json\", \"apps/web/package.json\"], \"verifyCommand\": \"pnpm --filter web test && pnpm --filter @repo/ui exec tsc --noEmit\", \"modelTier\": \"standard\"}\n```"
+    },
+    {
+      "id": 4,
+      "subject": "Task 4: packages/config - tsconfig splits + minimal ESLint config",
+      "status": "pending",
+      "blockedBy": [3],
+      "description": "**Goal:** Create packages/config with typescript/{base,nextjs,react-library}.json and a net-new shared ESLint base config; retrofit apps/web and packages/ui to extend them.\n\n**Files:**\n- Create: packages/config/package.json, packages/config/typescript/{base,nextjs,react-library}.json, packages/config/eslint/base.mjs, packages/ui/eslint.config.mjs\n- Modify: apps/web/tsconfig.json, packages/ui/tsconfig.json, apps/web/eslint.config.mjs, apps/web/package.json, packages/ui/package.json\n\n**Verify:** pnpm --filter web exec tsc --noEmit && pnpm --filter @repo/ui exec tsc --noEmit && pnpm --filter web lint && pnpm --filter @repo/ui lint -> all four exit 0\n\nFull code in the plan doc, Task 4.\n\n```json:metadata\n{\"files\": [\"packages/config/package.json\", \"packages/config/typescript/base.json\", \"packages/config/typescript/nextjs.json\", \"packages/config/typescript/react-library.json\", \"packages/config/eslint/base.mjs\", \"packages/ui/eslint.config.mjs\", \"apps/web/tsconfig.json\", \"packages/ui/tsconfig.json\", \"apps/web/eslint.config.mjs\"], \"verifyCommand\": \"pnpm --filter web exec tsc --noEmit && pnpm --filter @repo/ui exec tsc --noEmit && pnpm --filter web lint && pnpm --filter @repo/ui lint\", \"modelTier\": \"standard\"}\n```"
+    },
+    {
+      "id": 5,
+      "subject": "Task 5: packages/config - Tailwind CSS token extraction",
+      "status": "pending",
+      "blockedBy": [4],
+      "description": "**Goal:** Extract the current app/globals.css token block into packages/config/tailwind/shared-theme.css verbatim.\n\n**CORRECTED:** app/globals.css is already a single, deduplicated block (slate palette, --radius: 0.5rem) as of the current main checkout -- an earlier duplicate-block/zinc-hue problem existed transiently during Phase 1 but was already fixed before merge (commits 1320229, 9c25439, c9d970a). This task is a pure extraction, not a de-duplication.\n\n**Files:**\n- Create: packages/config/tailwind/shared-theme.css\n- Modify: apps/web/app/globals.css (shrinks to 4 lines)\n\n**Verify:** wc -l < apps/web/app/globals.css -> 4; grep -c \"radius: 0.5rem\" packages/config/tailwind/shared-theme.css -> 1; grep -c \"radius: 0.5rem\" apps/web/app/globals.css -> 0\n\nFull exact CSS content in the plan doc, Task 5.\n\n```json:metadata\n{\"files\": [\"packages/config/tailwind/shared-theme.css\", \"apps/web/app/globals.css\"], \"verifyCommand\": \"wc -l < apps/web/app/globals.css && grep -c \\\"radius: 0.5rem\\\" packages/config/tailwind/shared-theme.css && grep -c \\\"radius: 0.5rem\\\" apps/web/app/globals.css\", \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 6,
+      "subject": "Task 6: next.config.ts transpilePackages + Vercel Root Directory",
+      "status": "pending",
+      "blockedBy": [5],
+      "description": "**Goal:** Add transpilePackages: ['@repo/ui'] to apps/web/next.config.ts, run the first true end-to-end production build of the packages/ui + packages/config chain, document Vercel Root Directory change as the user's manual step.\n\n**Files:**\n- Modify: apps/web/next.config.ts\n\n**Verify:** pnpm install && pnpm --filter web build -> Next.js production build completes with no Module-parse/unresolved-JSX errors from @repo/ui\n\n**Manual verification (user's own step):** Vercel dashboard Root Directory -> apps/web, include-outside-source-files toggle, confirm build/install commands, trigger a real preview deploy.\n\nFull code in the plan doc, Task 6.\n\n```json:metadata\n{\"files\": [\"apps/web/next.config.ts\"], \"verifyCommand\": \"pnpm install && pnpm --filter web build\", \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 7,
+      "subject": "Task 7: Extract packages/db - schema, client, tiers, utils",
+      "status": "pending",
+      "blockedBy": [6],
+      "description": "**Goal:** Stand up @repo/db and move schema.ts, drizzle.ts->client.ts, tiers.ts, utils.ts (module-path fixes only), leaving queries.ts and scripts for Tasks 9-10.\n\n**Note:** packages/db/package.json's devDependencies includes \"@repo/config\": \"workspace:*\" from the start (needed since packages/db/tsconfig.json extends @repo/config/typescript/base.json).\n\n**Files:**\n- Create: packages/db/package.json, packages/db/tsconfig.json\n- Modify: packages/db/src/{schema,client,tiers,utils}.ts, apps/web/package.json (+@repo/db, -postgres, -dotenv), apps/web/next.config.ts\n- Test: apps/web/tests/unit/tiers-limit.test.ts\n\n**Verify:** pnpm --filter web exec vitest run tests/unit/tiers-limit.test.ts -> 4 passed (requires POSTGRES_URL against a scratch Postgres)\n\nFull code in the plan doc, Task 7.\n\n```json:metadata\n{\"files\": [\"packages/db/package.json\", \"packages/db/tsconfig.json\", \"packages/db/src/schema.ts\", \"packages/db/src/client.ts\", \"packages/db/src/tiers.ts\", \"packages/db/src/utils.ts\", \"apps/web/package.json\", \"apps/web/next.config.ts\", \"apps/web/tests/unit/tiers-limit.test.ts\"], \"verifyCommand\": \"pnpm --filter web exec vitest run tests/unit/tiers-limit.test.ts\", \"modelTier\": \"standard\"}\n```"
+    },
+    {
+      "id": 8,
+      "subject": "Task 8: Extract packages/db - migrations and drizzle.config.ts",
+      "status": "pending",
+      "blockedBy": [7],
+      "description": "**Goal:** Relocate the 3 Drizzle migrations + drizzle.config.ts so db:generate/migrate/studio run from packages/db.\n\n**Note (fixed cross-half duplication):** turbo.json's db:generate/db:migrate tasks already exist from Task 1 -- this task does NOT re-declare them, it only adds a net-new db:studio script to packages/db/package.json and root package.json.\n\n**Files:**\n- Modify: packages/db/migrations/** (moved verbatim), packages/db/tsconfig.json (widen include), packages/db/package.json (+drizzle-kit, +scripts), apps/web/package.json (-drizzle-kit), root package.json (+db:studio only)\n- Create: packages/db/drizzle.config.ts\n\n**Verify:** pnpm --filter @repo/db run db:migrate -> 3 migrations applied; pnpm --filter @repo/db run db:generate -> no pending diff\n\nFull code in the plan doc, Task 8.\n\n```json:metadata\n{\"files\": [\"packages/db/migrations\", \"packages/db/drizzle.config.ts\", \"packages/db/tsconfig.json\", \"packages/db/package.json\", \"apps/web/package.json\", \"package.json\"], \"verifyCommand\": \"pnpm --filter @repo/db run db:migrate && pnpm --filter @repo/db run db:generate\", \"modelTier\": \"standard\"}\n```"
+    },
+    {
+      "id": 9,
+      "subject": "Task 9: Extract packages/db - seed/setup scripts, decoupled from apps/web",
+      "status": "pending",
+      "blockedBy": [8],
+      "description": "**Goal:** Move seed.ts/seed-test.ts/setup.ts into packages/db/scripts/, replacing imports of apps/web/lib/payments/stripe and apps/web/lib/auth/session with self-contained equivalents (own Stripe client, local bcryptjs hash), and fix setup.ts's .env/docker-compose.yml output paths.\n\n**Files:**\n- Modify: packages/db/scripts/{seed,seed-test,setup}.ts, packages/db/tsconfig.json (widen include), packages/db/package.json (+bcryptjs/stripe/tsx deps, +scripts), root package.json (+db:seed/db:seed:test/db:setup)\n\n**Verify:** pnpm --filter @repo/db run db:seed:test -> \"Test seed complete (no Stripe calls).\" (requires POSTGRES_URL against a clean scratch DB)\n\nFull code in the plan doc, Task 9.\n\n```json:metadata\n{\"files\": [\"packages/db/scripts/seed.ts\", \"packages/db/scripts/seed-test.ts\", \"packages/db/scripts/setup.ts\", \"packages/db/tsconfig.json\", \"packages/db/package.json\", \"package.json\"], \"verifyCommand\": \"pnpm --filter @repo/db run db:seed:test\", \"modelTier\": \"standard\"}\n```"
+    },
+    {
+      "id": 10,
+      "subject": "Task 10: Split queries.ts - getUserById() in @repo/db, getUser() wrapper in apps/web",
+      "status": "pending",
+      "blockedBy": [9],
+      "description": "**Goal:** Move framework-agnostic query functions into packages/db/src/queries.ts behind getUserById(id); add a thin getUser() wrapper to apps/web/lib/auth/session.ts resolving the session cookie then calling getUserById, so @repo/db never imports next/headers. getActivityLogs(userId) no longer calls getUser() internally.\n\n**Files:**\n- Modify: packages/db/src/queries.ts (moved+rewritten), packages/db/package.json (+./queries export), apps/web/lib/auth/session.ts (+getUser())\n- Create: apps/web/tests/unit/get-user-by-id.test.ts, apps/web/tests/unit/get-user-wrapper.test.ts\n\n**Verify:** pnpm --filter web exec vitest run tests/unit/get-user-by-id.test.ts tests/unit/get-user-wrapper.test.ts -> 6 passed\n\nFull code in the plan doc, Task 10.\n\n```json:metadata\n{\"files\": [\"packages/db/src/queries.ts\", \"packages/db/package.json\", \"apps/web/lib/auth/session.ts\", \"apps/web/tests/unit/get-user-by-id.test.ts\", \"apps/web/tests/unit/get-user-wrapper.test.ts\"], \"verifyCommand\": \"pnpm --filter web exec vitest run tests/unit/get-user-by-id.test.ts tests/unit/get-user-wrapper.test.ts\", \"modelTier\": \"standard\"}\n```"
+    },
+    {
+      "id": 11,
+      "subject": "Task 11: Rewire every apps/web consumer to @repo/db and the new getUser() location",
+      "status": "pending",
+      "blockedBy": [10],
+      "description": "**Goal:** Update every remaining @/lib/db/*, @/lib/tiers, @/lib/db/queries-for-getUser import across apps/web (14 files) to @repo/db/* and @/lib/auth/session, restoring a fully green build.\n\n**Files:**\n- Modify: app/(dashboard)/dashboard/page.tsx, app/(dashboard)/dashboard/activity/page.tsx, app/(dashboard)/dashboard/settings.tsx, app/(front)/pricing/page.tsx, app/(login)/actions.ts, app/api/run/route.ts, app/api/stripe/checkout/route.ts, app/api/stripe/webhook/route.ts, app/api/team/limit/route.ts, app/api/workflow/history/route.ts, app/layout.tsx, lib/auth/index.tsx, lib/auth/middleware.ts, lib/payments/stripe.ts\n\n**Verify:** pnpm --filter web exec tsc --noEmit -> no output/exit 0; pnpm --filter web test -> all suites pass; pnpm --filter web test:e2e -> all 4 specs pass\n\nFull import-block diffs for all 14 files in the plan doc, Task 11.\n\n```json:metadata\n{\"files\": [\"apps/web/app/(dashboard)/dashboard/page.tsx\", \"apps/web/app/(dashboard)/dashboard/activity/page.tsx\", \"apps/web/app/(dashboard)/dashboard/settings.tsx\", \"apps/web/app/(front)/pricing/page.tsx\", \"apps/web/app/(login)/actions.ts\", \"apps/web/app/api/run/route.ts\", \"apps/web/app/api/stripe/checkout/route.ts\", \"apps/web/app/api/stripe/webhook/route.ts\", \"apps/web/app/api/team/limit/route.ts\", \"apps/web/app/api/workflow/history/route.ts\", \"apps/web/app/layout.tsx\", \"apps/web/lib/auth/index.tsx\", \"apps/web/lib/auth/middleware.ts\", \"apps/web/lib/payments/stripe.ts\"], \"verifyCommand\": \"pnpm --filter web exec tsc --noEmit && pnpm --filter web test && pnpm --filter web test:e2e\", \"modelTier\": \"standard\"}\n```"
+    },
+    {
+      "id": 12,
+      "subject": "Task 12: Scaffold packages/email (empty-but-wired)",
+      "status": "pending",
+      "blockedBy": [11],
+      "description": "**Goal:** Create @repo/email with a package.json and one placeholder export so it's a real, resolvable workspace package before Phase 3 fills in Resend + React Email templates.\n\n**Files:**\n- Create: packages/email/package.json, packages/email/tsconfig.json, packages/email/src/index.ts\n- Modify: apps/web/package.json (+@repo/email), apps/web/next.config.ts (+'@repo/email' to transpilePackages)\n- Test: apps/web/tests/unit/email-package-placeholder.test.ts\n\n**Verify:** pnpm --filter web exec vitest run tests/unit/email-package-placeholder.test.ts -> 1 passed\n\nFull code in the plan doc, Task 12.\n\n```json:metadata\n{\"files\": [\"packages/email/package.json\", \"packages/email/tsconfig.json\", \"packages/email/src/index.ts\", \"apps/web/package.json\", \"apps/web/next.config.ts\", \"apps/web/tests/unit/email-package-placeholder.test.ts\"], \"verifyCommand\": \"pnpm --filter web exec vitest run tests/unit/email-package-placeholder.test.ts\", \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 13,
+      "subject": "Task 13: apps/web package.json final cleanup",
+      "status": "pending",
+      "blockedBy": [12],
+      "description": "**Goal:** Lock in the final apps/web dependency boundary: workspace:* on @repo/ui/@repo/db/@repo/email; remove everything that moved fully into packages/db (drizzle-kit, postgres, dotenv) or packages/ui (radix-ui, class-variance-authority, clsx, tailwind-merge -- confirmed via grep to have zero remaining call sites in apps/web); retain app-only deps (drizzle-orm, stripe, ai, bcryptjs, jose, canvas-confetti, marked, motion, zod, lucide-react) plus the Tailwind build-tool stack.\n\n**CORRECTED (found by this assembly's own consistency check):** the source draft's final dependency list still included radix-ui even though nothing in apps/web imports it directly anymore -- fixed to remove it, and the boundary test now also asserts class-variance-authority/clsx/tailwind-merge/radix-ui are absent.\n\n**Files:**\n- Modify: apps/web/package.json\n- Test: apps/web/tests/unit/package-json-boundaries.test.ts\n\n**Verify:** pnpm --filter web exec vitest run tests/unit/package-json-boundaries.test.ts -> 3 passed\n\nFull code in the plan doc, Task 13.\n\n```json:metadata\n{\"files\": [\"apps/web/package.json\", \"apps/web/tests/unit/package-json-boundaries.test.ts\"], \"verifyCommand\": \"pnpm --filter web exec vitest run tests/unit/package-json-boundaries.test.ts\", \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 14,
+      "subject": "Task 14: Final full-repo verification",
+      "status": "pending",
+      "blockedBy": [13],
+      "description": "**Goal:** Confirm a fresh workspace-root pnpm install + build works, the full suite passes, CI actually resolves under the new layout, and a manual click-through of every route succeeds.\n\n**CORRECTED (real gap found in the source drafts):** neither half of the original draft updated .github/workflows/ci.yml for the monorepo. typescript and @playwright/test are now devDependencies of apps/web only (not the root, which has only turbo) -- so the pre-existing 'pnpm exec tsc --noEmit' and 'pnpm exec playwright install --with-deps chromium' CI steps would fail to resolve those binaries from the repo root. This task fixes both to use 'pnpm --filter web exec ...' (and, for typecheck, also --filter @repo/ui / @repo/db / @repo/email). Every other CI step (install, db:migrate, test, build, test:e2e, db:seed:test) already passes through correctly via the root package.json scripts added in Tasks 2/8/9.\n\n**Files:**\n- Modify: .github/workflows/ci.yml\n\n**Verify:** pnpm install && pnpm --filter web build -> exit 0, Compiled successfully; plus pnpm --filter web exec tsc --noEmit / @repo/ui / @repo/db / @repo/email, pnpm --filter web test, pnpm --filter web test:e2e all green\n\nFull steps and the exact ci.yml diff in the plan doc, Task 14.\n\n```json:metadata\n{\"files\": [\".github/workflows/ci.yml\"], \"verifyCommand\": \"pnpm install && pnpm --filter web exec tsc --noEmit && pnpm --filter @repo/ui exec tsc --noEmit && pnpm --filter @repo/db exec tsc --noEmit && pnpm --filter @repo/email exec tsc --noEmit && pnpm --filter web build && pnpm --filter web test && pnpm --filter web test:e2e\", \"modelTier\": \"complex\"}\n```"
+    }
+  ],
+  "lastUpdated": "2026-07-16T00:00:00Z"
+}
