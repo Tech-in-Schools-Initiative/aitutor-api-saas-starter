@@ -3,8 +3,8 @@ import { checkoutAction } from '@/lib/payments/actions';
 import { Check, MoveRight, PhoneCall } from 'lucide-react';
 import { tiers, Tier } from '@/lib/tiers'; // Import tiers
 import { SubmitButton } from './submit-button';
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Button } from "@repo/ui/components/button";
+import { cn } from "@repo/ui/lib/utils";
 import { Sparkles, Star, Pencil } from "lucide-react";
 
 interface PricingTier {

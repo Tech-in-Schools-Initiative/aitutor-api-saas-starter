@@ -16,6 +16,7 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@repo/ui": "workspace:*",
     "@tailwindcss/postcss": "4.3.2",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^22.13.1",

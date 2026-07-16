@@ -2,8 +2,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@repo/ui/components/sheet';
+import { Button } from '@repo/ui/components/button';
 import { HistoryIcon, Loader2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 

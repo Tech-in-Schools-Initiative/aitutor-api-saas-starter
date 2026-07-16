@@ -1,5 +1,5 @@
 'use client';
-import { cn } from '@/lib/utils';
+import { cn } from '@repo/ui/lib/utils';
 import { motion, Transition } from 'motion/react';
 
 export type GlowEffectProps = {

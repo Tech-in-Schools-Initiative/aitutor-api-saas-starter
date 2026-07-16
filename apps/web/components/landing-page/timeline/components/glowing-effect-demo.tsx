@@ -2,7 +2,7 @@
 
 import { Box, Lock, Search, Settings, Sparkles, BotIcon } from "lucide-react";
 import { GlowingEffect } from "./glowing-effect";
-import { cn } from "@/lib/utils";
+import { cn } from "@repo/ui/lib/utils";
 import React from "react";
 
 export function GlowingEffectDemo() {

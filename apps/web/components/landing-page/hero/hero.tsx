@@ -3,8 +3,8 @@
 import { useEffect, useMemo, useState, useRef } from "react";
 import { motion } from "motion/react";
 import { MoveRight, Settings, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Button } from "@repo/ui/components/button";
+import { cn } from "@repo/ui/lib/utils";
 import { AnimatedGradientText } from "./components/animated-gradient-text";
 import { SparklesText } from "./components/sparkles-text";
 import { GlowEffect } from "./components/glow-effect";

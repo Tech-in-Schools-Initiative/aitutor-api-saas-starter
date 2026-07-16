@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button';
+import { Button } from '@repo/ui/components/button';
 import { ArrowRight, CreditCard, Database } from 'lucide-react';
 import { Hero } from '@/components/landing-page/hero/hero';
 import { TimelineSection } from '@/components/landing-page/timeline/TImelineSecion';

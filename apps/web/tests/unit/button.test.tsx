@@ -6,7 +6,7 @@
 // above, rather than flipping the global default back to jsdom.
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@repo/ui/components/button';
 
 describe('Button', () => {
   it('renders without throwing and exposes an accessible button role', () => {

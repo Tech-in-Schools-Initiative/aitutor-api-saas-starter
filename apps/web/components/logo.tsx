@@ -4,7 +4,7 @@
 import * as React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useSidebar } from '@/components/ui/sidebar';
+import { useSidebar } from '@repo/ui/components/sidebar';
 
 export function Logo() {
   const { state } = useSidebar();

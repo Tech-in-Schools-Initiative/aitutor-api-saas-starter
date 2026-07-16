@@ -2,7 +2,7 @@
 'use client';
 
 import * as React from "react";
-import { useSidebar } from "@/components/ui/sidebar";
+import { useSidebar } from "@repo/ui/components/sidebar";
 
 interface MessageData {
   unlimited?: boolean;

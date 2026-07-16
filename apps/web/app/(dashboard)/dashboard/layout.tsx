@@ -6,7 +6,7 @@ import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
-} from "@/components/ui/sidebar";
+} from "@repo/ui/components/sidebar";
 
 export default function DashboardLayout({
   children,

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { cn } from '@/lib/utils';
+import { cn } from '@repo/ui/lib/utils';
 
 describe('cn', () => {
   it('joins truthy class names with a space', () => {

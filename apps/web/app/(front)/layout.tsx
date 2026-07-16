@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { use, useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@repo/ui/components/button';
 import Image from 'next/image';
 import { CircleIcon, Home, LogOut } from 'lucide-react';
 import {
@@ -10,8 +10,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+} from '@repo/ui/components/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/components/avatar';
 import { Logo } from '@/components/logo';
 import { useUser } from '@/lib/auth';
 import { signOut } from '@/app/(login)/actions';
