@@ -1,0 +1,14 @@
+{
+  "name": "@repo/email",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@repo/config": "workspace:*",
+    "@types/node": "^22.13.1",
+    "typescript": "^5.9.3"
+  }
+}

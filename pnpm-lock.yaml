@@ -21,6 +21,9 @@ importers:
       '@repo/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@repo/email':
+        specifier: workspace:*
+        version: link:../../packages/email
       '@repo/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -188,6 +191,18 @@ importers:
       tsx:
         specifier: ^4.23.1
         version: 4.23.1
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
+  packages/email:
+    devDependencies:
+      '@repo/config':
+        specifier: workspace:*
+        version: link:../config
+      '@types/node':
+        specifier: ^22.13.1
+        version: 22.13.1
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
