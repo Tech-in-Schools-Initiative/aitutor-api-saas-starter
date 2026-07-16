@@ -1,0 +1,117 @@
+{
+  "planPath": "docs/superpowers/plans/2026-07-15-phase-3-email-feature.md",
+  "tasks": [
+    {
+      "id": 1,
+      "subject": "Task 1: passwordResetTokens schema + ActivityType additions + migration",
+      "status": "pending",
+      "description": "**Goal:** Add the passwordResetTokens table and two new ActivityType enum members to packages/db/src/schema.ts, then generate the corresponding Drizzle migration.\n\n**Verify:** pnpm --filter web exec tsc --noEmit && pnpm --filter web test -- tests/unit/schema-password-reset.test.ts && pnpm --filter @repo/db run db:generate -> tsc clean; vitest passes; db:generate reports one new migration file, no diff to prior ones.\n\nFull code in the plan doc, Task 1.\n\n```json:metadata\n{\"files\": [\"packages/db/src/schema.ts\", \"packages/db/migrations\", \"apps/web/tests/unit/schema-password-reset.test.ts\"], \"verifyCommand\": \"pnpm --filter web exec tsc --noEmit && pnpm --filter web test -- tests/unit/schema-password-reset.test.ts && pnpm --filter @repo/db run db:generate\", \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 2,
+      "subject": "Task 2: apps/web/lib/auth/reset-token.ts -- signed jose reset token",
+      "status": "pending",
+      "blockedBy": [1],
+      "description": "**Goal:** Add a jose-based signed token primitive carrying a purpose: 'password-reset' claim, with a SHA-256 jti hash for DB lookup, reusing session.ts's exact SignJWT/jwtVerify pattern so a leaked session token cannot be replayed as a reset token.\n\n**Verify:** pnpm --filter web exec tsc --noEmit && pnpm --filter web test -- tests/unit/reset-token.test.ts -> tsc clean; all cases passing.\n\nFull code in the plan doc, Task 2.\n\n```json:metadata\n{\"files\": [\"apps/web/lib/auth/reset-token.ts\", \"apps/web/tests/unit/reset-token.test.ts\"], \"verifyCommand\": \"pnpm --filter web exec tsc --noEmit && pnpm --filter web test -- tests/unit/reset-token.test.ts\", \"modelTier\": \"standard\"}\n```"
+    },
+    {
+      "id": 3,
+      "subject": "Task 3: apps/web/lib/auth/password-reset.ts -- request/confirm orchestration",
+      "status": "pending",
+      "blockedBy": [2],
+      "description": "**Goal:** Implement requestPasswordReset/confirmPasswordReset, account-enumeration-safe, single-use-token-enforcing, with auto-sign-in on a successful reset.\n\n**IMPORTANT CONTRACT:** confirmPasswordReset never throws for a known failure (bad/garbage/expired/used token) -- it always resolves to { success: true } | { error: string }. Every downstream caller (Task 11's route, Task 12's Server Action) must check this resolved shape, not catch a thrown error.\n\n**Verify:** pnpm --filter web exec tsc --noEmit && pnpm --filter web test -- tests/unit/password-reset.test.ts -> tsc clean; all cases passing.\n\nFull code in the plan doc, Task 3. Imports sendPasswordResetEmail from @repo/email/send (a subpath export -- there is no bare '@repo/email' export), mocked in this task's test and built for real in Tasks 4-8.\n\n```json:metadata\n{\"files\": [\"apps/web/lib/auth/password-reset.ts\", \"apps/web/tests/unit/password-reset.test.ts\"], \"verifyCommand\": \"pnpm --filter web exec tsc --noEmit && pnpm --filter web test -- tests/unit/password-reset.test.ts\", \"modelTier\": \"standard\"}\n```"
+    },
+    {
+      "id": 4,
+      "subject": "Task 4: packages/email client (lazy Resend client + generic sendEmail)",
+      "status": "pending",
+      "blockedBy": [3],
+      "description": "**Goal:** Flesh out the Phase-2 packages/email placeholder scaffold with real dependencies and a lazy Resend client exposing sendEmail({ to, subject, react }) that throws at call time (not import time) if RESEND_API_KEY/RESEND_FROM_EMAIL are missing.\n\n**Verify:** pnpm --filter @repo/email test -- client -> 5 passed\n\nFull code in the plan doc, Task 4.\n\n```json:metadata\n{\"files\": [\"packages/email/package.json\", \"packages/email/vitest.config.ts\", \"packages/email/tsconfig.json\", \"packages/email/src/client.ts\", \"packages/email/tests/unit/client.test.ts\", \"pnpm-lock.yaml\"], \"verifyCommand\": \"pnpm --filter @repo/email test -- client\", \"modelTier\": \"standard\"}\n```"
+    },
+    {
+      "id": 5,
+      "subject": "Task 5: packages/email EmailLayout template",
+      "status": "pending",
+      "blockedBy": [4],
+      "description": "**Goal:** Build the shared @react-email/components wrapper (logo, gradient accent, footer) that every transactional email template renders inside.\n\n**Verify:** pnpm --filter @repo/email test -- email-layout -> 3 passed\n\nFull code in the plan doc, Task 5.\n\n```json:metadata\n{\"files\": [\"packages/email/src/templates/EmailLayout.tsx\", \"packages/email/tests/unit/email-layout.test.tsx\"], \"verifyCommand\": \"pnpm --filter @repo/email test -- email-layout\", \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 6,
+      "subject": "Task 6: packages/email PasswordResetEmail template",
+      "status": "pending",
+      "blockedBy": [5],
+      "description": "**Goal:** Build the password-reset email body (greeting, CTA, expiry notice, plain-text-visible fallback URL) on top of EmailLayout.\n\n**Verify:** pnpm --filter @repo/email test -- password-reset-email -> 3 passed\n\nFull code in the plan doc, Task 6.\n\n```json:metadata\n{\"files\": [\"packages/email/src/templates/PasswordResetEmail.tsx\", \"packages/email/tests/unit/password-reset-email.test.tsx\"], \"verifyCommand\": \"pnpm --filter @repo/email test -- password-reset-email\", \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 7,
+      "subject": "Task 7: packages/email TeamInvitationEmail template",
+      "status": "pending",
+      "blockedBy": [5],
+      "description": "**Goal:** Build the team-invitation email body (inviter, team name, role, CTA) on top of EmailLayout, ready to be wired into inviteTeamMember's TODO.\n\n**Verify:** pnpm --filter @repo/email test -- team-invitation-email -> 3 passed\n\nFull code in the plan doc, Task 7.\n\n```json:metadata\n{\"files\": [\"packages/email/src/templates/TeamInvitationEmail.tsx\", \"packages/email/tests/unit/team-invitation-email.test.tsx\"], \"verifyCommand\": \"pnpm --filter @repo/email test -- team-invitation-email\", \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 8,
+      "subject": "Task 8: packages/email send.ts (sendPasswordResetEmail, sendTeamInvitationEmail)",
+      "status": "pending",
+      "blockedBy": [6, 7],
+      "description": "**Goal:** Wrap the generic sendEmail with two typed, subject-specific helpers that the auth backend and inviteTeamMember call.\n\n**Verify:** pnpm --filter @repo/email test -- send.test -> 2 passed\n\nFull code in the plan doc, Task 8.\n\n```json:metadata\n{\"files\": [\"packages/email/src/send.ts\", \"packages/email/tests/unit/send.test.ts\"], \"verifyCommand\": \"pnpm --filter @repo/email test -- send.test\", \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 9,
+      "subject": "Task 9: Wire sendTeamInvitationEmail into inviteTeamMember",
+      "status": "pending",
+      "blockedBy": [8],
+      "description": "**Goal:** Replace the // TODO: Send invitation email in inviteTeamMember with a real call to sendTeamInvitationEmail, capturing the created invitation's id for the ?inviteId= URL, without letting an email-provider failure roll back or fail the invitation itself.\n\n**Verify:** pnpm --filter web test -- invite-team-member-email -> 2 passed\n\nFull code in the plan doc, Task 9.\n\n```json:metadata\n{\"files\": [\"apps/web/app/(login)/actions.ts\", \"apps/web/tests/unit/invite-team-member-email.test.ts\"], \"verifyCommand\": \"pnpm --filter web test -- invite-team-member-email\", \"modelTier\": \"standard\"}\n```"
+    },
+    {
+      "id": 10,
+      "subject": "Task 10: POST /api/password-reset/request route handler",
+      "status": "pending",
+      "blockedBy": [3],
+      "description": "**Goal:** Add a Zod-validated Route Handler that always responds with an identical generic message regardless of whether the account exists, delegating the actual side effect to requestPasswordReset (Task 3).\n\n**Verify:** pnpm --filter web test -- password-reset-request-route -> 4 passed\n\nFull code in the plan doc, Task 10.\n\n```json:metadata\n{\"files\": [\"apps/web/app/api/password-reset/request/route.ts\", \"apps/web/tests/unit/password-reset-request-route.test.ts\"], \"verifyCommand\": \"pnpm --filter web test -- password-reset-request-route\", \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 11,
+      "subject": "Task 11: POST /api/password-reset/confirm route handler",
+      "status": "pending",
+      "blockedBy": [3],
+      "description": "**Goal:** Add a Zod-validated Route Handler that confirms a password reset by delegating to confirmPasswordReset, surfacing its resolved error message on failure and a success message otherwise.\n\n**IMPORTANT:** confirmPasswordReset never throws for a known failure -- it always resolves to { success: true } | { error }. This route must check `'error' in outcome` on the resolved value, NOT wrap the call in a try/catch expecting a thrown error (that was a mismatch in an earlier draft, corrected in this plan).\n\n**Verify:** pnpm --filter web test -- password-reset-confirm-route -> 4 passed\n\nFull code in the plan doc, Task 11.\n\n```json:metadata\n{\"files\": [\"apps/web/app/api/password-reset/confirm/route.ts\", \"apps/web/tests/unit/password-reset-confirm-route.test.ts\"], \"verifyCommand\": \"pnpm --filter web test -- password-reset-confirm-route\", \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 12,
+      "subject": "Task 12: requestPasswordReset / resetPassword Server Actions",
+      "status": "pending",
+      "blockedBy": [9, 11],
+      "description": "**Goal:** Add the same password-reset flow as validatedAction-wrapped Server Actions in app/(login)/actions.ts, matching the file's existing .issues-based error pattern, over the same password-reset.ts logic used by the Route Handlers.\n\n**IMPORTANT:** resetPassword must check confirmPasswordReset's resolved { success: true } | { error } shape (same contract note as Task 11), not a try/catch.\n\n**Verify:** pnpm --filter web test -- password-reset-actions -> 6 passed\n\nFull code in the plan doc, Task 12.\n\n```json:metadata\n{\"files\": [\"apps/web/app/(login)/actions.ts\", \"apps/web/tests/unit/password-reset-actions.test.ts\"], \"verifyCommand\": \"pnpm --filter web test -- password-reset-actions\", \"modelTier\": \"standard\"}\n```"
+    },
+    {
+      "id": 13,
+      "subject": "Task 13: forgot-password page",
+      "status": "pending",
+      "blockedBy": [12],
+      "description": "**Goal:** Add /forgot-password, styled like login.tsx, that submits to the new requestPasswordReset Server Action and shows its generic success message in place of the form.\n\n**Verify:** pnpm --filter web test -- forgot-password-page -> 3 passed\n\nFull code in the plan doc, Task 13.\n\n```json:metadata\n{\"files\": [\"apps/web/app/(login)/forgot-password/page.tsx\", \"apps/web/tests/unit/forgot-password-page.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- forgot-password-page\", \"modelTier\": \"standard\"}\n```"
+    },
+    {
+      "id": 14,
+      "subject": "Task 14: reset-password page",
+      "status": "pending",
+      "blockedBy": [12],
+      "description": "**Goal:** Add /reset-password, reading ?token= and presenting a new-password form that submits to resetPassword; a thin server-component page wraps a 'use client' form in <Suspense> (required for useSearchParams).\n\n**Verify:** pnpm --filter web test -- reset-password-page -> 3 passed\n\nFull code in the plan doc, Task 14.\n\n```json:metadata\n{\"files\": [\"apps/web/app/(login)/reset-password/page.tsx\", \"apps/web/app/(login)/reset-password/reset-password-form.tsx\", \"apps/web/tests/unit/reset-password-page.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- reset-password-page\", \"modelTier\": \"standard\"}\n```"
+    },
+    {
+      "id": 15,
+      "subject": "Task 15: \"Forgot your password?\" link in login.tsx",
+      "status": "pending",
+      "blockedBy": [13],
+      "description": "**Goal:** Add a 'Forgot your password?' link under the password field in login.tsx, sign-in mode only, pointing at /forgot-password.\n\n**Verify:** pnpm --filter web test -- login-forgot-password-link -> 2 passed\n\nFull code in the plan doc, Task 15.\n\n```json:metadata\n{\"files\": [\"apps/web/app/(login)/login.tsx\", \"apps/web/tests/unit/login-forgot-password-link.test.tsx\"], \"verifyCommand\": \"pnpm --filter web test -- login-forgot-password-link\", \"modelTier\": \"mechanical\"}\n```"
+    },
+    {
+      "id": 16,
+      "subject": "Task 16: RESEND_API_KEY / RESEND_FROM_EMAIL env vars",
+      "status": "pending",
+      "blockedBy": [4],
+      "description": "**Goal:** Document the two new Resend env vars in apps/web/.env.example alongside the existing AUTH_SECRET/BASE_URL block.\n\n**Verify:** pnpm --filter web test -- env-example -> 2 passed\n\nFull code in the plan doc, Task 16.\n\n```json:metadata\n{\"files\": [\"apps/web/.env.example\", \"apps/web/tests/unit/env-example.test.ts\"], \"verifyCommand\": \"pnpm --filter web test -- env-example\", \"modelTier\": \"mechanical\"}\n```"
+    }
+  ],
+  "lastUpdated": "2026-07-16T00:00:00Z"
+}
