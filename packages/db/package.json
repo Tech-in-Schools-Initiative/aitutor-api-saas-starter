@@ -8,6 +8,11 @@
     "./tiers": "./src/tiers.ts",
     "./utils": "./src/utils.ts"
   },
+  "scripts": {
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio"
+  },
   "dependencies": {
     "dotenv": "^16.6.1",
     "drizzle-orm": "^0.45.2",
@@ -16,6 +21,7 @@
   "devDependencies": {
     "@repo/config": "workspace:*",
     "@types/node": "^22.13.1",
+    "drizzle-kit": "^0.31.10",
     "typescript": "^5.9.3"
   }
 }
