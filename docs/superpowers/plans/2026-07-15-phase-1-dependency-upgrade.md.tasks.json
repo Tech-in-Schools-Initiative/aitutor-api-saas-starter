@@ -73,7 +73,7 @@
     {
       "id": 11,
       "subject": "Task 11: Next.js Canary to 16.2.10 Stable Upgrade",
-      "status": "pending",
+      "status": "completed",
       "blockedBy": [10],
       "description": "**Goal:** Move off 15.2.0-canary.33 onto Next.js 16.2.10 stable via the official codemod, drop experimental.ppr/newDevOverlay, rename middleware.ts to proxy.ts.\n\n**Verify:** pnpm exec tsc --noEmit && pnpm test && pnpm test:e2e && pnpm build -> all green, plus manual click-through of 13 routes\n\nFull before/after code in the plan doc, Task 11.\n\n```json:metadata\n{\"files\": [\"package.json\", \"next.config.ts\", \"middleware.ts\", \"proxy.ts\", \"tests/unit/next-version.test.ts\"], \"verifyCommand\": \"pnpm exec tsc --noEmit && pnpm test && pnpm test:e2e && pnpm build\", \"modelTier\": \"standard\"}\n```"
     }
