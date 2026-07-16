@@ -158,6 +158,24 @@ export const workflowHistoryRelations = relations(workflowHistory, ({ one }) => 
   }),
 }));
 
+export const passwordResetTokens = pgTable('password_reset_tokens', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id')
+    .notNull()
+    .references(() => users.id),
+  tokenHash: varchar('token_hash', { length: 64 }).notNull().unique(),
+  expiresAt: timestamp('expires_at').notNull(),
+  usedAt: timestamp('used_at'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
+export const passwordResetTokensRelations = relations(passwordResetTokens, ({ one }) => ({
+  user: one(users, {
+    fields: [passwordResetTokens.userId],
+    references: [users.id],
+  }),
+}));
+
 // Add these types
 export type WorkflowHistory = typeof workflowHistory.$inferSelect;
 export type NewWorkflowHistory = typeof workflowHistory.$inferInsert;
@@ -175,6 +193,9 @@ export type NewInvitation = typeof invitations.$inferInsert;
 // Added Message types
 export type Message = typeof messages.$inferSelect;
 export type NewMessage = typeof messages.$inferInsert;
+// Added PasswordResetToken types
+export type PasswordResetToken = typeof passwordResetTokens.$inferSelect;
+export type NewPasswordResetToken = typeof passwordResetTokens.$inferInsert;
 
 export type TeamDataWithMembers = Team & {
   teamMembers: (TeamMember & {
@@ -193,5 +214,7 @@ export enum ActivityType {
   REMOVE_TEAM_MEMBER = 'REMOVE_TEAM_MEMBER',
   INVITE_TEAM_MEMBER = 'INVITE_TEAM_MEMBER',
   ACCEPT_INVITATION = 'ACCEPT_INVITATION',
+  REQUEST_PASSWORD_RESET = 'REQUEST_PASSWORD_RESET',
+  RESET_PASSWORD = 'RESET_PASSWORD',
 }
 

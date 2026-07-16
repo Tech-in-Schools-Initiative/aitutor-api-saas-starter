@@ -27,6 +27,8 @@ const iconMap: Record<ActivityType, LucideIcon> = {
   [ActivityType.REMOVE_TEAM_MEMBER]: UserMinus,
   [ActivityType.INVITE_TEAM_MEMBER]: Mail,
   [ActivityType.ACCEPT_INVITATION]: CircleCheckBig,
+  [ActivityType.REQUEST_PASSWORD_RESET]: Mail,
+  [ActivityType.RESET_PASSWORD]: Lock,
 };
 
 function getRelativeTime(date: Date) {
@@ -65,6 +67,10 @@ function formatAction(action: ActivityType): string {
       return 'You invited a team member';
     case ActivityType.ACCEPT_INVITATION:
       return 'You accepted an invitation';
+    case ActivityType.REQUEST_PASSWORD_RESET:
+      return 'You requested a password reset';
+    case ActivityType.RESET_PASSWORD:
+      return 'You reset your password';
     default:
       return 'Unknown action occurred';
   }
