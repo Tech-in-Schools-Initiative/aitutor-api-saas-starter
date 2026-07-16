@@ -54,12 +54,6 @@ importers:
       canvas-confetti:
         specifier: ^1.9.4
         version: 1.9.4
-      class-variance-authority:
-        specifier: ^0.7.1
-        version: 0.7.1
-      clsx:
-        specifier: ^2.1.1
-        version: 2.1.1
       date-fns:
         specifier: ^4.4.0
         version: 4.4.0
@@ -84,9 +78,6 @@ importers:
       postcss:
         specifier: ^8.5.1
         version: 8.5.19
-      radix-ui:
-        specifier: ^1.6.2
-        version: 1.6.2(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       react:
         specifier: 19.2.7
         version: 19.2.7
@@ -99,9 +90,6 @@ importers:
       stripe:
         specifier: ^22.3.1
         version: 22.3.1(@types/node@22.13.1)
-      tailwind-merge:
-        specifier: ^3.6.0
-        version: 3.6.0
       tailwindcss:
         specifier: 4.3.2
         version: 4.3.2
