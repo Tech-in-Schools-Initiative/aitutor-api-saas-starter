@@ -1,4 +1,4 @@
 @import 'tailwindcss';
 @import '@repo/config/tailwind/shared-theme.css';
 @plugin 'tailwindcss-animate';
-@source '../../packages/ui/src';
+@source '../../../packages/ui/src';
