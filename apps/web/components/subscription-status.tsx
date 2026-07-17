@@ -2,6 +2,7 @@
 'use client';
 
 import * as React from "react";
+import { useQuery } from '@tanstack/react-query';
 import { useSidebar } from "@repo/ui/components/sidebar";
 
 interface MessageData {
@@ -10,37 +11,23 @@ interface MessageData {
   subscriptionTier?: string;
 }
 
+async function fetchMessageData(): Promise<MessageData> {
+  const res = await fetch('/api/team/limit');
+  if (!res.ok) {
+    throw new Error('Error loading message count');
+  }
+  return res.json();
+}
+
 export function SubscriptionStatus() {
   const { state } = useSidebar(); // "expanded" or "collapsed"
-  const [messageData, setMessageData] = React.useState<MessageData | null>(null);
-  const [loading, setLoading] = React.useState<boolean>(true);
-  const [error, setError] = React.useState<string>("");
 
-  // Function to fetch message data from your API endpoint.
-  const fetchMessageData = React.useCallback(() => {
-    fetch('/api/team/limit')
-      .then((res) => res.json())
-      .then((data) => {
-        setMessageData(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setError('Error loading message count');
-        setLoading(false);
-      });
-  }, []);
-
-  // Initial fetch.
-  React.useEffect(() => {
-    fetchMessageData();
-  }, [fetchMessageData]);
-
-  // Poll every 10 seconds to update the badge.
-  React.useEffect(() => {
-    const interval = setInterval(fetchMessageData, 20000);
-    return () => clearInterval(interval);
-  }, [fetchMessageData]);
+  const { data: messageData, isLoading: loading, isError, error } = useQuery({
+    queryKey: ['team-limit'],
+    queryFn: fetchMessageData,
+    refetchInterval: 20000,
+    refetchOnWindowFocus: true,
+  });
 
   // Determine subscription tier name.
   const tierName =
@@ -51,7 +38,7 @@ export function SubscriptionStatus() {
   // Format text based on sidebar state.
   const subscriptionBadgeText =
     state === "collapsed" ? tierName.charAt(0).toUpperCase() : tierName;
-  
+
   const messagesBadgeText = React.useMemo(() => {
     if (!messageData) return '';
     const { unlimited, remainingMessages } = messageData;
@@ -82,8 +69,10 @@ export function SubscriptionStatus() {
       <div>
         {loading ? (
           <span className="text-xs text-neutral-500">Loading...</span>
-        ) : error ? (
-          <span className="text-xs text-neutral-500">{error}</span>
+        ) : isError ? (
+          <span className="text-xs text-neutral-500">
+            {error instanceof Error ? error.message : 'Error loading message count'}
+          </span>
         ) : (
           <span className={`rounded-full px-2 py-1 text-xs font-semibold text-white ${badgeColorClass}`}>
             {messagesBadgeText}
