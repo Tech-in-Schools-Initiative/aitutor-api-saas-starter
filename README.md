@@ -2,12 +2,12 @@
 
 ![AI Tutor API Logo](https://raw.githubusercontent.com/Tech-in-Schools-Initiative/aitutor-api-saas-starter/main/public/logo-long.png)
 
-Use workflows and chatbots created with [AI Tutor API](https://aitutor-api.vercel.app/).  
+Use workflows created with [AI Tutor API](https://aitutor-api.vercel.app/).  
 This template is based on [Vercel SAAS Starter](https://github.com/nextjs/saas-starter).
 
 ## Overview
 
-The **AI Tutor API Subscription Starter** is your complete starting point to build SaaS applications that integrate AI workflows and chatbots powered by AI Tutor API. This template leverages the powerful foundation of Vercel SAAS Starter and extends it with Stripe-based subscription management, PostgreSQL (using Drizzle ORM), and per‑month message tracking with limits based on subscription tiers.
+The **AI Tutor API Subscription Starter** is your complete starting point to build SaaS applications that integrate AI workflows powered by AI Tutor API. This template leverages the powerful foundation of Vercel SAAS Starter and extends it with Stripe-based subscription management, PostgreSQL (using Drizzle ORM), and per‑month message tracking with limits based on subscription tiers.
 
 ## Tech Stack
 
@@ -52,8 +52,6 @@ The **AI Tutor API Subscription Starter** is your complete starting point to bui
      - `AUTH_SECRET` – A secret key for JWT signing (e.g. generated with `openssl rand -base64 32`).
      - `AITUTOR_API_KEY` – Your API key for AI Tutor API.
      - `WORKFLOW_ID` – The workflow ID used by the AI Tutor API.
-     - `CHATBOT_ID` (optional) – Your chatbot ID.
-     - `NEXT_PUBLIC_AITUTOR_TOKEN` – The public token for AI Tutor interactions.
 
 4. **Run the Development Server:**
 
@@ -114,7 +112,7 @@ The available tiers are defined in **packages/db/src/tiers.ts**:
   - Otherwise, the team is considered to be on the free plan with a limit of 5 messages per month.
 - Each time a workflow is triggered, one message credit is consumed and the team's `currentMessages` count is incremented.
 
-## Workflow and Chatbot Integration
+## Workflow Integration
 
 ### Workflow Page
 The workflow page provides an interface for users to interact with AI Tutor API workflows:
@@ -129,40 +127,6 @@ The workflow page provides an interface for users to interact with AI Tutor API 
   - The history drawer displays past prompts and their results, sorted by most recent
   - Clicking on any history item will restore both the input prompt and the generated output
   - History is shared among team members, allowing for collaborative work
-  
-### Chatbot Page
-Build and test chatbots created with AI Tutor API as part of your SaaS application:
-
-- **Embedded Chatbots**: Easily embed chatbots created with AI Tutor API
-- **Real-time Streaming**: Experience real-time text streaming for a more interactive chat experience
-- **Customizable Interface**: The chat interface can be styled to match your application's design
-
-### Extending Chat History to the Chatbot Page
-
-The chatbot page can be enhanced with a message history feature similar to the workflow history:
-
-#### Implementation Guide
-
-1. **Database Schema**: 
-   - The existing `workflow_history` table can be used as a model
-   - Create a `chat_history` table with fields for:
-     - `id`: Unique identifier
-     - `teamId`: Team association
-     - `userId`: User who initiated the chat
-     - `messages`: JSON array of chat messages (or individual message rows)
-     - `createdAt`: Timestamp
-     - `title`: Optional auto-generated title based on conversation content
-
-2. **API Endpoints**:
-   - Create `/api/chat/history` endpoint to fetch chat history
-   - Modify the existing `/api/chat` endpoint to save conversations
-   - Add an endpoint to allow users to name or categorize conversations
-
-3. **UI Components**:
-   - Add a history drawer component similar to `WorkflowHistoryDrawer`
-   - Implement a chat session selector to switch between conversations
-   - Add options to continue previous conversations or start new ones
-
 
 ## Sidebar Subscription Status Display
 
