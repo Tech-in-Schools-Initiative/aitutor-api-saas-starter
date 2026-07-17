@@ -85,7 +85,7 @@ export default function Workflow() {
                         <div>
                             <div className="flex justify-between items-center">
                                 <Label htmlFor="story">Enter your story prompt</Label>
-                                <WorkflowHistoryDrawer onSelectHistory={handleSelectHistory} />
+                                <WorkflowHistoryDrawer workflowKey="story-generator" onSelectHistory={handleSelectHistory} />
                             </div>
                             <Input
                                 id="story"
