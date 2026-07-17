@@ -131,15 +131,15 @@ function StatBlock({
   helper?: string;
 }) {
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
+    <div className="min-w-0 rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
       <div className="flex items-center gap-2">
         <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${iconChipClass}`}>
           <Icon className="h-4 w-4" aria-hidden="true" />
         </span>
         <p className="text-sm font-medium text-gray-500">{label}</p>
       </div>
-      <p className="mt-2 text-2xl font-semibold text-gray-900">{value}</p>
-      {helper && <p className="mt-1 text-sm text-gray-500">{helper}</p>}
+      <p className="mt-2 text-2xl font-semibold text-gray-900 break-words">{value}</p>
+      {helper && <p className="mt-1 text-sm text-gray-500 break-words">{helper}</p>}
     </div>
   );
 }
@@ -150,14 +150,14 @@ function RealEstateResult({ data }: { data: RealEstateAnalysisResult }) {
   const cashFlowPositive = data.estimatedMonthlyCashFlow >= 0;
 
   return (
-    <Card>
+    <Card className="overflow-x-hidden">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Sparkles className="h-5 w-5 text-pink-500" aria-hidden="true" />
           Investment Analysis
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-6 min-w-0">
         <div className="flex items-center gap-1.5 text-sm text-gray-500">
           <Building2 className="h-4 w-4" aria-hidden="true" />
           <span>Property type: {data.propertyType}</span>
@@ -182,7 +182,7 @@ function RealEstateResult({ data }: { data: RealEstateAnalysisResult }) {
                   {data.verdict}
                 </span>
               </div>
-              <p className={`mt-2 text-base sm:text-lg font-medium leading-snug ${visual.summaryTextClass}`}>
+              <p className={`mt-2 text-base sm:text-lg font-medium leading-snug break-words ${visual.summaryTextClass}`}>
                 {data.verdictSummary}
               </p>
             </div>
@@ -231,7 +231,7 @@ function RealEstateResult({ data }: { data: RealEstateAnalysisResult }) {
             {(data.risks || []).map((risk, index) => (
               <li key={index} className="flex items-start gap-2">
                 <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" aria-hidden="true" />
-                <span>{risk}</span>
+                <span className="min-w-0 break-words">{risk}</span>
               </li>
             ))}
           </ul>
@@ -242,7 +242,7 @@ function RealEstateResult({ data }: { data: RealEstateAnalysisResult }) {
             <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
             Recommendation
           </h3>
-          <p className="text-purple-950">{data.recommendation}</p>
+          <p className="text-purple-950 break-words">{data.recommendation}</p>
         </div>
       </CardContent>
     </Card>
