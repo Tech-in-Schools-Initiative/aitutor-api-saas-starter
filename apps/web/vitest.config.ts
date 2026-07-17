@@ -10,6 +10,7 @@ export default defineConfig({
     setupFiles: ['./tests/setup.ts'],
     env: {
       AUTH_SECRET: 'vitest-unit-test-secret-do-not-use-in-production',
+      STRIPE_SECRET_KEY: 'sk_test_vitest-unit-test-dummy-key-do-not-use',
     },
   },
 });

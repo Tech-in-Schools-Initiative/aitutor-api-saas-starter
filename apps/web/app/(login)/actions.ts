@@ -25,6 +25,7 @@ import {
   validatedAction,
   validatedActionWithUser,
 } from '@/lib/auth/middleware';
+import { sendTeamInvitationEmail } from '@repo/email/send';
 
 async function logActivity(
   teamId: number | null | undefined,
@@ -423,13 +424,16 @@ export const inviteTeamMember = validatedActionWithUser(
     }
 
     // Create a new invitation
-    await db.insert(invitations).values({
-      teamId: userWithTeam.teamId,
-      email,
-      role,
-      invitedBy: user.id,
-      status: 'pending',
-    });
+    const [createdInvitation] = await db
+      .insert(invitations)
+      .values({
+        teamId: userWithTeam.teamId,
+        email,
+        role,
+        invitedBy: user.id,
+        status: 'pending',
+      })
+      .returning();
 
     await logActivity(
       userWithTeam.teamId,
@@ -437,8 +441,23 @@ export const inviteTeamMember = validatedActionWithUser(
       ActivityType.INVITE_TEAM_MEMBER,
     );
 
-    // TODO: Send invitation email and include ?inviteId={id} to sign-up URL
-    // await sendInvitationEmail(email, userWithTeam.team.name, role)
+    const [team] = await db
+      .select({ name: teams.name })
+      .from(teams)
+      .where(eq(teams.id, userWithTeam.teamId))
+      .limit(1);
+
+    try {
+      await sendTeamInvitationEmail({
+        to: email,
+        teamName: team?.name ?? 'your team',
+        inviterName: user.name ?? user.email,
+        inviteUrl: `${process.env.BASE_URL}/sign-up?inviteId=${createdInvitation.id}`,
+        role,
+      });
+    } catch (err) {
+      console.error('Failed to send team invitation email', err);
+    }
 
     return { success: 'Invitation sent successfully' };
   },
