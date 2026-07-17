@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Lock, Search, Settings, Sparkles, BotIcon } from "lucide-react";
+import { Box, Lock, Search, Settings, Sparkles } from "lucide-react";
 import { GlowingEffect } from "./glowing-effect";
 import { cn } from "@repo/ui/lib/utils";
 import React from "react";
@@ -16,15 +16,15 @@ export function GlowingEffectDemo() {
       />
       <GridItem
         area="md:[grid-area:1/7/2/13] xl:[grid-area:2/1/3/5]"
-        icon={<BotIcon className="h-6 w-6" />}
-        title="Build chatbots"
-        description="Build and edit chatbots with our custom system prompt without touching your code"
+        icon={<Search className="h-6 w-6" />}
+        title="Review workflow history"
+        description="Every workflow run is logged so you can review past inputs, outputs, and timing without leaving the dashboard"
       />
       <GridItem
         area="md:[grid-area:2/1/3/7] xl:[grid-area:1/5/3/8]"
         icon={<Lock className="h-6 w-6" />}
-        title="Real time chat streaming"
-        description="Take advange of chat streaming for fast real time text completion response"
+        title="Usage limits by tier"
+        description="Each subscription tier enforces a monthly message limit, so usage scales predictably with your plan"
       />
     </ul>
   );

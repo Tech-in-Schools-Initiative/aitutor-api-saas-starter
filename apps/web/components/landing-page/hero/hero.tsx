@@ -14,7 +14,7 @@ import type { ConfettiRef } from "./components/confetti"; // Import ConfettiRef 
 function Hero() {
   const [titleNumber, setTitleNumber] = useState(0);
   const titles = useMemo(
-    () => ["workflows", "chatbots", "personalities", "models"],
+    () => ["workflows", "agents", "automations", "models"],
     []
   );
   const confettiRef = useRef<ConfettiRef>(null); // Ref to control confetti
