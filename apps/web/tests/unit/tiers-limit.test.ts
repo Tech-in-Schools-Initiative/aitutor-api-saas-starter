@@ -4,7 +4,7 @@ import { createRequire } from 'node:module';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { db } from '@repo/db/client';
-import { teams } from '@repo/db/schema';
+import { teams, Team } from '@repo/db/schema';
 import { checkMessageLimit, incrementMessageCount } from '@repo/db/utils';
 
 const require = createRequire(import.meta.url);
@@ -52,10 +52,10 @@ describe('drizzle-orm / drizzle-kit version pin', () => {
   });
 });
 
-let teamId: number;
+let team: Team;
 
 beforeAll(async () => {
-  const [team] = await db
+  const [insertedTeam] = await db
     .insert(teams)
     .values({
       name: 'Vitest Fixture Team',
@@ -63,37 +63,35 @@ beforeAll(async () => {
       currentMessages: 0,
     })
     .returning();
-  teamId = team.id;
+  team = insertedTeam;
 });
 
 afterAll(async () => {
-  if (teamId) {
-    await db.delete(teams).where(eq(teams.id, teamId));
+  if (team) {
+    await db.delete(teams).where(eq(teams.id, team.id));
   }
 });
 
 describe('checkMessageLimit / incrementMessageCount', () => {
   it('reports the free-tier limit (5) as remaining when no messages sent', async () => {
-    const { withinLimit, remainingMessages } = await checkMessageLimit(teamId);
+    const { withinLimit, remainingMessages } = await checkMessageLimit(team);
     expect(withinLimit).toBe(true);
     expect(remainingMessages).toBe(5);
   });
 
   it('decrements remaining messages after incrementMessageCount', async () => {
-    await incrementMessageCount(teamId, 3);
-    const { withinLimit, remainingMessages } = await checkMessageLimit(teamId);
+    await incrementMessageCount(team.id, 3);
+    const [refreshed] = await db.select().from(teams).where(eq(teams.id, team.id));
+    const { withinLimit, remainingMessages } = await checkMessageLimit(refreshed);
     expect(withinLimit).toBe(true);
     expect(remainingMessages).toBe(2);
   });
 
   it('flips withinLimit to false once the free-tier limit is exhausted', async () => {
-    await incrementMessageCount(teamId, 2);
-    const { withinLimit, remainingMessages } = await checkMessageLimit(teamId);
+    await incrementMessageCount(team.id, 2);
+    const [refreshed] = await db.select().from(teams).where(eq(teams.id, team.id));
+    const { withinLimit, remainingMessages } = await checkMessageLimit(refreshed);
     expect(withinLimit).toBe(false);
     expect(remainingMessages).toBe(0);
-  });
-
-  it('throws for a team id that does not exist', async () => {
-    await expect(checkMessageLimit(-1)).rejects.toThrow('Team not found');
   });
 });

@@ -1,7 +1,7 @@
 // app/api/run/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth/session';
-import { getTeamForUser } from '@repo/db/queries';
+import { getTeamCore } from '@repo/db/queries';
 import { checkMessageLimit, incrementMessageCount, saveWorkflowHistory } from '@repo/db/utils';
 
 export async function POST(req: NextRequest) {
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Get the team details for the user.
-    const team = await getTeamForUser(user.id);
+    const team = await getTeamCore(user.id);
     if (!team) {
       return NextResponse.json(
         { error: 'Team not found' },
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Check the team's monthly message limit.
-    const { withinLimit, remainingMessages } = await checkMessageLimit(team.id);
+    const { withinLimit, remainingMessages } = await checkMessageLimit(team);
     if (!withinLimit) {
       return NextResponse.json(
         {

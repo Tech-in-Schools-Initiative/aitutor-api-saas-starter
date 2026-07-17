@@ -8,22 +8,18 @@ import { workflowHistory, NewWorkflowHistory } from './schema';
 // If the team has an active subscription (stripeSubscriptionId exists) and its stripeProductId
 // matches a tier’s productId, that tier's messageLimit is used; otherwise, the free plan
 // limit of 5 messages is enforced.
+//
+// Takes an already-fetched Team row rather than a teamId, so callers that already have the
+// team (e.g. via getTeamCore) don't pay for a second, redundant fetch here.
 export async function checkMessageLimit(
-  teamId: number
+  team: Team
 ): Promise<{ withinLimit: boolean; remainingMessages: number }> {
-  const teamResult = await db.select().from(teams).where(eq(teams.id, teamId)).limit(1);
-
-  if (teamResult.length === 0) {
-    throw new Error("Team not found");
-  }
-
-  const currentTeam: Team = teamResult[0];
   let messageLimit: number;
 
-  if (currentTeam.stripeSubscriptionId && currentTeam.stripeProductId) {
+  if (team.stripeSubscriptionId && team.stripeProductId) {
     // Look for a matching tier based on the stored stripeProductId.
     const matchedTier: Tier | undefined = tiers.find(
-      (t) => t.productId === currentTeam.stripeProductId
+      (t) => t.productId === team.stripeProductId
     );
     if (matchedTier) {
       messageLimit = matchedTier.messageLimit;
@@ -36,7 +32,7 @@ export async function checkMessageLimit(
     messageLimit = 5;
   }
 
-  const currentMessages = currentTeam.currentMessages ?? 0;
+  const currentMessages = team.currentMessages ?? 0;
   const remainingMessages = messageLimit - currentMessages;
   const withinLimit = remainingMessages > 0;
 

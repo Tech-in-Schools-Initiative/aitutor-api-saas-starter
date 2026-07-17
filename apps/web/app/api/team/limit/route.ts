@@ -1,5 +1,5 @@
 // app/api/team/limit/route.ts
-import { getTeamForUser } from '@repo/db/queries';
+import { getTeamCore } from '@repo/db/queries';
 import { getUser } from '@/lib/auth/session';
 import { checkMessageLimit } from '@repo/db/utils';
 import { NextResponse } from 'next/server';
@@ -11,12 +11,12 @@ export async function GET() {
     return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
   }
 
-  const team = await getTeamForUser(user.id);
+  const team = await getTeamCore(user.id);
   if (!team) {
     return NextResponse.json({ error: 'Team not found' }, { status: 404 });
   }
 
-  const { remainingMessages } = await checkMessageLimit(team.id);
+  const { remainingMessages } = await checkMessageLimit(team);
   const unlimited = remainingMessages === Infinity;
 
   let subscriptionTier = "Free";
