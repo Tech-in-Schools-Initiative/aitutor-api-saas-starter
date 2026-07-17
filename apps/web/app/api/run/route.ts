@@ -4,13 +4,56 @@ import { getUser } from '@/lib/auth/session';
 import { getTeamCore } from '@repo/db/queries';
 import { checkMessageLimit, incrementMessageCount, saveWorkflowHistory } from '@repo/db/utils';
 
+// Maps a workflowKey to the env var holding that workflow's AI Tutor API workflow_id.
+const WORKFLOW_ENV_VAR_BY_KEY: Record<string, string> = {
+  'story-generator': 'WORKFLOW_ID',
+  'real-estate-analysis': 'WORKFLOW_ID_REAL_ESTATE_ANALYSIS',
+  'google-ads-analysis': 'WORKFLOW_ID_GOOGLE_ADS_ANALYSIS',
+  'resume-screening': 'WORKFLOW_ID_RESUME_SCREENING',
+};
+
 export async function POST(req: NextRequest) {
   try {
-    const { story } = await req.json();
+    const body = await req.json();
 
-    if (!story) {
+    let workflowKey: string;
+    let aiTutorRequestBody: Record<string, unknown>;
+    let joinedInput: string;
+
+    if (typeof body.workflowKey === 'string') {
+      // New shape: { workflowKey, variables }
+      const { variables } = body;
+      if (!variables || typeof variables !== 'object') {
+        return NextResponse.json(
+          { error: 'Missing variables parameter' },
+          { status: 400 }
+        );
+      }
+
+      workflowKey = body.workflowKey;
+      aiTutorRequestBody = { ...variables };
+      joinedInput = Object.entries(variables as Record<string, string>)
+        .map(([key, value]) => `${key}: ${value}`)
+        .join('\n\n');
+    } else {
+      // Legacy shape: { story }
+      const { story } = body;
+      if (!story) {
+        return NextResponse.json(
+          { error: 'Missing story parameter' },
+          { status: 400 }
+        );
+      }
+
+      workflowKey = 'story-generator';
+      aiTutorRequestBody = { story };
+      joinedInput = story;
+    }
+
+    const workflowEnvVar = WORKFLOW_ENV_VAR_BY_KEY[workflowKey];
+    if (!workflowEnvVar) {
       return NextResponse.json(
-        { error: 'Missing story parameter' },
+        { error: `Unknown workflowKey: ${workflowKey}` },
         { status: 400 }
       );
     }
@@ -46,23 +89,24 @@ export async function POST(req: NextRequest) {
     }
 
     // Validate required environment variables.
-    if (!process.env.WORKFLOW_ID || !process.env.AITUTOR_API_KEY) {
+    const workflowId = process.env[workflowEnvVar];
+    if (!workflowId || !process.env.AITUTOR_API_KEY) {
       return NextResponse.json(
-        { error: 'Missing environment variables: WORKFLOW_ID or AITUTOR_API_KEY' },
+        { error: `Missing environment variables: ${workflowEnvVar} or AITUTOR_API_KEY` },
         { status: 500 }
       );
     }
 
     // Call the external AI Tutor API's run endpoint.
     const response = await fetch(
-      `https://aitutor-api.vercel.app/api/v1/run/${process.env.WORKFLOW_ID}`,
+      `https://aitutor-api.vercel.app/api/v1/run/${workflowId}`,
       {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${process.env.AITUTOR_API_KEY}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ story }),
+        body: JSON.stringify(aiTutorRequestBody),
       }
     );
 
@@ -80,10 +124,11 @@ export async function POST(req: NextRequest) {
 
     // Save workflow history
     await saveWorkflowHistory(
-      team.id, 
-      user.id, 
-      story, 
-      data.result || JSON.stringify(data)
+      team.id,
+      user.id,
+      joinedInput,
+      data.result || JSON.stringify(data),
+      workflowKey
     );
 
     return NextResponse.json(data, { status: 200 });
