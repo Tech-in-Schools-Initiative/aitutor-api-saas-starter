@@ -26,13 +26,15 @@ vi.mock('@/components/workflow/WorkflowHistoryDrawer', () => ({
 }));
 
 const VALID_STRUCTURED_RESULT = {
-  fitScore: 7,
-  fitScoreReason: 'Strong backend fundamentals but limited Node.js/TypeScript tenure and no formal lead title.',
-  matchingStrengths: ['6 years of overall backend engineering experience', '2 years of hands-on Node.js/TypeScript and AWS Lambda work'],
-  gaps: ['Only 2 years of Node.js/TypeScript versus the 5+ years required', 'No formal team-lead title, only informal mentorship'],
-  interviewQuestions: ['Walk me through a time you led a technical decision without formal authority.', 'How comfortable are you ramping up further on Node.js/TypeScript at a senior level?'],
-  recommendation: 'Maybe',
-  recommendationReason: 'Worth a conversation to clarify leadership readiness and depth of Node.js/TypeScript expertise.',
+  matchScore: 6,
+  overallAssessment:
+    'Solid backend fundamentals overall, but the resume undersells distributed-systems experience at scale and lacks a couple of keywords from the listing.',
+  missingKeywords: ['distributed systems', 'high-throughput', 'Kubernetes'],
+  suggestedImprovements: [
+    { section: 'Experience', suggestion: 'Quantify the transaction volume your Node.js/TypeScript APIs handled to mirror the listing\'s scale requirements.' },
+    { section: 'Skills', suggestion: 'Call out any container orchestration exposure, even informal, since the listing emphasizes Kubernetes.' },
+  ],
+  topPriorityFix: 'Add concrete scale/throughput numbers to your most recent role so it matches the listing\'s "millions of transactions per day" language.',
 };
 
 function renderWithQueryClient(
@@ -43,14 +45,11 @@ function renderWithQueryClient(
 }
 
 function fillAllFields() {
-  fireEvent.change(screen.getByLabelText('Job title'), { target: { value: 'Senior Backend Engineer' } });
-  fireEvent.change(screen.getByLabelText('Must-have skills'), { target: { value: 'Node.js, TypeScript, AWS' } });
-  fireEvent.change(screen.getByLabelText('Years of experience required'), { target: { value: '5+ years' } });
-  fireEvent.change(screen.getByLabelText('Full job description'), { target: { value: 'Owns the core payments API.' } });
-  fireEvent.change(screen.getByLabelText('Candidate resume'), { target: { value: 'Jane Doe, 6 years experience.' } });
+  fireEvent.change(screen.getByLabelText('Job listing URL'), { target: { value: 'https://example.com/jobs/123' } });
+  fireEvent.change(screen.getByLabelText('Resume'), { target: { value: 'Jane Doe, 6 years experience.' } });
 }
 
-describe('Resume & Candidate Fit Analysis page', () => {
+describe('Resume Improvement Analysis page', () => {
   beforeEach(() => {
     vi.stubGlobal('fetch', vi.fn());
     mockWorkflowResultDisplay.mockClear();
@@ -60,14 +59,16 @@ describe('Resume & Candidate Fit Analysis page', () => {
     vi.unstubAllGlobals();
   });
 
-  it('renders all 5 fields with correct labels', () => {
+  it('renders both fields with correct labels', () => {
     const { container } = renderWithQueryClient(<ResumeScreening />);
     expect(container.querySelector('[data-slot="card"]')).toBeTruthy();
-    expect(screen.getByLabelText('Job title')).toBeTruthy();
-    expect(screen.getByLabelText('Must-have skills')).toBeTruthy();
-    expect(screen.getByLabelText('Years of experience required')).toBeTruthy();
-    expect(screen.getByLabelText('Full job description')).toBeTruthy();
-    expect(screen.getByLabelText('Candidate resume')).toBeTruthy();
+    expect(screen.getByLabelText('Job listing URL')).toBeTruthy();
+    expect(screen.getByLabelText('Resume')).toBeTruthy();
+  });
+
+  it('renders the job listing URL input with type="url"', () => {
+    renderWithQueryClient(<ResumeScreening />);
+    expect(screen.getByLabelText('Job listing URL').getAttribute('type')).toBe('url');
   });
 
   it('passes workflowKey="resume-screening" to the history drawer', () => {
@@ -77,49 +78,37 @@ describe('Resume & Candidate Fit Analysis page', () => {
     );
   });
 
-  it('disables the submit button until all 5 fields are filled', () => {
+  it('disables the submit button until both fields are filled', () => {
     renderWithQueryClient(<ResumeScreening />);
-    const submit = screen.getByRole('button', { name: /analyze fit/i }) as HTMLButtonElement;
+    const submit = screen.getByRole('button', { name: /analyze resume/i }) as HTMLButtonElement;
     expect(submit.disabled).toBe(true);
 
-    fireEvent.change(screen.getByLabelText('Job title'), { target: { value: 'Senior Backend Engineer' } });
+    fireEvent.change(screen.getByLabelText('Job listing URL'), { target: { value: 'https://example.com/jobs/123' } });
     expect(submit.disabled).toBe(true);
 
-    fireEvent.change(screen.getByLabelText('Must-have skills'), { target: { value: 'Node.js, TypeScript, AWS' } });
-    expect(submit.disabled).toBe(true);
-
-    fireEvent.change(screen.getByLabelText('Years of experience required'), { target: { value: '5+ years' } });
-    expect(submit.disabled).toBe(true);
-
-    fireEvent.change(screen.getByLabelText('Full job description'), { target: { value: 'Owns the core payments API.' } });
-    expect(submit.disabled).toBe(true);
-
-    fireEvent.change(screen.getByLabelText('Candidate resume'), { target: { value: 'Jane Doe, 6 years experience.' } });
+    fireEvent.change(screen.getByLabelText('Resume'), { target: { value: 'Jane Doe, 6 years experience.' } });
     expect(submit.disabled).toBe(false);
   });
 
   it('does not call the API when the submit button is disabled', () => {
     renderWithQueryClient(<ResumeScreening />);
-    const submit = screen.getByRole('button', { name: /analyze fit/i });
+    const submit = screen.getByRole('button', { name: /analyze resume/i });
     fireEvent.click(submit);
     expect(fetch).not.toHaveBeenCalled();
   });
 
-  it('"Load sample" fills all 5 fields', () => {
+  it('"Load sample" fills both fields', () => {
     renderWithQueryClient(<ResumeScreening />);
     fireEvent.click(screen.getByRole('button', { name: /load sample/i }));
 
-    expect((screen.getByLabelText('Job title') as HTMLInputElement).value).toMatch(/Senior Backend Engineer/);
-    expect((screen.getByLabelText('Must-have skills') as HTMLInputElement).value).toMatch(/Node\.js/);
-    expect((screen.getByLabelText('Years of experience required') as HTMLInputElement).value).toMatch(/5\+ years/);
-    expect((screen.getByLabelText('Full job description') as HTMLTextAreaElement).value.length).toBeGreaterThan(0);
-    expect((screen.getByLabelText('Candidate resume') as HTMLTextAreaElement).value).toMatch(/Jane Doe/);
+    expect((screen.getByLabelText('Job listing URL') as HTMLInputElement).value.length).toBeGreaterThan(0);
+    expect((screen.getByLabelText('Resume') as HTMLTextAreaElement).value).toMatch(/Jane Doe/);
 
-    const submit = screen.getByRole('button', { name: /analyze fit/i }) as HTMLButtonElement;
+    const submit = screen.getByRole('button', { name: /analyze resume/i }) as HTMLButtonElement;
     expect(submit.disabled).toBe(false);
   });
 
-  it('submits all 5 variables to /api/run with workflowKey', async () => {
+  it('submits job_listing_url and resume to /api/run with workflowKey', async () => {
     (fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
       ok: true,
       json: async () => ({ result: JSON.stringify(VALID_STRUCTURED_RESULT) }),
@@ -127,7 +116,7 @@ describe('Resume & Candidate Fit Analysis page', () => {
 
     renderWithQueryClient(<ResumeScreening />);
     fillAllFields();
-    fireEvent.click(screen.getByRole('button', { name: /analyze fit/i }));
+    fireEvent.click(screen.getByRole('button', { name: /analyze resume/i }));
 
     await waitFor(() => {
       expect(fetch).toHaveBeenCalled();
@@ -140,10 +129,7 @@ describe('Resume & Candidate Fit Analysis page', () => {
         body: JSON.stringify({
           workflowKey: 'resume-screening',
           variables: {
-            job_title: 'Senior Backend Engineer',
-            must_have_skills: 'Node.js, TypeScript, AWS',
-            years_experience_required: '5+ years',
-            job_description: 'Owns the core payments API.',
+            job_listing_url: 'https://example.com/jobs/123',
             resume: 'Jane Doe, 6 years experience.',
           },
         }),
@@ -151,7 +137,7 @@ describe('Resume & Candidate Fit Analysis page', () => {
     );
   });
 
-  it('renders a structured UI (not raw markdown) when the result is valid JSON matching the schema', async () => {
+  it('renders a structured coaching UI (not raw markdown) when the result is valid JSON matching the schema', async () => {
     (fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
       ok: true,
       json: async () => ({ result: JSON.stringify(VALID_STRUCTURED_RESULT) }),
@@ -159,18 +145,22 @@ describe('Resume & Candidate Fit Analysis page', () => {
 
     renderWithQueryClient(<ResumeScreening />);
     fillAllFields();
-    fireEvent.click(screen.getByRole('button', { name: /analyze fit/i }));
+    fireEvent.click(screen.getByRole('button', { name: /analyze resume/i }));
 
     await waitFor(() => {
-      expect(screen.getByTestId('fit-score')).toBeTruthy();
+      expect(screen.getByTestId('match-score')).toBeTruthy();
     });
 
-    expect(screen.getByTestId('fit-score').textContent).toBe('7/10');
-    expect(screen.getByTestId('fit-score-reason').textContent).toBe(VALID_STRUCTURED_RESULT.fitScoreReason);
-    expect(screen.getByTestId('recommendation-badge').textContent).toBe('Maybe');
-    expect(screen.getByText(VALID_STRUCTURED_RESULT.matchingStrengths[0])).toBeTruthy();
-    expect(screen.getByText(VALID_STRUCTURED_RESULT.gaps[0])).toBeTruthy();
-    expect(screen.getByText(VALID_STRUCTURED_RESULT.interviewQuestions[0])).toBeTruthy();
+    expect(screen.getByTestId('match-score').textContent).toBe('6/10');
+    expect(screen.getByTestId('overall-assessment').textContent).toBe(VALID_STRUCTURED_RESULT.overallAssessment);
+    expect(screen.getByText(VALID_STRUCTURED_RESULT.missingKeywords[0])).toBeTruthy();
+    expect(screen.getByText(VALID_STRUCTURED_RESULT.suggestedImprovements[0].section)).toBeTruthy();
+    expect(screen.getByText(VALID_STRUCTURED_RESULT.suggestedImprovements[0].suggestion)).toBeTruthy();
+    expect(screen.getByTestId('top-priority-fix').textContent).toBe(VALID_STRUCTURED_RESULT.topPriorityFix);
+
+    // No recommendation-badge / fit-score UI from the old recruiter-facing concept.
+    expect(screen.queryByTestId('recommendation-badge')).toBeNull();
+    expect(screen.queryByTestId('fit-score')).toBeNull();
 
     // The fallback markdown renderer must not be used for a valid structured result.
     expect(mockWorkflowResultDisplay).not.toHaveBeenCalled();
@@ -180,22 +170,22 @@ describe('Resume & Candidate Fit Analysis page', () => {
   it('falls back to WorkflowResultDisplay when result.result is not valid JSON', async () => {
     (fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
       ok: true,
-      json: async () => ({ result: '## Fit Score\n8/10 - looks like a strong match.' }),
+      json: async () => ({ result: '## Match Score\n8/10 - looks like a strong match.' }),
     });
 
     renderWithQueryClient(<ResumeScreening />);
     fillAllFields();
-    fireEvent.click(screen.getByRole('button', { name: /analyze fit/i }));
+    fireEvent.click(screen.getByRole('button', { name: /analyze resume/i }));
 
     await waitFor(() => {
       expect(screen.getByTestId('workflow-result-fallback')).toBeTruthy();
     });
 
     expect(mockWorkflowResultDisplay).toHaveBeenCalledWith(
-      expect.objectContaining({ title: 'Candidate Fit Analysis' })
+      expect.objectContaining({ title: 'Resume Improvement Analysis' })
     );
-    expect(screen.getByTestId('workflow-result-fallback-title').textContent).toBe('Candidate Fit Analysis');
-    expect(screen.queryByTestId('fit-score')).toBeNull();
+    expect(screen.getByTestId('workflow-result-fallback-title').textContent).toBe('Resume Improvement Analysis');
+    expect(screen.queryByTestId('match-score')).toBeNull();
   });
 
   it('falls back to WorkflowResultDisplay when result.result is valid JSON but lacks required keys', async () => {
@@ -206,14 +196,14 @@ describe('Resume & Candidate Fit Analysis page', () => {
 
     renderWithQueryClient(<ResumeScreening />);
     fillAllFields();
-    fireEvent.click(screen.getByRole('button', { name: /analyze fit/i }));
+    fireEvent.click(screen.getByRole('button', { name: /analyze resume/i }));
 
     await waitFor(() => {
       expect(screen.getByTestId('workflow-result-fallback')).toBeTruthy();
     });
 
     expect(mockWorkflowResultDisplay).toHaveBeenCalled();
-    expect(screen.queryByTestId('fit-score')).toBeNull();
+    expect(screen.queryByTestId('match-score')).toBeNull();
   });
 
   it('invalidates team-limit and resume-screening workflow-history queries on success', async () => {
@@ -227,7 +217,7 @@ describe('Resume & Candidate Fit Analysis page', () => {
 
     renderWithQueryClient(<ResumeScreening />, queryClient);
     fillAllFields();
-    fireEvent.click(screen.getByRole('button', { name: /analyze fit/i }));
+    fireEvent.click(screen.getByRole('button', { name: /analyze resume/i }));
 
     await waitFor(() => {
       expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['team-limit'] });
@@ -243,7 +233,7 @@ describe('Resume & Candidate Fit Analysis page', () => {
 
     renderWithQueryClient(<ResumeScreening />);
     fillAllFields();
-    fireEvent.click(screen.getByRole('button', { name: /analyze fit/i }));
+    fireEvent.click(screen.getByRole('button', { name: /analyze resume/i }));
 
     await waitFor(() => {
       expect(screen.getByText(/Monthly message limit reached/i)).toBeTruthy();

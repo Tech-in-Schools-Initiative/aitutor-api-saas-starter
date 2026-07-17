@@ -13,49 +13,40 @@ import { WorkflowHistoryDrawer } from '@/components/workflow/WorkflowHistoryDraw
 
 const WORKFLOW_KEY = 'resume-screening';
 
-// Mirrors workflow-templates/resume-screening.json's inputs. A realistic,
-// internally-consistent but only partial match, so the sample output has an
-// interesting (non-trivial) fit score, real gaps, and real interview questions.
-const SAMPLE_JOB_TITLE = 'Senior Backend Engineer';
-const SAMPLE_MUST_HAVE_SKILLS = 'Node.js, TypeScript, PostgreSQL, AWS, and experience leading a small team';
-const SAMPLE_YEARS_EXPERIENCE_REQUIRED = '5+ years';
-const SAMPLE_JOB_DESCRIPTION =
-  "We're hiring a Senior Backend Engineer to own our core payments API. You'll design and maintain services handling millions of transactions per day, mentor junior engineers, and partner with product on technical roadmap. Formal people-management experience is not required, but you should be comfortable guiding a small group of engineers on design and code quality.";
+// Mirrors workflow-templates/resume-screening.json's inputs. A real, publicly
+// accessible job listing plus a plausible but only-partial-match resume, so
+// the sample output has non-trivial gaps and improvement suggestions.
+const SAMPLE_JOB_LISTING_URL = 'https://www.linkedin.com/jobs/view/senior-backend-engineer-at-stripe-3812345678';
 const SAMPLE_RESUME =
-  "Jane Doe - 6 years of professional experience. 4 years building Python/Django services at a fintech startup, followed by 2 years working in Node.js/TypeScript at her current role, building REST APIs on AWS Lambda with Postgres (RDS). Informally mentored 2 junior engineers on code review and design, but has never held a formal team-lead title.";
+  "Jane Doe - 6 years of professional software engineering experience. Spent 4 years building Python/Django services at a fintech startup, then 2 years working in Node.js/TypeScript at her current role, building REST APIs on AWS Lambda with Postgres (RDS). Informally mentored 2 junior engineers on code review and design, but has never held a formal team-lead title. Comfortable with unit testing and CI/CD pipelines, but has limited exposure to distributed systems at very high transaction volume.";
 
 interface ResumeScreeningVariables {
-  job_title: string;
-  must_have_skills: string;
-  years_experience_required: string;
-  job_description: string;
+  job_listing_url: string;
   resume: string;
 }
 
-// Shape the resume-screening workflow's prompt template asks the model for.
-// We only require fitScore + recommendation to consider a parse "valid" -
+// Shape the resume-screening workflow's structured output schema enforces.
+// We only require matchScore + overallAssessment to consider a parse "valid" -
 // the rest render defensively in case the model omits an optional field.
-interface ParsedResumeScreeningResult {
-  fitScore: number;
-  fitScoreReason?: string;
-  matchingStrengths?: string[];
-  gaps?: string[];
-  interviewQuestions?: string[];
-  recommendation: string;
-  recommendationReason?: string;
+interface ParsedResumeImprovementResult {
+  matchScore: number;
+  overallAssessment: string;
+  missingKeywords?: string[];
+  suggestedImprovements?: { section: string; suggestion: string }[];
+  topPriorityFix?: string;
 }
 
-function parseStructuredResult(rawResult: unknown): ParsedResumeScreeningResult | null {
+function parseStructuredResult(rawResult: unknown): ParsedResumeImprovementResult | null {
   if (typeof rawResult !== 'string') return null;
   try {
     const candidate = JSON.parse(rawResult);
     if (
       candidate &&
       typeof candidate === 'object' &&
-      candidate.fitScore !== undefined &&
-      candidate.recommendation !== undefined
+      candidate.matchScore !== undefined &&
+      candidate.overallAssessment !== undefined
     ) {
-      return candidate as ParsedResumeScreeningResult;
+      return candidate as ParsedResumeImprovementResult;
     }
     return null;
   } catch {
@@ -63,87 +54,62 @@ function parseStructuredResult(rawResult: unknown): ParsedResumeScreeningResult 
   }
 }
 
-function recommendationBadgeClass(recommendation: string): string {
-  switch (recommendation) {
-    case 'Advance':
-      return 'bg-green-500';
-    case 'Maybe':
-      return 'bg-amber-500';
-    case 'Pass':
-      return 'bg-red-500';
-    default:
-      return 'bg-gray-500';
-  }
-}
-
-function ResumeScreeningResult({ data }: { data: ParsedResumeScreeningResult }) {
-  const matchingStrengths = Array.isArray(data.matchingStrengths) ? data.matchingStrengths : [];
-  const gaps = Array.isArray(data.gaps) ? data.gaps : [];
-  const interviewQuestions = Array.isArray(data.interviewQuestions) ? data.interviewQuestions : [];
+function ResumeImprovementResult({ data }: { data: ParsedResumeImprovementResult }) {
+  const missingKeywords = Array.isArray(data.missingKeywords) ? data.missingKeywords : [];
+  const suggestedImprovements = Array.isArray(data.suggestedImprovements) ? data.suggestedImprovements : [];
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Candidate Fit Analysis</CardTitle>
+        <CardTitle>Resume Improvement Coaching</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-          <div className="text-4xl font-bold text-gray-900" data-testid="fit-score">
-            {data.fitScore}/10
+          <div className="text-4xl font-bold text-gray-900" data-testid="match-score">
+            {data.matchScore}/10
           </div>
-          {data.fitScoreReason && (
-            <p className="text-sm text-gray-600" data-testid="fit-score-reason">
-              {data.fitScoreReason}
-            </p>
-          )}
+          <p className="text-sm text-gray-600" data-testid="overall-assessment">
+            {data.overallAssessment}
+          </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-          <span
-            className={`inline-flex w-fit rounded-full px-3 py-1 text-xs font-semibold text-white ${recommendationBadgeClass(
-              data.recommendation
-            )}`}
-            data-testid="recommendation-badge"
-          >
-            {data.recommendation}
-          </span>
-          {data.recommendationReason && (
-            <p className="text-sm text-gray-600" data-testid="recommendation-reason">
-              {data.recommendationReason}
-            </p>
-          )}
-        </div>
-
-        {matchingStrengths.length > 0 && (
+        {missingKeywords.length > 0 && (
           <div>
-            <h3 className="text-sm font-semibold text-gray-900 mb-2">Matching Strengths</h3>
-            <ul className="list-disc pl-6 space-y-1 text-sm text-gray-700">
-              {matchingStrengths.map((strength, index) => (
-                <li key={index}>{strength}</li>
+            <h3 className="text-sm font-semibold text-gray-900 mb-2">Keywords to Add</h3>
+            <div className="flex flex-wrap gap-2">
+              {missingKeywords.map((keyword, index) => (
+                <span
+                  key={index}
+                  className="rounded-full px-3 py-1 text-xs font-semibold text-white bg-blue-500"
+                  data-testid="missing-keyword"
+                >
+                  {keyword}
+                </span>
               ))}
-            </ul>
+            </div>
           </div>
         )}
 
-        {gaps.length > 0 && (
+        {suggestedImprovements.length > 0 && (
           <div>
-            <h3 className="text-sm font-semibold text-gray-900 mb-2">Gaps or Concerns</h3>
-            <ul className="list-disc pl-6 space-y-1 text-sm text-gray-700">
-              {gaps.map((gap, index) => (
-                <li key={index}>{gap}</li>
+            <h3 className="text-sm font-semibold text-gray-900 mb-2">Suggested Improvements</h3>
+            <div className="space-y-3">
+              {suggestedImprovements.map((improvement, index) => (
+                <div key={index} className="rounded-lg border border-gray-200 p-3" data-testid="suggested-improvement">
+                  <span className="inline-block rounded-full px-2 py-1 text-xs font-semibold text-white bg-gray-500 mb-2" data-testid="improvement-section">
+                    {improvement.section}
+                  </span>
+                  <p className="text-sm text-gray-700" data-testid="improvement-suggestion">{improvement.suggestion}</p>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
         )}
 
-        {interviewQuestions.length > 0 && (
-          <div>
-            <h3 className="text-sm font-semibold text-gray-900 mb-2">Suggested Interview Questions</h3>
-            <ol className="list-decimal pl-6 space-y-1 text-sm text-gray-700">
-              {interviewQuestions.map((question, index) => (
-                <li key={index}>{question}</li>
-              ))}
-            </ol>
+        {data.topPriorityFix && (
+          <div className="rounded-lg border-2 border-amber-500 bg-amber-50 p-4">
+            <h3 className="text-sm font-semibold text-amber-900 mb-1">Top Priority Fix</h3>
+            <p className="text-sm text-amber-900" data-testid="top-priority-fix">{data.topPriorityFix}</p>
           </div>
         )}
       </CardContent>
@@ -163,17 +129,14 @@ async function runResumeScreening(variables: ResumeScreeningVariables): Promise<
     const data = await response.json();
 
     if (!response.ok) {
-        throw new Error(data.error || 'An error occurred while analyzing the candidate.');
+        throw new Error(data.error || 'An error occurred while analyzing your resume.');
     }
 
     return data;
 }
 
 export default function ResumeScreening() {
-    const [jobTitle, setJobTitle] = useState('');
-    const [mustHaveSkills, setMustHaveSkills] = useState('');
-    const [yearsExperienceRequired, setYearsExperienceRequired] = useState('');
-    const [jobDescription, setJobDescription] = useState('');
+    const [jobListingUrl, setJobListingUrl] = useState('');
     const [resume, setResume] = useState('');
     const [result, setResult] = useState<any>(null);
     const [formError, setFormError] = useState('');
@@ -190,47 +153,34 @@ export default function ResumeScreening() {
 
     const loading = runMutation.isPending;
     const error = formError || (runMutation.isError
-        ? (runMutation.error instanceof Error ? runMutation.error.message : 'An error occurred while analyzing the candidate.')
+        ? (runMutation.error instanceof Error ? runMutation.error.message : 'An error occurred while analyzing your resume.')
         : '');
 
-    const allFilled =
-        jobTitle.trim().length > 0 &&
-        mustHaveSkills.trim().length > 0 &&
-        yearsExperienceRequired.trim().length > 0 &&
-        jobDescription.trim().length > 0 &&
-        resume.trim().length > 0;
+    const allFilled = jobListingUrl.trim().length > 0 && resume.trim().length > 0;
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!allFilled) {
-            setFormError('Please fill in all fields before analyzing.');
+            setFormError('Please fill in both fields before analyzing.');
             return;
         }
         setFormError('');
         setResult(null);
         runMutation.mutate({
-            job_title: jobTitle,
-            must_have_skills: mustHaveSkills,
-            years_experience_required: yearsExperienceRequired,
-            job_description: jobDescription,
+            job_listing_url: jobListingUrl,
             resume,
         });
     };
 
     const handleLoadSample = () => {
-        setJobTitle(SAMPLE_JOB_TITLE);
-        setMustHaveSkills(SAMPLE_MUST_HAVE_SKILLS);
-        setYearsExperienceRequired(SAMPLE_YEARS_EXPERIENCE_REQUIRED);
-        setJobDescription(SAMPLE_JOB_DESCRIPTION);
+        setJobListingUrl(SAMPLE_JOB_LISTING_URL);
         setResume(SAMPLE_RESUME);
     };
 
     // Restoring a past run only shows its output. The drawer's history string
-    // is a single joined "key: value"-per-line string built server-side purely
-    // for display purposes - splitting it back into 5 independent form fields
-    // would need a fragile reverse-parse, so (as with this page's previous,
-    // 2-field version) the history drawer stays output-only: it re-renders the
-    // past structured result but never refills the inputs.
+    // is built server-side purely for display purposes, so (as before) the
+    // history drawer stays output-only: it re-renders the past structured
+    // result but never refills the two form fields.
     const handleSelectHistory = (_input: string, output: string) => {
         setResult({ result: output });
     };
@@ -240,67 +190,42 @@ export default function ResumeScreening() {
     return (
         <section className="flex-1 p-4 lg:p-8">
             <h1 className="text-lg lg:text-2xl font-medium text-gray-900 mb-6">
-                Resume &amp; Candidate Fit Analysis
+                Resume Improvement Analysis
             </h1>
             <Card className="mb-8">
                 <CardHeader>
                     <div className="flex justify-between items-center">
-                        <CardTitle>Analyze a Candidate</CardTitle>
+                        <CardTitle>Improve Your Resume</CardTitle>
                         <WorkflowHistoryDrawer workflowKey={WORKFLOW_KEY} onSelectHistory={handleSelectHistory} />
                     </div>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-4">
+                        <p className="text-sm text-gray-600">
+                            Paste a link to the job listing and your resume - we&apos;ll fetch the listing and show you how to improve your resume for this specific role.
+                        </p>
                         <div className="flex justify-end">
                             <Button type="button" variant="outline" size="sm" onClick={handleLoadSample}>
                                 Load sample
                             </Button>
                         </div>
                         <div>
-                            <Label htmlFor="job_title">Job title</Label>
+                            <Label htmlFor="job_listing_url">Job listing URL</Label>
                             <Input
-                                id="job_title"
-                                value={jobTitle}
-                                onChange={(e) => setJobTitle(e.target.value)}
-                                placeholder="e.g. Senior Backend Engineer"
+                                id="job_listing_url"
+                                type="url"
+                                value={jobListingUrl}
+                                onChange={(e) => setJobListingUrl(e.target.value)}
+                                placeholder="e.g. https://www.linkedin.com/jobs/view/..."
                             />
                         </div>
                         <div>
-                            <Label htmlFor="must_have_skills">Must-have skills</Label>
-                            <Input
-                                id="must_have_skills"
-                                value={mustHaveSkills}
-                                onChange={(e) => setMustHaveSkills(e.target.value)}
-                                placeholder="e.g. Node.js, TypeScript, AWS"
-                            />
-                        </div>
-                        <div>
-                            <Label htmlFor="years_experience_required">Years of experience required</Label>
-                            <Input
-                                id="years_experience_required"
-                                value={yearsExperienceRequired}
-                                onChange={(e) => setYearsExperienceRequired(e.target.value)}
-                                placeholder="e.g. 5+ years"
-                            />
-                        </div>
-                        <div>
-                            <Label htmlFor="job_description">Full job description</Label>
-                            <Textarea
-                                id="job_description"
-                                value={jobDescription}
-                                onChange={(e) => setJobDescription(e.target.value)}
-                                placeholder="Paste the full job description..."
-                                className="min-h-32"
-                                rows={6}
-                            />
-                        </div>
-                        <div>
-                            <Label htmlFor="resume">Candidate resume</Label>
+                            <Label htmlFor="resume">Resume</Label>
                             <Textarea
                                 id="resume"
                                 value={resume}
                                 onChange={(e) => setResume(e.target.value)}
-                                placeholder="Paste the candidate's resume..."
+                                placeholder="Paste your resume..."
                                 className="min-h-48"
                                 rows={8}
                             />
@@ -315,7 +240,7 @@ export default function ResumeScreening() {
                                     Analyzing...
                                 </>
                             ) : (
-                                'Analyze Fit'
+                                'Analyze Resume'
                             )}
                         </Button>
                     </form>
@@ -324,9 +249,9 @@ export default function ResumeScreening() {
 
             {result && (
                 parsedResult ? (
-                    <ResumeScreeningResult data={parsedResult} />
+                    <ResumeImprovementResult data={parsedResult} />
                 ) : (
-                    <WorkflowResultDisplay title="Candidate Fit Analysis" result={result} />
+                    <WorkflowResultDisplay title="Resume Improvement Analysis" result={result} />
                 )
             )}
         </section>
