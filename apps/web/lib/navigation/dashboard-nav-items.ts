@@ -1,9 +1,6 @@
 import {
   Activity,
-  BotIcon,
   GemIcon,
-  KeyRound,
-  MessageCircle,
   Settings,
   Shield,
   Users,
@@ -24,24 +21,6 @@ export function getDashboardNavItems(pathname: string): DashboardNavItem[] {
       url: '/dashboard/workflow',
       icon: GemIcon,
       isActive: pathname.startsWith('/dashboard/workflow'),
-    },
-    {
-      title: 'Chatbot',
-      url: '/dashboard/chatbot',
-      icon: BotIcon,
-      isActive: pathname.startsWith('/dashboard/chatbot'),
-    },
-    {
-      title: 'Streaming',
-      url: '/dashboard/streaming',
-      icon: MessageCircle,
-      isActive: pathname.startsWith('/dashboard/streaming'),
-    },
-    {
-      title: 'Get Token',
-      url: '/dashboard/get-token',
-      icon: KeyRound,
-      isActive: pathname.startsWith('/dashboard/get-token'),
     },
     {
       title: 'Team',

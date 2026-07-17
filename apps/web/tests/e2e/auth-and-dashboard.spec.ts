@@ -31,7 +31,6 @@ test.describe('auth and dashboard', () => {
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
 
     await expect(page.getByRole('link', { name: /workflow/i })).toBeVisible();
-    await expect(page.getByRole('link', { name: /chatbot/i })).toBeVisible();
     await expect(page.getByRole('link', { name: /team/i })).toBeVisible();
 
     expect(consoleErrors).toEqual([]);
