@@ -4,10 +4,12 @@ import { Button } from '@repo/ui/components/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/components/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui/components/card';
 import { customerPortalAction } from '@/lib/payments/actions';
-import { useActionState } from 'react';
+import { use, useActionState } from 'react';
 import { TeamDataWithMembers, User } from '@repo/db/schema';
 import { removeTeamMember } from '@/app/(login)/actions';
 import { InviteTeamMember } from './invite-team';
+import { useUser } from '@/lib/auth';
+import { canRemoveTeamMember } from '@/lib/auth/permissions';
 
 type ActionState = {
   error?: string;
@@ -15,6 +17,9 @@ type ActionState = {
 };
 
 export function Settings({ teamData }: { teamData: TeamDataWithMembers }) {
+  const { userPromise } = useUser();
+  const currentUser = use(userPromise);
+
   const [removeState, removeAction, isRemovePending] = useActionState<
     ActionState,
     FormData
@@ -61,7 +66,7 @@ export function Settings({ teamData }: { teamData: TeamDataWithMembers }) {
         </CardHeader>
         <CardContent>
           <ul className="space-y-4">
-            {teamData.teamMembers.map((member, index) => (
+            {teamData.teamMembers.map((member) => (
               <li key={member.id} className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <Avatar>
@@ -85,7 +90,7 @@ export function Settings({ teamData }: { teamData: TeamDataWithMembers }) {
                     </p>
                   </div>
                 </div>
-                {index > 1 ? (
+                {canRemoveTeamMember(currentUser?.id, member, teamData.teamMembers) ? (
                   <form action={removeAction}>
                     <input type="hidden" name="memberId" value={member.id} />
                     <Button
