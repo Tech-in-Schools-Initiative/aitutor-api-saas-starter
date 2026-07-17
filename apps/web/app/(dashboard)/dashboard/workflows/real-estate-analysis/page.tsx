@@ -5,7 +5,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui/components/card';
 import { Button } from '@repo/ui/components/button';
 import { Input } from '@repo/ui/components/input';
-import { Textarea } from '@repo/ui/components/textarea';
 import { Label } from '@repo/ui/components/label';
 import { Loader2 } from 'lucide-react';
 import WorkflowResultDisplay from '@/components/ai-tutor-api/WorkflowResultDisplay';
@@ -13,28 +12,19 @@ import { WorkflowHistoryDrawer } from '@/components/workflow/WorkflowHistoryDraw
 
 const WORKFLOW_KEY = 'real-estate-analysis';
 
-// A single internally-consistent sample (small duplex, modest but plausible
-// cap rate) mirroring workflow-templates/real-estate-analysis.json's inputs.
-const SAMPLE_PROPERTY_ADDRESS = '482 Maple Street, Columbus, OH 43215';
-const SAMPLE_PROPERTY_TYPE = 'Duplex (2 units, side-by-side)';
-const SAMPLE_ASKING_PRICE = '$310,000';
-const SAMPLE_ESTIMATED_MONTHLY_RENT = '$2,400 combined ($1,200/unit)';
-const SAMPLE_ANNUAL_PROPERTY_TAXES = '$4,650';
-const SAMPLE_MONTHLY_HOA = '0';
-const SAMPLE_NOTABLE_FEATURES =
-  'Built 1985, both units renovated in 2021 (new kitchens, flooring). Separate utility meters. New roof in 2023. Unit A has a long-term tenant on a month-to-month lease at $1,050/mo (below market); Unit B is vacant and move-in ready.';
+// A real, identifiable residential address in a mid-size US city, mirroring
+// the single input in workflow-templates/real-estate-analysis.json. The model
+// researches everything else itself via web search.
+const SAMPLE_PROPERTY_ADDRESS = '1600 Pennsylvania Avenue NW, Washington, DC 20500';
 
 interface RealEstateAnalysisVariables {
   property_address: string;
-  property_type: string;
-  asking_price: string;
-  estimated_monthly_rent: string;
-  annual_property_taxes: string;
-  monthly_hoa: string;
-  notable_features: string;
 }
 
 interface RealEstateAnalysisResult {
+  estimatedPropertyValue: number;
+  estimatedMonthlyRent: number;
+  propertyType: string;
   verdict: 'Buy' | 'Hold' | 'Pass';
   verdictSummary: string;
   capRatePercent: number;
@@ -89,6 +79,22 @@ function RealEstateResult({ data }: { data: RealEstateAnalysisResult }) {
         <CardTitle>Investment Analysis</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="rounded-lg border border-gray-200 p-4">
+            <p className="text-sm font-medium text-gray-500">Estimated Value</p>
+            <p className="text-2xl font-semibold text-gray-900">
+              {formatCurrency(data.estimatedPropertyValue)}
+            </p>
+          </div>
+          <div className="rounded-lg border border-gray-200 p-4">
+            <p className="text-sm font-medium text-gray-500">Estimated Monthly Rent</p>
+            <p className="text-2xl font-semibold text-gray-900">
+              {formatCurrency(data.estimatedMonthlyRent)}
+            </p>
+          </div>
+        </div>
+        <p className="text-sm text-gray-500">Property type: {data.propertyType}</p>
+
         <div>
           <span
             data-testid="verdict-badge"
@@ -152,12 +158,6 @@ async function runRealEstateAnalysis(variables: RealEstateAnalysisVariables): Pr
 
 export default function RealEstateAnalysis() {
   const [propertyAddress, setPropertyAddress] = useState('');
-  const [propertyType, setPropertyType] = useState('');
-  const [askingPrice, setAskingPrice] = useState('');
-  const [estimatedMonthlyRent, setEstimatedMonthlyRent] = useState('');
-  const [annualPropertyTaxes, setAnnualPropertyTaxes] = useState('');
-  const [monthlyHoa, setMonthlyHoa] = useState('');
-  const [notableFeatures, setNotableFeatures] = useState('');
   const [output, setOutput] = useState<string | null>(null);
   const [formError, setFormError] = useState('');
   const queryClient = useQueryClient();
@@ -181,50 +181,30 @@ export default function RealEstateAnalysis() {
         : 'An error occurred while analyzing the property.'
       : '');
 
-  const allFieldsFilled =
-    propertyAddress.trim().length > 0 &&
-    propertyType.trim().length > 0 &&
-    askingPrice.trim().length > 0 &&
-    estimatedMonthlyRent.trim().length > 0 &&
-    annualPropertyTaxes.trim().length > 0 &&
-    monthlyHoa.trim().length > 0 &&
-    notableFeatures.trim().length > 0;
+  const isFilled = propertyAddress.trim().length > 0;
 
   const parsedResult = useMemo(() => parseAnalysisResult(output), [output]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!allFieldsFilled) {
-      setFormError('Please fill in all fields');
+    if (!isFilled) {
+      setFormError('Please enter a property address');
       return;
     }
     setFormError('');
     setOutput(null);
     runAnalysisMutation.mutate({
       property_address: propertyAddress,
-      property_type: propertyType,
-      asking_price: askingPrice,
-      estimated_monthly_rent: estimatedMonthlyRent,
-      annual_property_taxes: annualPropertyTaxes,
-      monthly_hoa: monthlyHoa,
-      notable_features: notableFeatures,
     });
   };
 
   const handleLoadSample = () => {
     setPropertyAddress(SAMPLE_PROPERTY_ADDRESS);
-    setPropertyType(SAMPLE_PROPERTY_TYPE);
-    setAskingPrice(SAMPLE_ASKING_PRICE);
-    setEstimatedMonthlyRent(SAMPLE_ESTIMATED_MONTHLY_RENT);
-    setAnnualPropertyTaxes(SAMPLE_ANNUAL_PROPERTY_TAXES);
-    setMonthlyHoa(SAMPLE_MONTHLY_HOA);
-    setNotableFeatures(SAMPLE_NOTABLE_FEATURES);
   };
 
-  // Restoring a past run only shows its output. The history drawer joins all
-  // 7 fields into a single "key: value"-per-line string purely for display
-  // purposes; reverse-parsing that back into 7 independent form fields would
-  // be fragile and isn't attempted here. This is a deliberate scope decision.
+  // Restoring a past run only shows its output; the address field is
+  // deliberately left untouched, consistent with this repo's pattern for
+  // these workflow pages.
   const handleSelectHistory = (_input: string, historyOutput: string) => {
     setOutput(historyOutput);
   };
@@ -250,6 +230,9 @@ export default function RealEstateAnalysis() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <Label htmlFor="property_address">Property address</Label>
+              <p className="text-sm text-gray-500 mb-2">
+                We&apos;ll search the web for market value, rent estimates, and tax data automatically.
+              </p>
               <Input
                 id="property_address"
                 value={propertyAddress}
@@ -257,65 +240,10 @@ export default function RealEstateAnalysis() {
                 placeholder="123 Main St, Anytown, USA"
               />
             </div>
-            <div>
-              <Label htmlFor="property_type">Property type (e.g. single-family, duplex, condo)</Label>
-              <Input
-                id="property_type"
-                value={propertyType}
-                onChange={(e) => setPropertyType(e.target.value)}
-                placeholder="Single-family"
-              />
-            </div>
-            <div>
-              <Label htmlFor="asking_price">Asking price</Label>
-              <Input
-                id="asking_price"
-                value={askingPrice}
-                onChange={(e) => setAskingPrice(e.target.value)}
-                placeholder="$350,000"
-              />
-            </div>
-            <div>
-              <Label htmlFor="estimated_monthly_rent">Estimated monthly rent</Label>
-              <Input
-                id="estimated_monthly_rent"
-                value={estimatedMonthlyRent}
-                onChange={(e) => setEstimatedMonthlyRent(e.target.value)}
-                placeholder="$2,200"
-              />
-            </div>
-            <div>
-              <Label htmlFor="annual_property_taxes">Annual property taxes</Label>
-              <Input
-                id="annual_property_taxes"
-                value={annualPropertyTaxes}
-                onChange={(e) => setAnnualPropertyTaxes(e.target.value)}
-                placeholder="$4,000"
-              />
-            </div>
-            <div>
-              <Label htmlFor="monthly_hoa">Monthly HOA fee (0 if none)</Label>
-              <Input
-                id="monthly_hoa"
-                value={monthlyHoa}
-                onChange={(e) => setMonthlyHoa(e.target.value)}
-                placeholder="0"
-              />
-            </div>
-            <div>
-              <Label htmlFor="notable_features">Notable features / condition notes</Label>
-              <Textarea
-                id="notable_features"
-                value={notableFeatures}
-                onChange={(e) => setNotableFeatures(e.target.value)}
-                placeholder="Roof age, renovations, tenant situation, etc."
-                rows={4}
-              />
-            </div>
             {error && (
               <p className="text-sm text-red-500" role="alert">{error}</p>
             )}
-            <Button type="submit" disabled={loading || !allFieldsFilled} className="w-full">
+            <Button type="submit" disabled={loading || !isFilled} className="w-full">
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

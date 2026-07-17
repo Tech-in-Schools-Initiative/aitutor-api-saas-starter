@@ -32,8 +32,11 @@ vi.mock('@/components/workflow/WorkflowHistoryDrawer', () => ({
         type="button"
         onClick={() =>
           onSelectHistory(
-            'property_address: 1 Old Ave\nproperty_type: condo',
+            'property_address: 1 Old Ave',
             JSON.stringify({
+              estimatedPropertyValue: 275000,
+              estimatedMonthlyRent: 1850,
+              propertyType: 'Condo',
               verdict: 'Hold',
               verdictSummary: 'A restored, middling deal.',
               capRatePercent: 4.2,
@@ -58,29 +61,21 @@ vi.mock('@/components/workflow/WorkflowHistoryDrawer', () => ({
   ),
 }));
 
-const FIELDS: Array<{ id: string; label: string; sample: string }> = [
-  { id: 'property_address', label: 'Property address', sample: '482 Maple Street, Columbus, OH 43215' },
-  {
-    id: 'property_type',
-    label: 'Property type (e.g. single-family, duplex, condo)',
-    sample: 'Duplex (2 units, side-by-side)',
-  },
-  { id: 'asking_price', label: 'Asking price', sample: '$310,000' },
-  { id: 'estimated_monthly_rent', label: 'Estimated monthly rent', sample: '$2,400 combined ($1,200/unit)' },
-  { id: 'annual_property_taxes', label: 'Annual property taxes', sample: '$4,650' },
-  { id: 'monthly_hoa', label: 'Monthly HOA fee (0 if none)', sample: '0' },
-  { id: 'notable_features', label: 'Notable features / condition notes', sample: 'Renovated in 2021.' },
-];
+const SAMPLE_ADDRESS = '1600 Pennsylvania Avenue NW, Washington, DC 20500';
+const CUSTOM_ADDRESS = '742 Evergreen Terrace, Springfield, IL 62704';
 
 const VALID_ANALYSIS_JSON = JSON.stringify({
+  estimatedPropertyValue: 412000,
+  estimatedMonthlyRent: 2650,
+  propertyType: 'Single-family',
   verdict: 'Buy',
-  verdictSummary: 'Solid cash-flowing duplex in a stable rental market.',
+  verdictSummary: 'Solid cash-flowing home in a stable rental market.',
   capRatePercent: 6.8,
-  capRateExplanation: 'NOI of $21,080 divided by the $310,000 asking price.',
+  capRateExplanation: 'NOI of $21,080 divided by the estimated $412,000 value.',
   estimatedMonthlyCashFlow: 315,
   cashFlowExplanation: 'Rent minus estimated mortgage, taxes, insurance, and maintenance reserve.',
-  risks: ['Below-market Unit A lease caps near-term upside', 'Older roof may need replacement within 10 years'],
-  recommendation: 'Proceed with an inspection and verify Unit A lease terms before making an offer.',
+  risks: ['Below-market comps may shift near-term upside', 'Older roof may need replacement within 10 years'],
+  recommendation: 'Proceed with an inspection and verify local comps before making an offer.',
 });
 
 function renderWithQueryClient(
@@ -88,12 +83,6 @@ function renderWithQueryClient(
   queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
 ) {
   return { queryClient, ...render(<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>) };
-}
-
-function fillAllFields() {
-  for (const field of FIELDS) {
-    fireEvent.change(screen.getByLabelText(field.label), { target: { value: field.sample } });
-  }
 }
 
 describe('Real Estate Investment Analysis page', () => {
@@ -106,11 +95,9 @@ describe('Real Estate Investment Analysis page', () => {
     vi.unstubAllGlobals();
   });
 
-  it('renders all 7 input fields with the correct labels', () => {
+  it('renders a single property address field with the correct label', () => {
     renderWithQueryClient(<RealEstateAnalysis />);
-    for (const field of FIELDS) {
-      expect(screen.getByLabelText(field.label)).toBeTruthy();
-    }
+    expect(screen.getByLabelText('Property address')).toBeTruthy();
   });
 
   it('passes workflowKey="real-estate-analysis" to the history drawer', () => {
@@ -120,52 +107,42 @@ describe('Real Estate Investment Analysis page', () => {
     );
   });
 
-  it('disables submit until all 7 fields are filled', () => {
+  it('disables submit until the field is filled', () => {
     renderWithQueryClient(<RealEstateAnalysis />);
     const submitButton = screen.getByRole('button', { name: /analyze property/i }) as HTMLButtonElement;
     expect(submitButton.disabled).toBe(true);
 
-    for (let i = 0; i < FIELDS.length - 1; i++) {
-      fireEvent.change(screen.getByLabelText(FIELDS[i].label), { target: { value: FIELDS[i].sample } });
-    }
-    expect(submitButton.disabled).toBe(true);
-
-    fireEvent.change(screen.getByLabelText(FIELDS[FIELDS.length - 1].label), {
-      target: { value: FIELDS[FIELDS.length - 1].sample },
-    });
+    fireEvent.change(screen.getByLabelText('Property address'), { target: { value: CUSTOM_ADDRESS } });
     expect(submitButton.disabled).toBe(false);
   });
 
   it('treats whitespace-only input as not filled', () => {
     renderWithQueryClient(<RealEstateAnalysis />);
-    for (const field of FIELDS) {
-      fireEvent.change(screen.getByLabelText(field.label), { target: { value: '   ' } });
-    }
+    fireEvent.change(screen.getByLabelText('Property address'), { target: { value: '   ' } });
     expect((screen.getByRole('button', { name: /analyze property/i }) as HTMLButtonElement).disabled).toBe(
       true
     );
   });
 
-  it('fills all 7 fields with the sample data when "Load sample" is clicked', () => {
+  it('fills the field with sample data when "Load sample" is clicked', () => {
     renderWithQueryClient(<RealEstateAnalysis />);
     fireEvent.click(screen.getByRole('button', { name: /load sample/i }));
-    for (const field of FIELDS) {
-      const input = screen.getByLabelText(field.label) as HTMLInputElement | HTMLTextAreaElement;
-      expect(input.value.trim().length).toBeGreaterThan(0);
-    }
+    const input = screen.getByLabelText('Property address') as HTMLInputElement;
+    expect(input.value.trim().length).toBeGreaterThan(0);
+    expect(input.value).toBe(SAMPLE_ADDRESS);
     expect((screen.getByRole('button', { name: /analyze property/i }) as HTMLButtonElement).disabled).toBe(
       false
     );
   });
 
-  it('submits the correct variables object with all 7 keys to /api/run', async () => {
+  it('submits { property_address } as the variables object to /api/run', async () => {
     (fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
       ok: true,
       json: async () => ({ result: VALID_ANALYSIS_JSON }),
     });
 
     renderWithQueryClient(<RealEstateAnalysis />);
-    fillAllFields();
+    fireEvent.change(screen.getByLabelText('Property address'), { target: { value: CUSTOM_ADDRESS } });
     fireEvent.click(screen.getByRole('button', { name: /analyze property/i }));
 
     await waitFor(() => {
@@ -179,13 +156,7 @@ describe('Real Estate Investment Analysis page', () => {
         body: JSON.stringify({
           workflowKey: 'real-estate-analysis',
           variables: {
-            property_address: FIELDS[0].sample,
-            property_type: FIELDS[1].sample,
-            asking_price: FIELDS[2].sample,
-            estimated_monthly_rent: FIELDS[3].sample,
-            annual_property_taxes: FIELDS[4].sample,
-            monthly_hoa: FIELDS[5].sample,
-            notable_features: FIELDS[6].sample,
+            property_address: CUSTOM_ADDRESS,
           },
         }),
       })
@@ -199,19 +170,22 @@ describe('Real Estate Investment Analysis page', () => {
     });
 
     renderWithQueryClient(<RealEstateAnalysis />);
-    fillAllFields();
+    fireEvent.change(screen.getByLabelText('Property address'), { target: { value: CUSTOM_ADDRESS } });
     fireEvent.click(screen.getByRole('button', { name: /analyze property/i }));
 
     await waitFor(() => {
       expect(screen.getByTestId('verdict-badge')).toBeTruthy();
     });
 
+    expect(screen.getByText('$412,000')).toBeTruthy();
+    expect(screen.getByText('$2,650')).toBeTruthy();
+    expect(screen.getByText(/Single-family/)).toBeTruthy();
     expect(screen.getByTestId('verdict-badge').textContent).toBe('Buy');
     expect(screen.getByText('6.8%')).toBeTruthy();
     expect(screen.getByText('$315')).toBeTruthy();
-    expect(screen.getByText(/Below-market Unit A lease caps near-term upside/)).toBeTruthy();
+    expect(screen.getByText(/Below-market comps may shift near-term upside/)).toBeTruthy();
     expect(
-      screen.getByText(/Proceed with an inspection and verify Unit A lease terms/)
+      screen.getByText(/Proceed with an inspection and verify local comps/)
     ).toBeTruthy();
 
     // Ensure the fallback markdown display was NOT used.
@@ -226,7 +200,7 @@ describe('Real Estate Investment Analysis page', () => {
     });
 
     renderWithQueryClient(<RealEstateAnalysis />);
-    fillAllFields();
+    fireEvent.change(screen.getByLabelText('Property address'), { target: { value: CUSTOM_ADDRESS } });
     fireEvent.click(screen.getByRole('button', { name: /analyze property/i }));
 
     await waitFor(() => {
@@ -246,7 +220,7 @@ describe('Real Estate Investment Analysis page', () => {
     });
 
     renderWithQueryClient(<RealEstateAnalysis />);
-    fillAllFields();
+    fireEvent.change(screen.getByLabelText('Property address'), { target: { value: CUSTOM_ADDRESS } });
     fireEvent.click(screen.getByRole('button', { name: /analyze property/i }));
 
     await waitFor(() => {
@@ -265,7 +239,7 @@ describe('Real Estate Investment Analysis page', () => {
     const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
 
     renderWithQueryClient(<RealEstateAnalysis />, queryClient);
-    fillAllFields();
+    fireEvent.change(screen.getByLabelText('Property address'), { target: { value: CUSTOM_ADDRESS } });
     fireEvent.click(screen.getByRole('button', { name: /analyze property/i }));
 
     await waitFor(() => {
@@ -281,7 +255,7 @@ describe('Real Estate Investment Analysis page', () => {
     });
 
     renderWithQueryClient(<RealEstateAnalysis />);
-    fillAllFields();
+    fireEvent.change(screen.getByLabelText('Property address'), { target: { value: CUSTOM_ADDRESS } });
     fireEvent.click(screen.getByRole('button', { name: /analyze property/i }));
 
     await waitFor(() => {
@@ -289,14 +263,14 @@ describe('Real Estate Investment Analysis page', () => {
     });
   });
 
-  it('renders a past history entry\'s structured output without refilling the form fields', () => {
+  it('renders a past history entry\'s structured output without refilling the form field', () => {
     renderWithQueryClient(<RealEstateAnalysis />);
     fireEvent.click(screen.getByRole('button', { name: /^restore-from-history$/i }));
 
     expect(screen.getByTestId('verdict-badge').textContent).toBe('Hold');
     expect(screen.getByText('Restored recommendation text.')).toBeTruthy();
 
-    // Form fields are deliberately left untouched (not refilled from history).
+    // The address field is deliberately left untouched (not refilled from history).
     const addressInput = screen.getByLabelText('Property address') as HTMLInputElement;
     expect(addressInput.value).toBe('');
   });
