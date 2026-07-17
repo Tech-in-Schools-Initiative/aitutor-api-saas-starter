@@ -3,7 +3,6 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 
 const filesThatImportedFramerMotion = [
-  'components/landing-page/timeline/TimelineContent.tsx',
   'components/landing-page/hero/hero.tsx',
   'components/landing-page/timeline/components/testimonial-cards.tsx',
   'components/landing-page/footer/animated-gradient-background.tsx',

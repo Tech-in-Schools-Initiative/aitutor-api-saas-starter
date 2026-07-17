@@ -1,7 +1,7 @@
 import { Button } from '@repo/ui/components/button';
 import { ArrowRight, CreditCard, Database } from 'lucide-react';
 import { Hero } from '@/components/landing-page/hero/hero';
-import { TimelineSection } from '@/components/landing-page/timeline/TImelineSecion';
+import { TimelineSection } from '@/components/landing-page/timeline/TimelineSection';
 import PricingPage from './pricing/page';
 import { StackedCircularFooter } from '@/components/landing-page/footer/footer';
 
