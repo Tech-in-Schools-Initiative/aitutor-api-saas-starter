@@ -147,11 +147,11 @@ The workflow page provides an interface for users to interact with AI Tutor API 
 
 Beyond the original "Custom Workflow" page, the dashboard sidebar ships with 3 ready-made example workflow pages under `/dashboard/workflows/<slug>`, each backed by its own workflow ID and its own workflow history:
 
-- **Real Estate Investment Analysis** (`/dashboard/workflows/real-estate-analysis`) – takes a property listing/deal description and returns an investment analysis with a buy/hold/pass recommendation. Uses `WORKFLOW_ID_REAL_ESTATE_ANALYSIS`.
-- **Google Ads Campaign Analysis** (`/dashboard/workflows/google-ads-analysis`) – takes Google Ads campaign performance data and returns prioritized optimization recommendations. Uses `WORKFLOW_ID_GOOGLE_ADS_ANALYSIS`.
-- **Resume & Candidate Fit Analysis** (`/dashboard/workflows/resume-screening`) – takes a job description and a resume (two separate fields) and returns a fit score with interview questions. Uses `WORKFLOW_ID_RESUME_SCREENING`.
+- **Real Estate Investment Analysis** (`/dashboard/workflows/real-estate-analysis`) – takes just a property address, uses the model's real-time web search to find its market value, rent estimate, and property type, then returns a buy/hold/pass investment analysis with cap rate and cash flow. Uses `WORKFLOW_ID_REAL_ESTATE_ANALYSIS`.
+- **Google Ads Campaign Proposal** (`/dashboard/workflows/google-ads-analysis`) – takes just a website URL (its content is fetched automatically), and proposes a ready-to-launch Google Ads campaign: audience, budget, keywords, and ad copy variations. Uses `WORKFLOW_ID_GOOGLE_ADS_ANALYSIS`.
+- **Resume Improvement Analysis** (`/dashboard/workflows/resume-screening`) – takes a job listing URL (fetched automatically) and a resume, and gives the candidate specific advice on how to improve their resume for that role. Uses `WORKFLOW_ID_RESUME_SCREENING`.
 
-Each of these example workflows needs a corresponding workflow created in your AI Tutor API dashboard before its page will work end-to-end. The **[`workflow-templates/`](./workflow-templates/)** directory at the repo root contains one JSON spec per example (matching AI Tutor API's own template field structure: category, description, recommended model, input variables, system instructions, user prompt template) plus a README explaining exactly how to hand-enter each one as a new custom workflow and where to paste the resulting workflow ID.
+Each of these example workflows needs a corresponding workflow created in your AI Tutor API dashboard before its page will work end-to-end. The **[`workflow-templates/`](./workflow-templates/)** directory at the repo root contains one directly-importable JSON file per example (matching AI Tutor API's real import schema, including its native web search and structured-output settings) plus a README explaining exactly how to import each one and where to paste the resulting workflow ID.
 
 ## Sidebar Subscription Status Display
 
