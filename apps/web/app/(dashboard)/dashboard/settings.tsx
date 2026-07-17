@@ -70,7 +70,7 @@ export function Settings({ teamData }: { teamData: TeamDataWithMembers }) {
             {teamData.teamMembers.map((member) => (
               <li key={member.id} className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                  <Avatar>
+                  <Avatar size="lg">
                     <AvatarImage
                       src={`/placeholder.svg?height=32&width=32`}
                       alt={getUserDisplayName(member.user)}
