@@ -7,7 +7,15 @@ import { Button } from '@repo/ui/components/button';
 import { Input } from '@repo/ui/components/input';
 import { Textarea } from '@repo/ui/components/textarea';
 import { Label } from '@repo/ui/components/label';
-import { Loader2 } from 'lucide-react';
+import { Separator } from '@repo/ui/components/separator';
+import {
+  Loader2,
+  Sparkles,
+  Target,
+  Lightbulb,
+  AlertCircle,
+  FileText,
+} from 'lucide-react';
 import WorkflowResultDisplay from '@/components/ai-tutor-api/WorkflowResultDisplay';
 import { WorkflowHistoryDrawer } from '@/components/workflow/WorkflowHistoryDrawer';
 
@@ -54,63 +62,145 @@ function parseStructuredResult(rawResult: unknown): ParsedResumeImprovementResul
   }
 }
 
+// Ring/typography treatment for the hero match-score metric. Thresholds are
+// deliberately coarse (>=8 strong, >=5 mixed, below that needs work) since the
+// score itself is only ever an integer 0-10.
+function getScoreTone(score: number) {
+  if (score >= 8) {
+    return { ring: 'text-emerald-500', text: 'text-emerald-600', label: 'Strong match' };
+  }
+  if (score >= 5) {
+    return { ring: 'text-amber-500', text: 'text-amber-600', label: 'Partial match' };
+  }
+  return { ring: 'text-red-500', text: 'text-red-600', label: 'Needs work' };
+}
+
+function MatchScoreRing({ score }: { score: number }) {
+  const clamped = Math.max(0, Math.min(10, score));
+  const radius = 42;
+  const circumference = 2 * Math.PI * radius;
+  const dashoffset = circumference * (1 - clamped / 10);
+  const tone = getScoreTone(score);
+
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <div className="relative flex h-28 w-28 shrink-0 items-center justify-center">
+        <svg className="h-28 w-28 -rotate-90" viewBox="0 0 100 100" aria-hidden="true">
+          <circle cx="50" cy="50" r={radius} fill="none" stroke="currentColor" strokeWidth="8" className="text-gray-200" />
+          <circle
+            cx="50"
+            cy="50"
+            r={radius}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="8"
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={dashoffset}
+            className={tone.ring}
+          />
+        </svg>
+        <div className={`absolute text-2xl font-extrabold ${tone.text}`} data-testid="match-score">
+          {score}/10
+        </div>
+      </div>
+      <span className={`text-xs font-semibold uppercase tracking-wide ${tone.text}`}>{tone.label}</span>
+    </div>
+  );
+}
+
 function ResumeImprovementResult({ data }: { data: ParsedResumeImprovementResult }) {
   const missingKeywords = Array.isArray(data.missingKeywords) ? data.missingKeywords : [];
   const suggestedImprovements = Array.isArray(data.suggestedImprovements) ? data.suggestedImprovements : [];
 
   return (
-    <Card>
+    <Card className="overflow-hidden">
+      <div className="h-1.5 w-full bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500" aria-hidden="true" />
       <CardHeader>
-        <CardTitle>Resume Improvement Coaching</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          <Sparkles className="h-5 w-5 text-pink-500" aria-hidden="true" />
+          Resume Improvement Coaching
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-          <div className="text-4xl font-bold text-gray-900" data-testid="match-score">
-            {data.matchScore}/10
-          </div>
-          <p className="text-sm text-gray-600" data-testid="overall-assessment">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-6">
+          <MatchScoreRing score={data.matchScore} />
+          <p className="text-sm leading-relaxed text-gray-600" data-testid="overall-assessment">
             {data.overallAssessment}
           </p>
         </div>
 
         {missingKeywords.length > 0 && (
-          <div>
-            <h3 className="text-sm font-semibold text-gray-900 mb-2">Keywords to Add</h3>
-            <div className="flex flex-wrap gap-2">
-              {missingKeywords.map((keyword, index) => (
-                <span
-                  key={index}
-                  className="rounded-full px-3 py-1 text-xs font-semibold text-white bg-blue-500"
-                  data-testid="missing-keyword"
-                >
-                  {keyword}
-                </span>
-              ))}
+          <>
+            <Separator />
+            <div>
+              <h3 className="flex items-center gap-1.5 text-sm font-semibold text-gray-900 mb-2">
+                <Target className="h-4 w-4 text-pink-500" aria-hidden="true" />
+                Keywords to Add
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {missingKeywords.map((keyword, index) => (
+                  <span
+                    key={index}
+                    className="rounded-full px-3 py-1 text-xs font-semibold text-white bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 shadow-sm"
+                    data-testid="missing-keyword"
+                  >
+                    {keyword}
+                  </span>
+                ))}
+              </div>
             </div>
-          </div>
+          </>
         )}
 
         {suggestedImprovements.length > 0 && (
-          <div>
-            <h3 className="text-sm font-semibold text-gray-900 mb-2">Suggested Improvements</h3>
-            <div className="space-y-3">
-              {suggestedImprovements.map((improvement, index) => (
-                <div key={index} className="rounded-lg border border-gray-200 p-3" data-testid="suggested-improvement">
-                  <span className="inline-block rounded-full px-2 py-1 text-xs font-semibold text-white bg-gray-500 mb-2" data-testid="improvement-section">
-                    {improvement.section}
-                  </span>
-                  <p className="text-sm text-gray-700" data-testid="improvement-suggestion">{improvement.suggestion}</p>
-                </div>
-              ))}
+          <>
+            <Separator />
+            <div>
+              <h3 className="flex items-center gap-1.5 text-sm font-semibold text-gray-900 mb-2">
+                <Lightbulb className="h-4 w-4 text-pink-500" aria-hidden="true" />
+                Suggested Improvements
+              </h3>
+              <div className="space-y-3">
+                {suggestedImprovements.map((improvement, index) => (
+                  <div
+                    key={index}
+                    className="relative rounded-lg border border-gray-200 bg-gray-50/60 p-3 pl-4 overflow-hidden"
+                    data-testid="suggested-improvement"
+                  >
+                    <div
+                      className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-purple-500 via-pink-500 to-orange-500"
+                      aria-hidden="true"
+                    />
+                    <span
+                      className="block text-xs font-semibold uppercase tracking-wide text-pink-600 mb-1"
+                      data-testid="improvement-section"
+                    >
+                      {improvement.section}
+                    </span>
+                    <p className="text-sm text-gray-700" data-testid="improvement-suggestion">{improvement.suggestion}</p>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          </>
         )}
 
         {data.topPriorityFix && (
-          <div className="rounded-lg border-2 border-amber-500 bg-amber-50 p-4">
-            <h3 className="text-sm font-semibold text-amber-900 mb-1">Top Priority Fix</h3>
-            <p className="text-sm text-amber-900" data-testid="top-priority-fix">{data.topPriorityFix}</p>
-          </div>
+          <>
+            <Separator />
+            <div className="rounded-lg border-2 border-amber-400 bg-gradient-to-br from-amber-50 to-orange-50 p-4">
+              <div className="flex items-start gap-3">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-500 text-white">
+                  <AlertCircle className="h-4 w-4" aria-hidden="true" />
+                </div>
+                <div className="min-w-0">
+                  <h3 className="text-sm font-semibold text-amber-900 mb-1">Top Priority Fix</h3>
+                  <p className="text-sm text-amber-900" data-testid="top-priority-fix">{data.topPriorityFix}</p>
+                </div>
+              </div>
+            </div>
+          </>
         )}
       </CardContent>
     </Card>
@@ -189,7 +279,8 @@ export default function ResumeScreening() {
 
     return (
         <section className="flex-1 p-4 lg:p-8">
-            <h1 className="text-lg lg:text-2xl font-medium text-gray-900 mb-6">
+            <h1 className="flex items-center gap-2 text-lg lg:text-2xl font-medium text-gray-900 mb-6">
+                <FileText className="h-5 w-5 lg:h-6 lg:w-6 text-pink-500" aria-hidden="true" />
                 Resume Improvement Analysis
             </h1>
             <Card className="mb-8">
