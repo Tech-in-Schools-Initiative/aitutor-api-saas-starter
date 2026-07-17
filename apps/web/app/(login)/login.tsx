@@ -86,6 +86,17 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
             </div>
           </div>
 
+          {mode === 'signin' && (
+            <div className="text-right">
+              <Link
+                href="/forgot-password"
+                className="text-sm font-medium text-gray-600 hover:text-gray-900"
+              >
+                Forgot your password?
+              </Link>
+            </div>
+          )}
+
           {state?.error && (
             <div className="text-red-500 text-sm">{state.error}</div>
           )}
