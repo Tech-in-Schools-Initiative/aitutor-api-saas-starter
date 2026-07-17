@@ -2,6 +2,7 @@
 "use client";
 import { marked } from 'marked';
 import { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui/components/card';
 
 interface StoryDisplayProps {
   result: {
@@ -17,7 +18,7 @@ export default function StoryDisplay({ result }: StoryDisplayProps) {
         if (result && result.result) {
             const parser = new marked.Parser();
             const lexer = new marked.Lexer();
-            
+
             try {
                 const tokens = lexer.lex(result.result);
                 const htmlContent = parser.parse(tokens);
@@ -30,15 +31,16 @@ export default function StoryDisplay({ result }: StoryDisplayProps) {
     }, [result]);
 
     return (
-        <div className="glass-morphism p-8 rounded-xl shadow-xl backdrop-blur-lg bg-white/30">
-            <div 
-                className="story-content prose prose-lg max-w-none"
-                style={{
-                    color: '#4B5563',
-                    lineHeight: '1.8',
-                }}
-                dangerouslySetInnerHTML={{ __html: formattedResult }}
-            />
-        </div>
+        <Card>
+            <CardHeader>
+                <CardTitle>Generated Story</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div
+                    className="story-content max-w-none text-gray-600 leading-[1.8] [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mb-4 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mb-3 [&_p]:mb-4 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6"
+                    dangerouslySetInnerHTML={{ __html: formattedResult }}
+                />
+            </CardContent>
+        </Card>
     );
 }
