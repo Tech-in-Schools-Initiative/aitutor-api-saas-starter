@@ -1,10 +1,5 @@
-import Link from 'next/link';
-import SettingsPage from '../page';
+import { redirect } from 'next/navigation';
 
-export default function TeamSettings() {
-    return (
-
-                    <SettingsPage />
-
-    );
+export default function TeamSettingsRedirect() {
+  redirect('/dashboard');
 }
