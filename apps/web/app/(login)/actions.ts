@@ -26,6 +26,10 @@ import {
   validatedActionWithUser,
 } from '@/lib/auth/middleware';
 import { sendTeamInvitationEmail } from '@repo/email/send';
+import {
+  requestPasswordReset as requestPasswordResetForEmail,
+  confirmPasswordReset,
+} from '@/lib/auth/password-reset';
 
 async function logActivity(
   teamId: number | null | undefined,
@@ -462,3 +466,47 @@ export const inviteTeamMember = validatedActionWithUser(
     return { success: 'Invitation sent successfully' };
   },
 );
+
+const requestPasswordResetSchema = z.object({
+  email: z.string().email(),
+});
+
+export const requestPasswordReset = validatedAction(
+  requestPasswordResetSchema,
+  async (data) => {
+    try {
+      await requestPasswordResetForEmail(data.email);
+    } catch (err) {
+      console.error('requestPasswordReset action failed', err);
+    }
+
+    return {
+      success:
+        'If an account exists for that email, a password reset link has been sent.',
+    };
+  },
+);
+
+const resetPasswordSchema = z
+  .object({
+    token: z.string().min(1),
+    password: z.string().min(8).max(100),
+    confirmPassword: z.string().min(8).max(100),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ['confirmPassword'],
+  });
+
+export const resetPassword = validatedAction(resetPasswordSchema, async (data) => {
+  // confirmPasswordReset never throws for a known failure -- it always
+  // resolves to { success: true } | { error: string }. Check the resolved
+  // shape rather than wrapping this in a try/catch.
+  const outcome = await confirmPasswordReset(data.token, data.password);
+
+  if ('error' in outcome) {
+    return { error: outcome.error };
+  }
+
+  redirect('/dashboard');
+});
