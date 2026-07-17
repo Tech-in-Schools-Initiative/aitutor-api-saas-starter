@@ -4,15 +4,21 @@ import { describe, it, expect, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Workflow from '@/app/(dashboard)/dashboard/workflow/page';
 
 vi.mock('@/components/workflow/WorkflowHistoryDrawer', () => ({
   WorkflowHistoryDrawer: () => null,
 }));
 
+function renderWithQueryClient(ui: React.ReactElement) {
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  return render(<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>);
+}
+
 describe('Workflow dashboard page', () => {
   it('renders the shared Card/Input/Button primitives instead of raw elements', () => {
-    const { container } = render(<Workflow />);
+    const { container } = renderWithQueryClient(<Workflow />);
     expect(container.querySelector('[data-slot="card"]')).toBeTruthy();
     expect(container.querySelector('[data-slot="input"]')).toBeTruthy();
     expect(container.querySelector('[data-slot="button"]')).toBeTruthy();
@@ -25,7 +31,7 @@ describe('Workflow dashboard page', () => {
       json: async () => ({ result: 'Once upon a time.' }),
     }) as unknown as typeof fetch;
 
-    render(<Workflow />);
+    renderWithQueryClient(<Workflow />);
     fireEvent.change(screen.getByLabelText('Enter your story prompt'), {
       target: { value: 'a magical forest' },
     });

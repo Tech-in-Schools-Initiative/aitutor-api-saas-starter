@@ -1,6 +1,7 @@
 // app/(dashboard)/dashboard/workflow/page.tsx
 "use client";
 import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui/components/card';
 import { Button } from '@repo/ui/components/button';
 import { Input } from '@repo/ui/components/input';
@@ -9,44 +10,53 @@ import { Loader2 } from 'lucide-react';
 import StoryDisplay from '@/components/ai-tutor-api/StoryDisplay';
 import { WorkflowHistoryDrawer } from '@/components/workflow/WorkflowHistoryDrawer';
 
+async function runStory(story: string): Promise<any> {
+    const response = await fetch('/api/run', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ story }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(data.error || 'An error occurred while fetching the story.');
+    }
+
+    return data;
+}
+
 export default function Workflow() {
     const [story, setStory] = useState('');
     const [result, setResult] = useState<any>(null);
-    const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
+    const [formError, setFormError] = useState('');
+    const queryClient = useQueryClient();
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const runStoryMutation = useMutation({
+        mutationFn: runStory,
+        onSuccess: (data) => {
+            setResult(data);
+            queryClient.invalidateQueries({ queryKey: ['team-limit'] });
+            queryClient.invalidateQueries({ queryKey: ['workflow-history'] });
+        },
+    });
+
+    const loading = runStoryMutation.isPending;
+    const error = formError || (runStoryMutation.isError
+        ? (runStoryMutation.error instanceof Error ? runStoryMutation.error.message : 'An error occurred while fetching the story.')
+        : '');
+
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!story.trim()) {
-            setError('Please enter a story');
+            setFormError('Please enter a story');
             return;
         }
-        setError('');
-        setLoading(true);
+        setFormError('');
         setResult(null);
-
-        try {
-            const response = await fetch('/api/run', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ story }),
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                setResult(data);
-                setError('');
-            } else {
-                setError(data.error || 'An error occurred while fetching the story.');
-            }
-        } catch (err) {
-            setError('An error occurred while fetching the story.');
-        } finally {
-            setLoading(false);
-        }
+        runStoryMutation.mutate(story);
     };
 
     const handleSelectHistory = (input: string, output: string) => {
