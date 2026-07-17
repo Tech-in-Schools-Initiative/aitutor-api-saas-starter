@@ -48,3 +48,4 @@ postgres_data/
 
 # turborepo
 .turbo/
+.env*

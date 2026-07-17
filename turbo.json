@@ -3,7 +3,22 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "outputs": [".next/**", "!.next/cache/**"],
+      "env": [
+        "POSTGRES_URL",
+        "STRIPE_SECRET_KEY",
+        "STRIPE_WEBHOOK_SECRET",
+        "NEXT_PUBLIC_STRIPE_PUBLISHABLEKEY",
+        "BASE_URL",
+        "AUTH_SECRET",
+        "AITUTOR_API_KEY",
+        "WORKFLOW_ID",
+        "WORKFLOW_ID_REAL_ESTATE_ANALYSIS",
+        "WORKFLOW_ID_GOOGLE_ADS_ANALYSIS",
+        "WORKFLOW_ID_RESUME_SCREENING",
+        "RESEND_API_KEY",
+        "RESEND_FROM_EMAIL"
+      ]
     },
     "dev": {
       "cache": false,
