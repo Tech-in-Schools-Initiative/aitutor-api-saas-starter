@@ -1,11 +1,10 @@
 "use client";
 import React from "react";
 import Image from 'next/image';
+import Link from 'next/link';
 import AnimatedGradientBackground from "./animated-gradient-background";
 import { Icons } from "./icons"
 import { Button } from "@repo/ui/components/button"
-import { Input } from "@repo/ui/components/input"
-import { Label } from "@repo/ui/components/label"
 
 function StackedCircularFooter() {
   return (
@@ -19,7 +18,7 @@ function StackedCircularFooter() {
             <Image alt="Logo" src="/logo-square.png" width={100} height={100} />
           </div>
           <nav className="mb-8 flex flex-wrap justify-center gap-6">
-            <a href="#" className="hover:text-primary">Home</a>
+            <Link href="/" className="hover:text-primary">Home</Link>
             <a href="https://aitutor-api.vercel.app/" target="_blank" rel="noopener noreferrer" className="hover:text-primary">AI Tutor API</a>
             <a href="https://account.myapps.ai/" target="_blank" rel="noopener noreferrer" className="hover:text-primary">AI Tutor</a>
             <a href="https://pixio.myapps.ai/" target="_blank" rel="noopener noreferrer" className="hover:text-primary">Pixio</a>
@@ -39,15 +38,6 @@ function StackedCircularFooter() {
               </a>
             </Button>
           </div>
-          {/* <div className="mb-8 w-full max-w-md">
-            <form className="flex space-x-2">
-              <div className="flex-grow">
-                <Label htmlFor="email" className="sr-only">Email</Label>
-                <Input id="email" placeholder="Enter your email" type="email" className="rounded-full" />
-              </div>
-              <Button type="submit" className="rounded-full">Subscribe</Button>
-            </form>
-          </div> */}
           <div className="text-center">
             <p className="text-sm text-muted-foreground">
               © 2025 Tech in Schools Initiative. All rights reserved.
