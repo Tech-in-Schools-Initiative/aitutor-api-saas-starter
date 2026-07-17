@@ -1,6 +1,6 @@
 import { desc, and, eq, isNull } from 'drizzle-orm';
 import { db } from './client';
-import { activityLogs, teamMembers, teams, users } from './schema';
+import { activityLogs, teamMembers, teams, users, Team } from './schema';
 
 export async function getUserById(id: number) {
   const result = await db
@@ -97,4 +97,16 @@ export async function getTeamForUser(userId: number) {
   });
 
   return result?.teamMembers[0]?.team || null;
+}
+
+export async function getTeamCore(userId: number): Promise<Team | null> {
+  const result = await db
+    .select({ team: teams })
+    .from(users)
+    .innerJoin(teamMembers, eq(users.id, teamMembers.userId))
+    .innerJoin(teams, eq(teamMembers.teamId, teams.id))
+    .where(eq(users.id, userId))
+    .limit(1);
+
+  return result[0]?.team ?? null;
 }
