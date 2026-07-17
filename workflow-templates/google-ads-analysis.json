@@ -1,13 +1,7 @@
 {
   "name": "Google Ads Campaign Analysis",
-  "slug": "google-ads-analysis",
-  "category": "Business",
-  "description": "Analyzes Google Ads campaign performance data and returns prioritized optimization recommendations.",
-  "recommendedModel": "GPT-5 (or an equivalent reasoning-capable model)",
-  "inputVariables": ["campaign_data"],
-  "systemInstructions": "You are a senior paid-search analyst who audits Google Ads campaign performance and gives specific, prioritized optimization recommendations.",
-  "userPromptTemplate": "Analyze the following Google Ads campaign performance data:\n\n{{campaign_data}}\n\nProvide your analysis as markdown with these sections:\n## Performance Summary\nKey metrics interpreted (CTR, CPC, conversion rate, ROAS/CPA if computable).\n## What's Working\nBulleted list.\n## What's Underperforming\nBulleted list, with the likely root cause for each.\n## Recommended Actions\nA prioritized, numbered list of concrete changes (bids, keywords, ad copy, targeting, budget shifts).\n## Suggested Next Test\nOne specific A/B test to run next.",
-  "settings": { "temperature": 0.3, "maxOutputTokens": 2000 },
-  "sampleInput": { "campaign_data": "Campaign: 'Brand - Search'. Last 30 days: Impressions 42,300, Clicks 1,890 (CTR 4.5%), Avg CPC $1.85, Spend $3,496.50, Conversions 58 (Conv. rate 3.07%), Conversion value $8,700. Top keyword 'acme software pricing' has 210 clicks, 2 conversions." },
-  "setupNote": "AI Tutor API's built-in template gallery doesn't include this one - create a new workflow in its dashboard, paste systemInstructions into the System Instructions field and userPromptTemplate into the User Prompt Template field, add an input variable named exactly 'campaign_data' (matching what this app sends), select recommendedModel (or an equivalent), then copy the published workflow_id into WORKFLOW_ID_GOOGLE_ADS_ANALYSIS in apps/web/.env."
+  "model": "gpt-4o",
+  "template": "You are a senior paid-search analyst who audits Google Ads campaign performance and gives specific, prioritized optimization recommendations.\n\nAnalyze the following Google Ads campaign performance data:\n\n{{campaign_data}}\n\nProvide your analysis as markdown with these sections:\n## Performance Summary\nKey metrics interpreted (CTR, CPC, conversion rate, ROAS/CPA if computable).\n## What's Working\nBulleted list.\n## What's Underperforming\nBulleted list, with the likely root cause for each.\n## Recommended Actions\nA prioritized, numbered list of concrete changes (bids, keywords, ad copy, targeting, budget shifts).\n## Suggested Next Test\nOne specific A/B test to run next.",
+  "inputs": [{ "name": "campaign_data", "label": "Campaign performance data" }],
+  "modelSettings": "{}"
 }

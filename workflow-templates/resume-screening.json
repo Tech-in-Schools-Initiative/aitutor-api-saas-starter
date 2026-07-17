@@ -1,16 +1,10 @@
 {
   "name": "Resume & Candidate Fit Analysis",
-  "slug": "resume-screening",
-  "category": "Business",
-  "description": "Evaluates a candidate's resume against a job description and returns a fit score with interview questions.",
-  "recommendedModel": "GPT-5 (or an equivalent reasoning-capable model)",
-  "inputVariables": ["job_description", "resume"],
-  "systemInstructions": "You are a technical recruiter who screens resumes against a specific job description objectively and without bias toward school prestige, employer brand names, or demographic signals. Focus only on demonstrated skills and experience relevant to the role.",
-  "userPromptTemplate": "Job Description:\n{{job_description}}\n\nResume:\n{{resume}}\n\nEvaluate the candidate's fit for the role above. Provide your analysis as markdown with these sections:\n## Fit Score\nA score from 1-10 with one sentence justifying it.\n## Matching Strengths\nBulleted list of specific resume experience that matches the job requirements.\n## Gaps or Concerns\nBulleted list of missing or unclear qualifications.\n## Suggested Interview Questions\n3-5 targeted questions to probe the gaps above.\n## Recommendation\nAdvance, Maybe (with what to clarify), or Pass, with a one-sentence reason.",
-  "settings": { "temperature": 0.4, "maxOutputTokens": 2000 },
-  "sampleInput": {
-    "job_description": "Senior Backend Engineer, needs 5+ years Node.js/TypeScript, Postgres, AWS, and experience leading a small team.",
-    "resume": "Jane Doe - 6 years experience. 4 years Python/Django at a fintech startup, 2 years Node.js/TypeScript at current role building REST APIs on AWS Lambda with Postgres (RDS). Mentored 2 junior engineers informally. No formal team-lead title."
-  },
-  "setupNote": "AI Tutor API's built-in template gallery doesn't include this one - create a new workflow in its dashboard, paste systemInstructions into the System Instructions field and userPromptTemplate into the User Prompt Template field, add TWO input variables named exactly 'job_description' and 'resume' (matching what this app sends), select recommendedModel (or an equivalent), then copy the published workflow_id into WORKFLOW_ID_RESUME_SCREENING in apps/web/.env."
+  "model": "gpt-4o",
+  "template": "You are a technical recruiter who screens resumes against a specific job description objectively and without bias toward school prestige, employer brand names, or demographic signals. Focus only on demonstrated skills and experience relevant to the role.\n\nJob Description:\n{{job_description}}\n\nResume:\n{{resume}}\n\nEvaluate the candidate's fit for the role above. Provide your analysis as markdown with these sections:\n## Fit Score\nA score from 1-10 with one sentence justifying it.\n## Matching Strengths\nBulleted list of specific resume experience that matches the job requirements.\n## Gaps or Concerns\nBulleted list of missing or unclear qualifications.\n## Suggested Interview Questions\n3-5 targeted questions to probe the gaps above.\n## Recommendation\nAdvance, Maybe (with what to clarify), or Pass, with a one-sentence reason.",
+  "inputs": [
+    { "name": "job_description", "label": "Job description" },
+    { "name": "resume", "label": "Resume" }
+  ],
+  "modelSettings": "{}"
 }

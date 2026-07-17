@@ -1,30 +1,40 @@
 # Workflow Templates
 
-This directory contains **specs**, not upload-and-done templates, for the 3 example workflow pages shipped in this starter (Real Estate Investment Analysis, Google Ads Campaign Analysis, Resume & Candidate Fit Analysis). Read this before you try to "import" one.
+This directory contains **directly importable** JSON files for the 3 example workflow pages shipped in this starter (Real Estate Investment Analysis, Google Ads Campaign Analysis, Resume & Candidate Fit Analysis).
 
-## How AI Tutor API workflows actually work
+## How to import a workflow into AI Tutor API
 
-AI Tutor API's own "Create workflow" flow is a six-step process: **Create workflow → use the visual builder or import a template.** "Import a template" means picking one of AI Tutor API's own **built-in** gallery templates (Blog Post Generator, Code Review Assistant, Smart Email Composer, Document Data Extractor, Adaptive Tutor Engine, Research Analyst) — selecting one pre-fills a new workflow for you. Each built-in template (and every custom workflow you create by hand) is defined by the same shape:
+AI Tutor API's Workflows page (`https://aitutor-api.vercel.app/workflows`, once signed in) has a real **Import** button next to **New**, which opens an "Import Workflow from JSON" dialog — select or drag-and-drop one of the files below.
 
-- **Category** – a short grouping label (e.g. "Business").
-- **Description** – a one-line summary of what the workflow does.
-- **Recommended model** – the model AI Tutor API suggests running the workflow with.
-- **Input Variables** – a list of `{{variable}}` names the prompt template references. AI Tutor API's own guidance is to prefer descriptive names (`{{topic}}`, `{{tone}}`) over a single generic `{{input}}`.
-- **System Instructions** – the system prompt.
-- **User Prompt Template** – the user-facing prompt, referencing the input variables with `{{double-brace}}` syntax. The System Instructions and User Prompt Template fields each have a "Copy" button in AI Tutor API's UI for pasting into a workflow you're building.
+1. Go to `https://aitutor-api.vercel.app/workflows` and sign in.
+2. Click **Import**, then select one of the 3 `.json` files in this directory.
+3. The workflow is created immediately with the file's name, model, prompt template, and input variables already filled in.
+4. Open the new workflow and copy its **workflow_id** (the `wf_...` string — visible under the API tab, or by exporting the workflow again and reading its `id` field).
+5. Paste that `workflow_id` into the matching environment variable below, in `apps/web/.env`.
 
-There is **no confirmed way to bulk-upload a brand-new custom template as a file** — real estate analysis, Google Ads analysis, and resume screening aren't in AI Tutor API's built-in gallery, and no export/import affordance for custom templates was found beyond the two field-level Copy buttons on an existing workflow's detail view.
+## The real import JSON schema
 
-## What's in this directory
+Confirmed directly by exporting an existing workflow from a live account (`Workflows → open a workflow → Export`):
 
-The 3 JSON files below are **specs formatted to match AI Tutor API's own real template field structure** (same field names/shape as their built-in templates), so you can quickly hand-enter each one as a new custom workflow in the AI Tutor API dashboard. Each file's own `setupNote` field repeats these steps for that specific workflow. To set one up:
+```json
+{
+  "id": "wf_...",
+  "name": "...",
+  "model": "gpt-4o",
+  "template": "...prompt text with {{variable}} placeholders...",
+  "inputs": [{ "name": "variable_name", "label": "Human-readable label" }],
+  "modelSettings": "{}"
+}
+```
 
-1. In the AI Tutor API dashboard, choose **Create workflow → use the visual builder** (not "import a template" — these 3 aren't in the built-in gallery).
-2. Copy the file's `systemInstructions` value into the **System Instructions** field.
-3. Copy the file's `userPromptTemplate` value into the **User Prompt Template** field.
-4. Add the input variable(s) listed in `inputVariables`, spelled exactly as shown — the app sends these as JSON keys, so the names must match exactly.
-5. Select the model named in `recommendedModel`, or an equivalent reasoning-capable model.
-6. Publish the workflow and copy its `workflow_id` into the matching environment variable below, in `apps/web/.env`.
+Notes:
+- `id` is omitted from the 3 files below — leave it out when importing a *new* workflow; AI Tutor API assigns a fresh one.
+- There is no separate system-instructions field — `template` is the entire prompt (system framing + task instructions + `{{variables}}`) as one string.
+- `inputs` can list one or more variables. The variable `name`s must exactly match the JSON keys this app sends in its `/api/run` request body (see the table below).
+- `modelSettings` is a JSON string (not a nested object) — `"{}"` uses the model's defaults.
+- `model` must be a real model ID your account has access to. `gpt-4o` is used here since it's a confirmed-valid ID; swap it for another supported model if you prefer.
+
+## Files
 
 | File | Workflow page | Env var | Variable name(s) sent by the app |
 | --- | --- | --- | --- |
@@ -32,4 +42,4 @@ The 3 JSON files below are **specs formatted to match AI Tutor API's own real te
 | [`google-ads-analysis.json`](./google-ads-analysis.json) | Google Ads Campaign Analysis (`/dashboard/workflows/google-ads-analysis`) | `WORKFLOW_ID_GOOGLE_ADS_ANALYSIS` | `campaign_data` |
 | [`resume-screening.json`](./resume-screening.json) | Resume & Candidate Fit Analysis (`/dashboard/workflows/resume-screening`) | `WORKFLOW_ID_RESUME_SCREENING` | `job_description`, `resume` |
 
-Each file also includes a `sampleInput` value matching its variable name(s) — this is the same sample text the page's "Load sample" button fills into the form, useful for a quick end-to-end test once the workflow ID is wired up.
+Each corresponding workflow page has a "Load sample" button that fills the form with realistic example text for a quick end-to-end test once the workflow ID is wired up.
