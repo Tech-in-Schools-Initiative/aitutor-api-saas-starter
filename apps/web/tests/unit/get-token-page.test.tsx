@@ -4,11 +4,17 @@ import { describe, it, expect, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Token from '@/app/(dashboard)/dashboard/get-token/page';
+
+function renderWithQueryClient(ui: React.ReactElement) {
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  return render(<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>);
+}
 
 describe('Get Token dashboard page', () => {
   it('renders the shared Card/Button primitives instead of raw elements', () => {
-    const { container } = render(<Token />);
+    const { container } = renderWithQueryClient(<Token />);
     expect(container.querySelector('[data-slot="card"]')).toBeTruthy();
     expect(container.querySelector('[data-slot="button"]')).toBeTruthy();
     expect(container.querySelector('.glass-morphism')).toBeNull();
@@ -20,7 +26,7 @@ describe('Get Token dashboard page', () => {
       json: async () => ({ success: true, token: 'test-token-123' }),
     }) as unknown as typeof fetch;
 
-    render(<Token />);
+    renderWithQueryClient(<Token />);
     fireEvent.click(screen.getByRole('button', { name: /get new token/i }));
 
     await waitFor(() => {
@@ -29,7 +35,7 @@ describe('Get Token dashboard page', () => {
   });
 
   it('uses the consistent dashboard header pattern', () => {
-    render(<Token />);
+    renderWithQueryClient(<Token />);
     expect(screen.getByRole('heading', { name: 'Get Token', level: 1 })).toBeTruthy();
   });
 

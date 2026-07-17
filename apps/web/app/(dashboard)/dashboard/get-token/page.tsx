@@ -1,5 +1,5 @@
 "use client";
-import { useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui/components/card';
 import { Button } from '@repo/ui/components/button';
 import { Label } from '@repo/ui/components/label';
@@ -10,30 +10,27 @@ interface TokenResponse {
   token: string;
 }
 
-export default function Token() {
-    const [tokenResponse, setTokenResponse] = useState<TokenResponse | null>(null);
-    const [error, setError] = useState('');
-    const [tokenLoading, setTokenLoading] = useState(false);
+async function fetchToken(): Promise<TokenResponse> {
+    const response = await fetch('/api/token', {
+        method: 'POST',
+    });
+    const data = await response.json();
+    if (!response.ok) {
+        throw new Error(data.error || 'Failed to get token');
+    }
+    return data;
+}
 
-    const handleGetToken = async () => {
-        setTokenLoading(true);
-        setError('');
-        try {
-            const response = await fetch('/api/token', {
-                method: 'POST',
-            });
-            const data = await response.json();
-            if (response.ok) {
-                setTokenResponse(data);
-            } else {
-                setError(data.error || 'Failed to get token');
-            }
-        } catch (err) {
-            setError('Failed to get token');
-        } finally {
-            setTokenLoading(false);
-        }
-    };
+export default function Token() {
+    const tokenMutation = useMutation({
+        mutationFn: fetchToken,
+    });
+
+    const tokenResponse = tokenMutation.data;
+    const tokenLoading = tokenMutation.isPending;
+    const error = tokenMutation.isError
+        ? (tokenMutation.error instanceof Error ? tokenMutation.error.message : 'Failed to get token')
+        : '';
 
     return (
         <section className="flex-1 p-4 lg:p-8">
@@ -46,7 +43,7 @@ export default function Token() {
                 </CardHeader>
                 <CardContent>
                     <div className="flex flex-col items-start space-y-6">
-                        <Button onClick={handleGetToken} disabled={tokenLoading}>
+                        <Button onClick={() => tokenMutation.mutate()} disabled={tokenLoading}>
                             {tokenLoading ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
