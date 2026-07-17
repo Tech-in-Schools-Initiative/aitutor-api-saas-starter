@@ -38,8 +38,15 @@ vi.mock('@repo/db/queries', () => ({
 import { db } from '@repo/db/client';
 import { inviteTeamMember } from '@/app/(login)/actions';
 
-const limitMock = db.limit as unknown as ReturnType<typeof vi.fn>;
-const returningMock = db.returning as unknown as ReturnType<typeof vi.fn>;
+// `db` is typed as the real `PostgresJsDatabase<...>` (it has no `.limit`/
+// `.returning` members) even though `@repo/db/client` is mocked above --
+// TypeScript checks the import against the real module's types, not the
+// mock factory's shape. Cast the whole import to an untyped record first,
+// matching the pattern the mock factory itself uses for its chain methods,
+// so the property access below doesn't trip a type error.
+const mockedDb = db as unknown as Record<string, ReturnType<typeof vi.fn>>;
+const limitMock = mockedDb.limit;
+const returningMock = mockedDb.returning;
 
 describe('inviteTeamMember email wiring', () => {
   beforeEach(() => {
@@ -66,7 +73,7 @@ describe('inviteTeamMember email wiring', () => {
     formData.set('email', 'invitee@example.com');
     formData.set('role', 'member');
 
-    const result = await (inviteTeamMember as any)(
+    const result = await inviteTeamMember(
       { error: '', success: '' },
       formData,
     );
@@ -93,7 +100,7 @@ describe('inviteTeamMember email wiring', () => {
     formData.set('email', 'invitee2@example.com');
     formData.set('role', 'member');
 
-    const result = await (inviteTeamMember as any)(
+    const result = await inviteTeamMember(
       { error: '', success: '' },
       formData,
     );
