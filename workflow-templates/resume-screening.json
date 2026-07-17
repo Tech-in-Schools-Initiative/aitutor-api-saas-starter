@@ -1,13 +1,18 @@
 {
-  "name": "Resume & Candidate Fit Analysis",
+  "name": "Resume Improvement Analysis",
   "model": "gpt-5.6-luna",
-  "template": "You are a technical recruiter who screens resumes against a specific job description objectively and without bias toward school prestige, employer brand names, or demographic signals. Focus only on demonstrated skills and experience relevant to the role.\n\nRole: {{job_title}}\nMust-have skills: {{must_have_skills}}\nYears of experience required: {{years_experience_required}}\nFull job description: {{job_description}}\nCandidate resume: {{resume}}\n\nRespond with ONLY a single valid JSON object - no markdown code fences, no commentary before or after it, no extra keys. Match this exact shape:\n{\n  \"fitScore\": <integer 1-10>,\n  \"fitScoreReason\": \"one sentence justifying the score\",\n  \"matchingStrengths\": [\"specific resume experience matching a requirement\", \"...\"],\n  \"gaps\": [\"missing or unclear qualification\", \"...\"],\n  \"interviewQuestions\": [\"targeted question probing a gap\", \"...\"],\n  \"recommendation\": \"Advance\" | \"Maybe\" | \"Pass\",\n  \"recommendationReason\": \"one sentence, and if Maybe, what specifically to clarify\"\n}",
+  "template": "You are an expert resume coach and career advisor. The content of the job listing below has been fetched for you.\n\nJob listing: {{job_listing_url}}\n\nCandidate resume:\n{{resume}}\n\nCompare the resume against the listing's actual requirements and give the candidate specific, actionable advice on how to improve their resume for this particular role - not generic resume tips. Identify important keywords or qualifications from the listing that the resume doesn't clearly reflect, and suggest concrete rewrites for specific resume sections/bullets where the candidate's real experience could be reframed to better match the role.",
   "inputs": [
-    { "name": "job_title", "label": "Job title" },
-    { "name": "must_have_skills", "label": "Must-have skills" },
-    { "name": "years_experience_required", "label": "Years of experience required" },
-    { "name": "job_description", "label": "Full job description" },
-    { "name": "resume", "label": "Candidate resume" }
+    {
+      "name": "job_listing_url",
+      "type": "url",
+      "label": "Job listing URL"
+    },
+    {
+      "name": "resume",
+      "type": "textarea",
+      "label": "Resume"
+    }
   ],
-  "modelSettings": "{}"
+  "modelSettings": "{\"enableWebSearch\":false,\"maxTokens\":2500,\"temperature\":0.4,\"structuredOutputSchema\":\"{\\\"type\\\":\\\"object\\\",\\\"properties\\\":{\\\"matchScore\\\":{\\\"type\\\":\\\"number\\\"},\\\"overallAssessment\\\":{\\\"type\\\":\\\"string\\\"},\\\"missingKeywords\\\":{\\\"type\\\":\\\"array\\\",\\\"items\\\":{\\\"type\\\":\\\"string\\\"}},\\\"suggestedImprovements\\\":{\\\"type\\\":\\\"array\\\",\\\"items\\\":{\\\"type\\\":\\\"object\\\",\\\"properties\\\":{\\\"section\\\":{\\\"type\\\":\\\"string\\\"},\\\"suggestion\\\":{\\\"type\\\":\\\"string\\\"}},\\\"required\\\":[\\\"section\\\",\\\"suggestion\\\"]}},\\\"topPriorityFix\\\":{\\\"type\\\":\\\"string\\\"}},\\\"required\\\":[\\\"matchScore\\\",\\\"overallAssessment\\\",\\\"missingKeywords\\\",\\\"suggestedImprovements\\\",\\\"topPriorityFix\\\"]}\"}"
 }

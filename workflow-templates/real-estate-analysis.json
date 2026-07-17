@@ -1,15 +1,12 @@
 {
   "name": "Real Estate Investment Analysis",
   "model": "gpt-5.6-luna",
-  "template": "You are an experienced real estate investment analyst. You evaluate residential and small multifamily properties for investment potential using conservative, data-driven assumptions, and you always state your assumptions explicitly when data is missing.\n\nEvaluate this property:\nAddress: {{property_address}}\nProperty type: {{property_type}}\nAsking price: {{asking_price}}\nEstimated monthly rent: {{estimated_monthly_rent}}\nAnnual property taxes: {{annual_property_taxes}}\nMonthly HOA fee: {{monthly_hoa}}\nNotable features / condition notes: {{notable_features}}\n\nRespond with ONLY a single valid JSON object - no markdown code fences, no commentary before or after it, no extra keys. Match this exact shape:\n{\n  \"verdict\": \"Buy\" | \"Hold\" | \"Pass\",\n  \"verdictSummary\": \"2-3 sentence explanation of the verdict\",\n  \"capRatePercent\": <number>,\n  \"capRateExplanation\": \"how you calculated it, including assumptions you made\",\n  \"estimatedMonthlyCashFlow\": <number>,\n  \"cashFlowExplanation\": \"how you calculated it, including mortgage/tax/insurance/maintenance assumptions\",\n  \"risks\": [\"risk 1\", \"risk 2\", \"...\"],\n  \"recommendation\": \"one paragraph, actionable next step for the investor\"\n}",
+  "template": "You are an experienced real estate investment analyst with real-time web search access. Research the property at the address below and produce a conservative, data-driven investment analysis.\n\nAddress: {{property_address}}\n\nSearch the web for this property's current estimated market value, expected monthly rent for a comparable unit, its property type, and the local property tax rate. State any assumptions explicitly when you can't find an exact figure. Then compute a cap rate and estimated monthly cash flow (after typical mortgage, taxes, insurance, and maintenance reserves) from those figures.",
   "inputs": [
-    { "name": "property_address", "label": "Property address" },
-    { "name": "property_type", "label": "Property type (e.g. single-family, duplex, condo)" },
-    { "name": "asking_price", "label": "Asking price" },
-    { "name": "estimated_monthly_rent", "label": "Estimated monthly rent" },
-    { "name": "annual_property_taxes", "label": "Annual property taxes" },
-    { "name": "monthly_hoa", "label": "Monthly HOA fee (0 if none)" },
-    { "name": "notable_features", "label": "Notable features / condition notes" }
+    {
+      "name": "property_address",
+      "label": "Property address"
+    }
   ],
-  "modelSettings": "{}"
+  "modelSettings": "{\"enableWebSearch\":true,\"maxTokens\":2500,\"temperature\":0.4,\"structuredOutputSchema\":\"{\\\"type\\\":\\\"object\\\",\\\"properties\\\":{\\\"estimatedPropertyValue\\\":{\\\"type\\\":\\\"number\\\"},\\\"estimatedMonthlyRent\\\":{\\\"type\\\":\\\"number\\\"},\\\"propertyType\\\":{\\\"type\\\":\\\"string\\\"},\\\"verdict\\\":{\\\"type\\\":\\\"string\\\",\\\"enum\\\":[\\\"Buy\\\",\\\"Hold\\\",\\\"Pass\\\"]},\\\"verdictSummary\\\":{\\\"type\\\":\\\"string\\\"},\\\"capRatePercent\\\":{\\\"type\\\":\\\"number\\\"},\\\"capRateExplanation\\\":{\\\"type\\\":\\\"string\\\"},\\\"estimatedMonthlyCashFlow\\\":{\\\"type\\\":\\\"number\\\"},\\\"cashFlowExplanation\\\":{\\\"type\\\":\\\"string\\\"},\\\"risks\\\":{\\\"type\\\":\\\"array\\\",\\\"items\\\":{\\\"type\\\":\\\"string\\\"}},\\\"recommendation\\\":{\\\"type\\\":\\\"string\\\"}},\\\"required\\\":[\\\"estimatedPropertyValue\\\",\\\"estimatedMonthlyRent\\\",\\\"propertyType\\\",\\\"verdict\\\",\\\"verdictSummary\\\",\\\"capRatePercent\\\",\\\"capRateExplanation\\\",\\\"estimatedMonthlyCashFlow\\\",\\\"cashFlowExplanation\\\",\\\"risks\\\",\\\"recommendation\\\"]}\"}"
 }
