@@ -1,23 +1,33 @@
-# AI Tutor API Subscription Starter
+# AI Tutor API SAAS Starter
 
-![AI Tutor API Logo](https://raw.githubusercontent.com/Tech-in-Schools-Initiative/aitutor-api-saas-starter/main/public/logo-long.png)
+![AI Tutor API Logo](https://raw.githubusercontent.com/Tech-in-Schools-Initiative/aitutor-api-saas-starter/main/apps/web/public/logo-long.png)
 
 Use workflows created with [AI Tutor API](https://aitutor-api.vercel.app/).  
 This template is based on [Vercel SAAS Starter](https://github.com/nextjs/saas-starter).
 
 ## Overview
 
-The **AI Tutor API Subscription Starter** is your complete starting point to build SaaS applications that integrate AI workflows powered by AI Tutor API. This template leverages the powerful foundation of Vercel SAAS Starter and extends it with Stripe-based subscription management, PostgreSQL (using Drizzle ORM), and per‑month message tracking with limits based on subscription tiers.
+The **AI Tutor API SAAS Starter** is your complete starting point to build SaaS applications that integrate AI workflows powered by AI Tutor API. This template leverages the powerful foundation of Vercel SAAS Starter and extends it with Stripe-based subscription management, PostgreSQL (using Drizzle ORM), Resend-powered transactional email, and per‑month message tracking with limits based on subscription tiers.
 
 ## Tech Stack
 
-- **Framework:** Next.js (experimental App Router)
+- **Framework:** Next.js 16 (App Router), in a pnpm/Turborepo monorepo
 - **Database:** PostgreSQL, powered by [Drizzle ORM](https://orm.drizzle.team/)
 - **Payments:** Stripe (integrated with Stripe CLI for local testing)
-- **AI Service:** [AI Tutor API](https://aitutor-api.vercel.app/)
-- **Authentication:** JWT-based authentication stored in cookies
+- **AI Service:** [AI Tutor API](https://aitutor-api.vercel.app/) workflow integration
+- **Authentication:** JWT-based authentication stored in cookies, with Resend + React Email powered password reset
 - **UI Components:** shadcn/ui and custom components
 - **Deployment:** Vercel
+
+## Project Structure
+
+This is a pnpm workspace / Turborepo monorepo:
+
+- **`apps/web`** – the Next.js application (routes, API handlers, dashboard UI).
+- **`packages/db`** – Drizzle schema, client, queries, subscription tiers, and DB scripts (`@repo/db`).
+- **`packages/ui`** – shared shadcn-derived UI components (`@repo/ui`).
+- **`packages/email`** – Resend client and React Email templates for transactional email (`@repo/email`).
+- **`packages/config`** – shared TypeScript and ESLint configuration (`@repo/config`).
 
 ## Getting Started
 
@@ -50,6 +60,8 @@ The **AI Tutor API Subscription Starter** is your complete starting point to bui
      - `STRIPE_WEBHOOK_SECRET` – Your Stripe webhook secret.
      - `BASE_URL` – Your application’s base URL (e.g., `http://localhost:3000`).
      - `AUTH_SECRET` – A secret key for JWT signing (e.g. generated with `openssl rand -base64 32`).
+     - `RESEND_API_KEY` – Your [Resend](https://resend.com/) API key, used to send password-reset emails.
+     - `RESEND_FROM_EMAIL` – The verified "from" address Resend sends password-reset emails from.
      - `AITUTOR_API_KEY` – Your API key for AI Tutor API.
      - `WORKFLOW_ID` – The workflow ID used by the AI Tutor API.
 

@@ -5,9 +5,30 @@ import { UserProvider } from '@/lib/auth';
 import { getUser } from '@/lib/auth/session';
 
 
+const APP_NAME = 'AI Tutor API SAAS Starter';
+const APP_DESCRIPTION =
+  'A production-ready SaaS starter for shipping AI Tutor API workflow products, with Stripe subscription billing, Postgres (Drizzle ORM), JWT auth, and Resend-powered password reset.';
+const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
+
 export const metadata: Metadata = {
-  title: 'AI Tutor API SAAS Starter',
-  description: 'Get started quickly with AI Tutor API and full Stripe and Postgres',
+  metadataBase: new URL(BASE_URL),
+  title: {
+    default: APP_NAME,
+    template: `%s | ${APP_NAME}`,
+  },
+  description: APP_DESCRIPTION,
+  openGraph: {
+    title: APP_NAME,
+    description: APP_DESCRIPTION,
+    siteName: APP_NAME,
+    type: 'website',
+    locale: 'en_US',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: APP_NAME,
+    description: APP_DESCRIPTION,
+  },
 };
 
 export const viewport: Viewport = {
