@@ -57,7 +57,7 @@ export function TestimonialCard({
         dragRef.current = 0;
       }}
       transition={{ duration: 0.35 }}
-      className={`absolute left-0 top-0 grid h-[450px] w-[350px] select-none place-content-center space-y-6 rounded-2xl border-2 border-gray-700 bg-gray-300/20 p-6 shadow-xl backdrop-blur-md ${
+      className={`absolute left-0 top-0 grid h-[380px] w-[260px] sm:h-[450px] sm:w-[350px] select-none place-content-center space-y-6 rounded-2xl border-2 border-gray-700 bg-gray-300/20 p-6 shadow-xl backdrop-blur-md ${
         isFront ? "cursor-grab active:cursor-grabbing" : ""
       }`}
     >
@@ -111,7 +111,7 @@ export function ShuffleCards() {
 
   return (
     <div className="grid place-content-center overflow-hidden px-8 text-gray-900 min-h-[70vh] h-full w-full">
-      <div className="relative -ml-[100px] h-[450px] w-[350px] md:-ml-[175px]">
+      <div className="relative h-[380px] w-[260px] sm:-ml-[100px] sm:h-[450px] sm:w-[350px] md:-ml-[175px]">
         {testimonials.map((testimonial, index) => (
           <TestimonialCard
             key={testimonial.id}
