@@ -6,15 +6,7 @@ import { SubmitButton } from './submit-button';
 import { Button } from "@repo/ui/components/button";
 import { cn } from "@repo/ui/lib/utils";
 import { Sparkles, Star, Pencil } from "lucide-react";
-
-const TIER_ICON_COLOR_CLASS: Record<string, string> = {
-    blue: 'text-blue-500',
-    amber: 'text-amber-500',
-};
-
-export function getTierIconColorClass(color: string): string {
-    return TIER_ICON_COLOR_CLASS[color] ?? 'text-blue-500';
-}
+import { getTierIconColorClass } from '@/lib/pricing/tier-colors';
 
 interface PricingTier {
     name: string;

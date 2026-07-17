@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getTierIconColorClass } from '@/app/(front)/pricing/page';
+import { getTierIconColorClass } from '@/lib/pricing/tier-colors';
 
 describe('getTierIconColorClass', () => {
   it('maps "blue" to a static, Tailwind-scanner-visible class', () => {
