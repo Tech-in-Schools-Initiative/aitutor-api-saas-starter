@@ -7,6 +7,15 @@ import { Button } from "@repo/ui/components/button";
 import { cn } from "@repo/ui/lib/utils";
 import { Sparkles, Star, Pencil } from "lucide-react";
 
+const TIER_ICON_COLOR_CLASS: Record<string, string> = {
+    blue: 'text-blue-500',
+    amber: 'text-amber-500',
+};
+
+export function getTierIconColorClass(color: string): string {
+    return TIER_ICON_COLOR_CLASS[color] ?? 'text-blue-500';
+}
+
 interface PricingTier {
     name: string;
     icon: React.ReactNode;
@@ -124,7 +133,7 @@ function PricingCard({
                         "w-12 h-12 rounded-full mb-4",
                         "flex items-center justify-center",
                         "border-2 border-zinc-900 dark:border-white",
-                        `text-${color}-500`
+                        getTierIconColorClass(color)
                     )}
                 >
                     {icon}
