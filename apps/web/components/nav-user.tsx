@@ -6,7 +6,6 @@ import { use } from 'react';
 import {
   ChevronsUpDown,
   Settings,
-  KeyRound,
   LogOut,
   Users,
   Activity,
@@ -94,12 +93,6 @@ export function NavUser() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem asChild>
-                <a href="/dashboard/get-token">
-                  <KeyRound className="mr-2 h-4 w-4" />
-                  Token
-                </a>
-              </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <a href="/dashboard/team">
                   <Users className="mr-2 h-4 w-4" />
