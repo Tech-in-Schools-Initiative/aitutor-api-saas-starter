@@ -63,7 +63,10 @@ This is a pnpm workspace / Turborepo monorepo:
      - `RESEND_API_KEY` – Your [Resend](https://resend.com/) API key, used to send password-reset emails.
      - `RESEND_FROM_EMAIL` – The verified "from" address Resend sends password-reset emails from.
      - `AITUTOR_API_KEY` – Your API key for AI Tutor API.
-     - `WORKFLOW_ID` – The workflow ID used by the AI Tutor API.
+     - `WORKFLOW_ID` – The workflow ID used by the original "Custom Workflow" page.
+     - `WORKFLOW_ID_REAL_ESTATE_ANALYSIS` – The workflow ID used by the Real Estate Investment Analysis example page.
+     - `WORKFLOW_ID_GOOGLE_ADS_ANALYSIS` – The workflow ID used by the Google Ads Campaign Analysis example page.
+     - `WORKFLOW_ID_RESUME_SCREENING` – The workflow ID used by the Resume & Candidate Fit Analysis example page.
 
 4. **Run the Development Server:**
 
@@ -139,6 +142,16 @@ The workflow page provides an interface for users to interact with AI Tutor API 
   - The history drawer displays past prompts and their results, sorted by most recent
   - Clicking on any history item will restore both the input prompt and the generated output
   - History is shared among team members, allowing for collaborative work
+
+### Example Workflows
+
+Beyond the original "Custom Workflow" page, the dashboard sidebar ships with 3 ready-made example workflow pages under `/dashboard/workflows/<slug>`, each backed by its own workflow ID and its own workflow history:
+
+- **Real Estate Investment Analysis** (`/dashboard/workflows/real-estate-analysis`) – takes a property listing/deal description and returns an investment analysis with a buy/hold/pass recommendation. Uses `WORKFLOW_ID_REAL_ESTATE_ANALYSIS`.
+- **Google Ads Campaign Analysis** (`/dashboard/workflows/google-ads-analysis`) – takes Google Ads campaign performance data and returns prioritized optimization recommendations. Uses `WORKFLOW_ID_GOOGLE_ADS_ANALYSIS`.
+- **Resume & Candidate Fit Analysis** (`/dashboard/workflows/resume-screening`) – takes a job description and a resume (two separate fields) and returns a fit score with interview questions. Uses `WORKFLOW_ID_RESUME_SCREENING`.
+
+Each of these example workflows needs a corresponding workflow created in your AI Tutor API dashboard before its page will work end-to-end. The **[`workflow-templates/`](./workflow-templates/)** directory at the repo root contains one JSON spec per example (matching AI Tutor API's own template field structure: category, description, recommended model, input variables, system instructions, user prompt template) plus a README explaining exactly how to hand-enter each one as a new custom workflow and where to paste the resulting workflow ID.
 
 ## Sidebar Subscription Status Display
 
