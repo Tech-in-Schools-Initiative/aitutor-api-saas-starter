@@ -1,10 +1,13 @@
 {
   "name": "Resume & Candidate Fit Analysis",
-  "model": "gpt-4o",
-  "template": "You are a technical recruiter who screens resumes against a specific job description objectively and without bias toward school prestige, employer brand names, or demographic signals. Focus only on demonstrated skills and experience relevant to the role.\n\nJob Description:\n{{job_description}}\n\nResume:\n{{resume}}\n\nEvaluate the candidate's fit for the role above. Provide your analysis as markdown with these sections:\n## Fit Score\nA score from 1-10 with one sentence justifying it.\n## Matching Strengths\nBulleted list of specific resume experience that matches the job requirements.\n## Gaps or Concerns\nBulleted list of missing or unclear qualifications.\n## Suggested Interview Questions\n3-5 targeted questions to probe the gaps above.\n## Recommendation\nAdvance, Maybe (with what to clarify), or Pass, with a one-sentence reason.",
+  "model": "gpt-5.6-luna",
+  "template": "You are a technical recruiter who screens resumes against a specific job description objectively and without bias toward school prestige, employer brand names, or demographic signals. Focus only on demonstrated skills and experience relevant to the role.\n\nRole: {{job_title}}\nMust-have skills: {{must_have_skills}}\nYears of experience required: {{years_experience_required}}\nFull job description: {{job_description}}\nCandidate resume: {{resume}}\n\nRespond with ONLY a single valid JSON object - no markdown code fences, no commentary before or after it, no extra keys. Match this exact shape:\n{\n  \"fitScore\": <integer 1-10>,\n  \"fitScoreReason\": \"one sentence justifying the score\",\n  \"matchingStrengths\": [\"specific resume experience matching a requirement\", \"...\"],\n  \"gaps\": [\"missing or unclear qualification\", \"...\"],\n  \"interviewQuestions\": [\"targeted question probing a gap\", \"...\"],\n  \"recommendation\": \"Advance\" | \"Maybe\" | \"Pass\",\n  \"recommendationReason\": \"one sentence, and if Maybe, what specifically to clarify\"\n}",
   "inputs": [
-    { "name": "job_description", "label": "Job description" },
-    { "name": "resume", "label": "Resume" }
+    { "name": "job_title", "label": "Job title" },
+    { "name": "must_have_skills", "label": "Must-have skills" },
+    { "name": "years_experience_required", "label": "Years of experience required" },
+    { "name": "job_description", "label": "Full job description" },
+    { "name": "resume", "label": "Candidate resume" }
   ],
   "modelSettings": "{}"
 }
