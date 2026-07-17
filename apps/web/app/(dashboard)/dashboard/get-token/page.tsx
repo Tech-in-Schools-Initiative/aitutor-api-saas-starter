@@ -1,6 +1,9 @@
 "use client";
 import { useState } from 'react';
-import Link from 'next/link';
+import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui/components/card';
+import { Button } from '@repo/ui/components/button';
+import { Label } from '@repo/ui/components/label';
+import { Loader2 } from 'lucide-react';
 
 interface TokenResponse {
   success: boolean;
@@ -33,37 +36,39 @@ export default function Token() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-pink-100 via-purple-100 to-indigo-100 p-8">
-            <div className="max-w-3xl mx-auto">
-                <div className="text-center mb-8 p-8">
-                    <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 text-transparent bg-clip-text inline-block" 
-                        style={{ lineHeight: '1.5', padding: '0.5em 0' }}>
-                        AI Story Generator - Get Token
-                    </h1>
-                </div>
+        <section className="flex-1 p-4 lg:p-8">
+            <h1 className="text-lg lg:text-2xl font-medium text-gray-900 mb-6">
+                Get Token
+            </h1>
+            <Card>
+                <CardHeader>
+                    <CardTitle>API Token</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="flex flex-col items-start space-y-6">
+                        <Button onClick={handleGetToken} disabled={tokenLoading}>
+                            {tokenLoading ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Getting Token...
+                                </>
+                            ) : (
+                                'Get New Token'
+                            )}
+                        </Button>
 
-                <div className="glass-morphism p-8 mb-8 rounded-xl shadow-xl backdrop-blur-lg bg-white/30">
-                    <div className="flex flex-col items-center space-y-6">
-                        <button
-                            onClick={handleGetToken}
-                            disabled={tokenLoading}
-                            className="px-6 py-3 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold hover:from-purple-600 hover:to-pink-600 transition-all duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                        >
-                            {tokenLoading ? 'Getting Token...' : 'Get New Token'}
-                        </button>
-                        
                         {tokenResponse && (
                             <div className="w-full space-y-4">
-                                <div className="p-4 bg-white/50 rounded-lg">
-                                    <p className="text-gray-700 font-medium mb-2">Token:</p>
-                                    <code className="block p-3 bg-gray-100 rounded border border-gray-200 text-sm overflow-x-auto">
+                                <div>
+                                    <Label>Token</Label>
+                                    <code className="block p-3 mt-2 bg-muted rounded border text-sm overflow-x-auto">
                                         {tokenResponse.token}
                                     </code>
                                 </div>
-                                
-                                <div className="p-4 bg-white/50 rounded-lg">
-                                    <p className="text-gray-700 font-medium mb-2">Full Response:</p>
-                                    <pre className="block p-3 bg-gray-100 rounded border border-gray-200 text-sm overflow-x-auto whitespace-pre-wrap">
+
+                                <div>
+                                    <Label>Full Response</Label>
+                                    <pre className="block p-3 mt-2 bg-muted rounded border text-sm overflow-x-auto whitespace-pre-wrap">
                                         {JSON.stringify(tokenResponse, null, 2)}
                                     </pre>
                                 </div>
@@ -71,13 +76,13 @@ export default function Token() {
                         )}
 
                         {error && (
-                            <div className="w-full p-4 bg-red-50 rounded-lg text-red-600">
+                            <p className="w-full text-sm text-red-500" role="alert">
                                 {error}
-                            </div>
+                            </p>
                         )}
                     </div>
-                </div>
-            </div>
-        </div>
+                </CardContent>
+            </Card>
+        </section>
     );
 }
