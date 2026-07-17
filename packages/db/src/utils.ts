@@ -1,6 +1,6 @@
 import { db } from './client';
 import { teams, Team } from './schema';
-import { eq, sql, desc } from 'drizzle-orm';
+import { eq, and, sql, desc } from 'drizzle-orm';
 import { tiers, Tier } from './tiers';
 import { workflowHistory, NewWorkflowHistory } from './schema';
 
@@ -53,22 +53,25 @@ export async function saveWorkflowHistory(
   teamId: number,
   userId: number,
   input: string,
-  output: string
+  output: string,
+  workflowKey: string
 ): Promise<void> {
   const newHistory: NewWorkflowHistory = {
     teamId,
     userId,
     input,
     output,
+    workflowKey,
     createdAt: new Date(),
   };
-  
+
   await db.insert(workflowHistory).values(newHistory);
 }
 
-// Function to get workflow history for a team
+// Function to get workflow history for a team, scoped to a single workflow.
 export async function getWorkflowHistory(
   teamId: number,
+  workflowKey: string,
   limit: number = 10
 ) {
   return db.select({
@@ -79,7 +82,7 @@ export async function getWorkflowHistory(
     userId: workflowHistory.userId,
   })
   .from(workflowHistory)
-  .where(eq(workflowHistory.teamId, teamId))
+  .where(and(eq(workflowHistory.teamId, teamId), eq(workflowHistory.workflowKey, workflowKey)))
   .orderBy(desc(workflowHistory.createdAt))
   .limit(limit);
 }

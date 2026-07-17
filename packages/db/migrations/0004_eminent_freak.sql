@@ -1,0 +1,1 @@
+ALTER TABLE "workflow_history" ADD COLUMN "workflow_key" varchar(100);

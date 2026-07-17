@@ -144,6 +144,7 @@ export const workflowHistory = pgTable('workflow_history', {
   userId: integer('user_id').notNull().references(() => users.id),
   input: text('input').notNull(),
   output: text('output').notNull(),
+  workflowKey: varchar('workflow_key', { length: 100 }),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
 
