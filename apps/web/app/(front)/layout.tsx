@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger
 } from '@repo/ui/components/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/components/avatar';
+import { getInitials } from '@repo/ui/lib/utils';
 import { Logo } from '@/components/logo';
 import { useUser } from '@/lib/auth';
 import { signOut } from '@/app/(login)/actions';
@@ -48,10 +49,7 @@ function Header() {
                 <Avatar className="cursor-pointer size-9">
                   <AvatarImage alt={user.name || ''} />
                   <AvatarFallback>
-                    {user.email
-                      .split(' ')
-                      .map((n) => n[0])
-                      .join('')}
+                    {getInitials(user.name, user.email)}
                   </AvatarFallback>
                 </Avatar>
               </DropdownMenuTrigger>

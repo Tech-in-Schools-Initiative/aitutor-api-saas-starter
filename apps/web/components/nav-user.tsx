@@ -17,6 +17,7 @@ import {
   Avatar,
   AvatarFallback,
 } from "@repo/ui/components/avatar";
+import { getInitials } from "@repo/ui/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -51,22 +52,10 @@ export function NavUser() {
     router.push('/');
   };
 
-  // Get initials from user's name or first letter of email
-  const getInitials = () => {
-    if (user.name) {
-      return user.name
-        .split(' ')
-        .map(n => n[0])
-        .join('')
-        .toUpperCase();
-    }
-    return user.email[0].toUpperCase();
-  };
-
   const UserAvatar = () => (
     <Avatar className="h-8 w-8 rounded-lg bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500">
       <AvatarFallback className="rounded-lg text-white font-medium">
-        {getInitials()}
+        {getInitials(user.name, user.email)}
       </AvatarFallback>
     </Avatar>
   );

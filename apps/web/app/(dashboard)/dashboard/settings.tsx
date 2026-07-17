@@ -2,6 +2,7 @@
 
 import { Button } from '@repo/ui/components/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/components/avatar';
+import { getInitials } from '@repo/ui/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui/components/card';
 import { customerPortalAction } from '@/lib/payments/actions';
 import { use, useActionState } from 'react';
@@ -75,10 +76,7 @@ export function Settings({ teamData }: { teamData: TeamDataWithMembers }) {
                       alt={getUserDisplayName(member.user)}
                     />
                     <AvatarFallback>
-                      {getUserDisplayName(member.user)
-                        .split(' ')
-                        .map((n) => n[0])
-                        .join('')}
+                      {getInitials(member.user.name, member.user.email)}
                     </AvatarFallback>
                   </Avatar>
                   <div>
