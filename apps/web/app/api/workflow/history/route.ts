@@ -16,8 +16,13 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Team not found' }, { status: 404 });
     }
 
+    const workflowKey = req.nextUrl.searchParams.get('workflowKey');
+    if (!workflowKey) {
+      return NextResponse.json({ error: 'workflowKey is required' }, { status: 400 });
+    }
+
     const limit = parseInt(req.nextUrl.searchParams.get('limit') || '10');
-    const history = await getWorkflowHistory(userWithTeam.teamId, limit);
+    const history = await getWorkflowHistory(userWithTeam.teamId, workflowKey, limit);
 
     return NextResponse.json(history);
   } catch (error: any) {

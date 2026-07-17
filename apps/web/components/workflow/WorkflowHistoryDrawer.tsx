@@ -16,23 +16,24 @@ interface HistoryItem {
 }
 
 interface WorkflowHistoryDrawerProps {
+  workflowKey: string;
   onSelectHistory: (input: string, output: string) => void;
 }
 
-async function fetchWorkflowHistory(): Promise<HistoryItem[]> {
-  const response = await fetch('/api/workflow/history');
+async function fetchWorkflowHistory(workflowKey: string): Promise<HistoryItem[]> {
+  const response = await fetch(`/api/workflow/history?workflowKey=${encodeURIComponent(workflowKey)}`);
   if (!response.ok) {
     throw new Error('Failed to load workflow history');
   }
   return response.json();
 }
 
-export function WorkflowHistoryDrawer({ onSelectHistory }: WorkflowHistoryDrawerProps) {
+export function WorkflowHistoryDrawer({ workflowKey, onSelectHistory }: WorkflowHistoryDrawerProps) {
   const [open, setOpen] = useState(false);
 
   const { data: history = [], isLoading: loading } = useQuery({
-    queryKey: ['workflow-history'],
-    queryFn: fetchWorkflowHistory,
+    queryKey: ['workflow-history', workflowKey],
+    queryFn: () => fetchWorkflowHistory(workflowKey),
     enabled: open,
   });
 

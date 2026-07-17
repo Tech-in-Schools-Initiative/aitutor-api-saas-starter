@@ -39,12 +39,14 @@ describe('GET /api/workflow/history', () => {
       { id: 1, input: 'a', output: 'b', createdAt: new Date().toISOString() },
     ]);
 
-    const response = await GET(new NextRequest('http://localhost/api/workflow/history?limit=5'));
+    const response = await GET(
+      new NextRequest('http://localhost/api/workflow/history?workflowKey=story-generator&limit=5')
+    );
     const body = await response.json();
 
     expect(getUserWithTeamMock).toHaveBeenCalledWith(42);
     expect(getTeamForUserMock).not.toHaveBeenCalled();
-    expect(getWorkflowHistoryMock).toHaveBeenCalledWith(7, 5);
+    expect(getWorkflowHistoryMock).toHaveBeenCalledWith(7, 'story-generator', 5);
     expect(body).toHaveLength(1);
   });
 
@@ -52,7 +54,29 @@ describe('GET /api/workflow/history', () => {
     getUserMock.mockResolvedValue({ id: 42 });
     getUserWithTeamMock.mockResolvedValue({ user: { id: 42 }, teamId: null });
 
-    const response = await GET(new NextRequest('http://localhost/api/workflow/history'));
+    const response = await GET(
+      new NextRequest('http://localhost/api/workflow/history?workflowKey=story-generator')
+    );
     expect(response.status).toBe(404);
+  });
+
+  it('returns 400 when workflowKey is missing', async () => {
+    getUserMock.mockResolvedValue({ id: 42 });
+    getUserWithTeamMock.mockResolvedValue({ user: { id: 42 }, teamId: 7 });
+
+    const response = await GET(new NextRequest('http://localhost/api/workflow/history'));
+
+    expect(response.status).toBe(400);
+    expect(getWorkflowHistoryMock).not.toHaveBeenCalled();
+  });
+
+  it('returns 400 when workflowKey is an empty string', async () => {
+    getUserMock.mockResolvedValue({ id: 42 });
+    getUserWithTeamMock.mockResolvedValue({ user: { id: 42 }, teamId: 7 });
+
+    const response = await GET(new NextRequest('http://localhost/api/workflow/history?workflowKey='));
+
+    expect(response.status).toBe(400);
+    expect(getWorkflowHistoryMock).not.toHaveBeenCalled();
   });
 });

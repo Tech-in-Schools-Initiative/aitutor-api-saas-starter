@@ -22,12 +22,12 @@ describe('WorkflowHistoryDrawer', () => {
   it('does not fetch history until the drawer is opened', () => {
     (fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ ok: true, json: async () => [] });
 
-    renderWithQueryClient(<WorkflowHistoryDrawer onSelectHistory={vi.fn()} />);
+    renderWithQueryClient(<WorkflowHistoryDrawer workflowKey="real-estate-analysis" onSelectHistory={vi.fn()} />);
 
     expect(fetch).not.toHaveBeenCalled();
   });
 
-  it('fetches and renders history once opened, registered under the workflow-history query key', async () => {
+  it('fetches and renders history once opened, registered under a workflow-scoped query key', async () => {
     (fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
       ok: true,
       json: async () => [
@@ -35,15 +35,35 @@ describe('WorkflowHistoryDrawer', () => {
       ],
     });
 
-    const { queryClient } = renderWithQueryClient(<WorkflowHistoryDrawer onSelectHistory={vi.fn()} />);
+    const { queryClient } = renderWithQueryClient(
+      <WorkflowHistoryDrawer workflowKey="real-estate-analysis" onSelectHistory={vi.fn()} />
+    );
     fireEvent.click(screen.getByRole('button'));
 
     await waitFor(() => {
       expect(screen.getByText('A magical forest')).toBeTruthy();
     });
     expect(fetch).toHaveBeenCalledTimes(1);
-    expect(fetch).toHaveBeenCalledWith('/api/workflow/history');
-    expect(queryClient.getQueryCache().find({ queryKey: ['workflow-history'] })).toBeDefined();
+    expect(fetch).toHaveBeenCalledWith('/api/workflow/history?workflowKey=real-estate-analysis');
+    expect(
+      queryClient.getQueryCache().find({ queryKey: ['workflow-history', 'real-estate-analysis'] })
+    ).toBeDefined();
+  });
+
+  it('scopes the fetch URL and query key to whatever workflowKey prop it is given', async () => {
+    (fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ ok: true, json: async () => [] });
+
+    const { queryClient } = renderWithQueryClient(
+      <WorkflowHistoryDrawer workflowKey="resume-screening" onSelectHistory={vi.fn()} />
+    );
+    fireEvent.click(screen.getByRole('button'));
+
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledWith('/api/workflow/history?workflowKey=resume-screening');
+    });
+    expect(
+      queryClient.getQueryCache().find({ queryKey: ['workflow-history', 'resume-screening'] })
+    ).toBeDefined();
   });
 
   it('calls onSelectHistory and closes the drawer when a history item is clicked', async () => {
@@ -55,7 +75,7 @@ describe('WorkflowHistoryDrawer', () => {
       ],
     });
 
-    renderWithQueryClient(<WorkflowHistoryDrawer onSelectHistory={onSelectHistory} />);
+    renderWithQueryClient(<WorkflowHistoryDrawer workflowKey="real-estate-analysis" onSelectHistory={onSelectHistory} />);
     fireEvent.click(screen.getByRole('button'));
     await waitFor(() => screen.getByText('A magical forest'));
     fireEvent.click(screen.getByText('A magical forest'));
