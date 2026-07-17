@@ -76,21 +76,21 @@ const testimonials = [
   {
     id: 1,
     testimonial:
-      "It started as a quick pilot yesterday to test @myaitutor's beta API. And turned into my own little fridge wiz",
+      "It started as a quick pilot yesterday to test @myaitutor's beta API and turned into my own little fridge wiz",
     author: "Masha - @ohheymasha",
     imageSrc: "/masha.jpg", // Add image source
   },
   {
     id: 2,
     testimonial:
-      "Thanks to them, I built a paid subscription next flix type of platform using their AI tool @myaitutor",
+      "Thanks to them, I built a paid subscription Netflix-style platform using their AI tool @myaitutor",
     author: "John - @AiJohnAllen",
     imageSrc: "/john.jpg", // Add image source
   },
   {
     id: 3,
     testimonial:
-      "… thankfully @tsi_org solves this by putting everything under one umbrella… ",
+      "… thankfully @tsi_org solves this by putting everything under one umbrella…",
     author: "Sarah - @sarahndipitous",
     imageSrc: "/sarah.jpeg", // Add image source
   },
