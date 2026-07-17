@@ -6,7 +6,18 @@ import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui/components/ca
 import { Button } from '@repo/ui/components/button';
 import { Input } from '@repo/ui/components/input';
 import { Label } from '@repo/ui/components/label';
-import { Loader2 } from 'lucide-react';
+import { Separator } from '@repo/ui/components/separator';
+import {
+  Loader2,
+  Sparkles,
+  Building2,
+  Tag,
+  Target,
+  Wallet,
+  Hash,
+  Search,
+  Megaphone,
+} from 'lucide-react';
 import WorkflowResultDisplay from '@/components/ai-tutor-api/WorkflowResultDisplay';
 import { WorkflowHistoryDrawer } from '@/components/workflow/WorkflowHistoryDrawer';
 
@@ -49,64 +60,115 @@ function parseGoogleAdsResult(raw: unknown): GoogleAdsResultData | null {
   }
 }
 
-function StatBlock({ label, value }: { label: string; value: string }) {
+function StatBlock({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: React.ComponentType<{ className?: string; 'aria-hidden'?: boolean | 'true' | 'false' }>;
+  label: string;
+  value: string;
+}) {
   return (
-    <div className="rounded-lg border border-gray-200 p-3 text-center">
-      <p className="text-xs uppercase tracking-wide text-gray-500">{label}</p>
-      <p className="text-lg font-semibold text-gray-900">{value}</p>
+    <div className="group rounded-xl border border-gray-200 bg-white p-4 text-center shadow-sm transition-shadow hover:shadow-md">
+      <div className="mx-auto mb-2 flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500">
+        <Icon className="h-4 w-4 text-white" aria-hidden="true" />
+      </div>
+      <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">{label}</p>
+      <p className="mt-1 text-lg font-semibold text-gray-900">{value}</p>
     </div>
   );
 }
 
 function GoogleAdsResult({ data }: { data: GoogleAdsResultData }) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Campaign Proposal</CardTitle>
+    <Card className="overflow-hidden py-0">
+      <div
+        className="h-1.5 w-full bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500"
+        aria-hidden="true"
+      />
+      <CardHeader className="pt-5">
+        <CardTitle className="flex items-center gap-2">
+          <Sparkles className="h-5 w-5 text-pink-500" aria-hidden="true" />
+          Campaign Proposal
+        </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="flex flex-wrap items-center gap-2">
-          <h2 className="text-xl font-bold text-gray-900">{data.companyName}</h2>
-          {data.industry && (
-            <span className="rounded-full px-2 py-1 text-xs font-semibold text-white bg-blue-500">
-              {data.industry}
-            </span>
-          )}
+      <CardContent className="space-y-6 pb-6">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 shadow-sm">
+            <Building2 className="h-5 w-5 text-white" aria-hidden="true" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold leading-tight text-gray-900">{data.companyName}</h2>
+            {data.industry && (
+              <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 px-2.5 py-0.5 text-xs font-semibold text-white">
+                <Tag className="h-3 w-3" aria-hidden="true" />
+                {data.industry}
+              </span>
+            )}
+          </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <StatBlock label="Target Audience" value={data.targetAudience} />
-          <StatBlock label="Suggested Daily Budget" value={data.suggestedDailyBudget} />
+        <Separator />
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <StatBlock icon={Target} label="Target Audience" value={data.targetAudience} />
+          <StatBlock icon={Wallet} label="Suggested Daily Budget" value={data.suggestedDailyBudget} />
         </div>
 
         {Array.isArray(data.keywords) && data.keywords.length > 0 && (
-          <div>
-            <h3 className="font-semibold text-gray-900 mb-2">Keywords to Target</h3>
-            <div className="flex flex-wrap gap-2">
-              {data.keywords.map((keyword, i) => (
-                <span
-                  key={i}
-                  className="rounded-full px-2 py-1 text-xs font-semibold text-white bg-blue-500"
-                >
-                  {keyword}
-                </span>
-              ))}
+          <>
+            <Separator />
+            <div>
+              <h3 className="mb-3 flex items-center gap-2 font-semibold text-gray-900">
+                <Hash className="h-4 w-4 text-gray-400" aria-hidden="true" />
+                Keywords to Target
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {data.keywords.map((keyword, i) => (
+                  <span
+                    key={i}
+                    className="inline-flex items-center gap-1 rounded-full border border-purple-200 bg-purple-50 px-3 py-1 text-xs font-medium text-purple-700"
+                  >
+                    <Search className="h-3 w-3" aria-hidden="true" />
+                    {keyword}
+                  </span>
+                ))}
+              </div>
             </div>
-          </div>
+          </>
         )}
 
         {Array.isArray(data.adVariations) && data.adVariations.length > 0 && (
-          <div>
-            <h3 className="font-semibold text-gray-900 mb-2">Proposed Ad Variations</h3>
-            <div className="space-y-3">
-              {data.adVariations.map((variation, i) => (
-                <div key={i} className="rounded-lg border border-gray-200 p-4">
-                  <p className="text-blue-700 font-medium text-base">{variation.headline}</p>
-                  <p className="text-sm text-gray-700 mt-1">{variation.description}</p>
-                </div>
-              ))}
+          <>
+            <Separator />
+            <div>
+              <h3 className="mb-3 flex items-center gap-2 font-semibold text-gray-900">
+                <Megaphone className="h-4 w-4 text-gray-400" aria-hidden="true" />
+                Proposed Ad Variations
+              </h3>
+              <div className="space-y-3">
+                {data.adVariations.map((variation, i) => (
+                  <div
+                    key={i}
+                    className="rounded-xl border border-gray-200 bg-gradient-to-b from-gray-50 to-white p-4 shadow-sm transition-shadow hover:shadow-md"
+                  >
+                    <div className="mb-1.5 flex items-center gap-1.5">
+                      <span className="rounded border border-gray-300 px-1 py-0.5 text-[10px] font-bold uppercase leading-none tracking-wide text-gray-500">
+                        Ad
+                      </span>
+                    </div>
+                    <p className="cursor-default text-base font-medium text-blue-700 hover:underline">
+                      {variation.headline}
+                    </p>
+                    <p className="mt-1 text-sm leading-relaxed text-gray-700">
+                      {variation.description}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          </>
         )}
       </CardContent>
     </Card>
@@ -183,7 +245,8 @@ export default function GoogleAdsAnalysisPage() {
   return (
     <section className="flex-1 p-4 lg:p-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-lg lg:text-2xl font-medium text-gray-900">
+        <h1 className="flex items-center gap-2 text-lg font-medium text-gray-900 lg:text-2xl">
+          <Megaphone className="h-5 w-5 shrink-0 text-pink-500 lg:h-6 lg:w-6" aria-hidden="true" />
           Google Ads Campaign Proposal
         </h1>
         <div className="flex items-center">
