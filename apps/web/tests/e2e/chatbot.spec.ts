@@ -28,6 +28,6 @@ test.describe('chatbot streaming', () => {
     await page.getByPlaceholder('Type your message...').fill('hello');
     await page.getByRole('button', { name: /send/i }).click();
 
-    await expect(page.locator('.bg-white\\/50.mr-8').last()).toContainText(/.+/, { timeout: 15000 });
+    await expect(page.locator('[data-role="assistant"]').last()).toContainText(/.+/, { timeout: 15000 });
   });
 });
