@@ -1,8 +1,11 @@
 import {
   Activity,
+  Building2,
+  FileSearch,
   GemIcon,
   Settings,
   Shield,
+  TrendingUp,
   Users,
   type LucideIcon,
 } from 'lucide-react';
@@ -17,10 +20,30 @@ export interface DashboardNavItem {
 export function getDashboardNavItems(pathname: string): DashboardNavItem[] {
   return [
     {
-      title: 'Workflow',
+      title: 'Custom Workflow',
       url: '/dashboard/workflow',
       icon: GemIcon,
-      isActive: pathname.startsWith('/dashboard/workflow'),
+      isActive:
+        pathname === '/dashboard/workflow' ||
+        pathname.startsWith('/dashboard/workflow/'),
+    },
+    {
+      title: 'Real Estate Analysis',
+      url: '/dashboard/workflows/real-estate-analysis',
+      icon: Building2,
+      isActive: pathname.startsWith('/dashboard/workflows/real-estate-analysis'),
+    },
+    {
+      title: 'Google Ads Analysis',
+      url: '/dashboard/workflows/google-ads-analysis',
+      icon: TrendingUp,
+      isActive: pathname.startsWith('/dashboard/workflows/google-ads-analysis'),
+    },
+    {
+      title: 'Resume Screening',
+      url: '/dashboard/workflows/resume-screening',
+      icon: FileSearch,
+      isActive: pathname.startsWith('/dashboard/workflows/resume-screening'),
     },
     {
       title: 'Team',
