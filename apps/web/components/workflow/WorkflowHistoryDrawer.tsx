@@ -1,7 +1,8 @@
 // components/workflow/WorkflowHistoryDrawer.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@repo/ui/components/sheet';
 import { Button } from '@repo/ui/components/button';
 import { HistoryIcon, Loader2 } from 'lucide-react';
@@ -18,31 +19,22 @@ interface WorkflowHistoryDrawerProps {
   onSelectHistory: (input: string, output: string) => void;
 }
 
+async function fetchWorkflowHistory(): Promise<HistoryItem[]> {
+  const response = await fetch('/api/workflow/history');
+  if (!response.ok) {
+    throw new Error('Failed to load workflow history');
+  }
+  return response.json();
+}
+
 export function WorkflowHistoryDrawer({ onSelectHistory }: WorkflowHistoryDrawerProps) {
-  const [history, setHistory] = useState<HistoryItem[]>([]);
-  const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
 
-  const fetchHistory = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch('/api/workflow/history');
-      if (response.ok) {
-        const data = await response.json();
-        setHistory(data);
-      }
-    } catch (error) {
-      console.error('Error fetching history:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (open) {
-      fetchHistory();
-    }
-  }, [open]);
+  const { data: history = [], isLoading: loading } = useQuery({
+    queryKey: ['workflow-history'],
+    queryFn: fetchWorkflowHistory,
+    enabled: open,
+  });
 
   const handleSelectHistory = (item: HistoryItem) => {
     onSelectHistory(item.input, item.output);
@@ -70,8 +62,8 @@ export function WorkflowHistoryDrawer({ onSelectHistory }: WorkflowHistoryDrawer
           ) : (
             <div className="space-y-4">
               {history.map((item) => (
-                <div 
-                  key={item.id} 
+                <div
+                  key={item.id}
                   className="p-4 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors"
                   onClick={() => handleSelectHistory(item)}
                 >
