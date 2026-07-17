@@ -62,7 +62,7 @@ function Hero() {
           </div>
           <div className="flex gap-4 flex-col">
             <h1 className="text-5xl md:text-7xl max-w-2xl tracking-tighter text-center font-regular">
-              <span className="text-spektr-cyan-50">SaaS Wrapper for Your</span>
+              <span className="text-foreground">SaaS Wrapper for Your</span>
               <span className="relative flex w-full justify-center overflow-hidden text-center md:pb-4 md:pt-1">
                 &nbsp;
                 {titles.map((title, index) => (
@@ -86,7 +86,7 @@ function Hero() {
               </span>
             </h1>
             <p className="text-lg md:text-xl leading-relaxed tracking-tight text-muted-foreground max-w-2xl text-center">
-                Get quickly starter with an online subscription product that use AI Tutor API for agentic capabilities, Postgres for database management, and Stripe for payment processing
+                Get started quickly with an online subscription product that uses AI Tutor API for agentic capabilities, Postgres for database management, and Stripe for payment processing.
             </p>
           </div>
           <div className="flex flex-row gap-3 relative">
