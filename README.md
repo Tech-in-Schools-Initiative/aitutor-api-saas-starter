@@ -81,8 +81,58 @@ This is a pnpm workspace / Turborepo monorepo:
    ```bash
    pnpm run db:generate
    pnpm run db:migrate
-
+   pnpm run db:seed
    ```
+
+   The seed script creates a default sign-in you can use immediately in local development:
+   - **Email:** `test@test.com`
+   - **Password:** `admin123`
+
+## Deploying to Production (Vercel + Neon)
+
+This is the exact path used to stand this app up on Vercel with a fresh Neon Postgres database:
+
+1. **Create the Vercel project** and link it to the app, not the repo root:
+
+   ```bash
+   npx vercel project add <your-project-name>
+   cd apps/web && npx vercel link --yes --project <your-project-name>
+   ```
+
+2. In the Vercel dashboard → **Settings → Build and Deployment**:
+   - Set **Root Directory** to `apps/web`.
+   - Confirm **"Include files outside the Root Directory in the Build Step"** is enabled — required so the build can see the pnpm workspace (`packages/*`) that `apps/web` depends on.
+   - Set **Framework Preset** to `Next.js`.
+
+3. **Provision Postgres via Neon:**
+
+   ```bash
+   cd apps/web && npx vercel integration add neon
+   ```
+
+   This provisions a Neon database, connects it to the project, and adds `POSTGRES_URL` (plus several other `POSTGRES_*`/`PG*`/`DATABASE_URL*` variables) to the project automatically — no manual database setup needed.
+
+4. **Push the rest of your secrets** (Stripe keys, `AUTH_SECRET`, `AITUTOR_API_KEY`, the `WORKFLOW_ID_*` vars, Resend keys, and `BASE_URL` set to your production domain) to Vercel:
+
+   ```bash
+   npx vercel env add <NAME> production --value "<value>" --yes
+   ```
+
+5. **Run migrations against the new Neon database** before your first deploy (pull the Neon connection string Vercel just created, then run drizzle against it):
+
+   ```bash
+   npx vercel env pull apps/web/.env.local
+   # with POSTGRES_URL from that file exported into your shell:
+   pnpm --filter @repo/db db:migrate
+   ```
+
+6. **Deploy** from the monorepo root (not from inside `apps/web`) so the whole workspace is uploaded:
+
+   ```bash
+   npx vercel deploy --prod
+   ```
+
+7. If `turbo.json`'s `build` task doesn't declare your production env var names in its `env` array, Vercel will warn that they "will not be available to your application" — see `turbo.json` for the full list already declared here as a reference.
 
 
 ## Configuration & Setup
@@ -153,6 +203,22 @@ Beyond the original "Custom Workflow" page, the dashboard sidebar ships with 3 r
 
 Each of these example workflows needs a corresponding workflow created in your AI Tutor API dashboard before its page will work end-to-end. The **[`workflow-templates/`](./workflow-templates/)** directory at the repo root contains one directly-importable JSON file per example (matching AI Tutor API's real import schema, including its native web search and structured-output settings) plus a README explaining exactly how to import each one and where to paste the resulting workflow ID.
 
+> **Structured-output gotcha:** if a workflow's JSON Schema has any nested object (an array of objects, like `adVariations` or `suggestedImprovements`), that nested object needs `"additionalProperties": false` on it — and on the top-level object too. This is a requirement of strict JSON-schema structured-output enforcement. Leaving it off causes the workflow to fail server-side on AI Tutor API with an opaque `internal_server_error`, even though the schema is otherwise valid JSON Schema. The schemas in `workflow-templates/*.json` already have this set correctly.
+
+### Screenshots
+
+Drop the corresponding PNG into `docs/screenshots/` (create the folder if it doesn't exist yet) and each image below will render automatically:
+
+| Workflow | File |
+| --- | --- |
+| Real Estate Investment Analysis | `docs/screenshots/real-estate-analysis.png` |
+| Google Ads Campaign Proposal | `docs/screenshots/google-ads-analysis.png` |
+| Resume Improvement Analysis | `docs/screenshots/resume-screening.png` |
+
+![Real Estate Investment Analysis](./docs/screenshots/real-estate-analysis.png)
+![Google Ads Campaign Proposal](./docs/screenshots/google-ads-analysis.png)
+![Resume Improvement Analysis](./docs/screenshots/resume-screening.png)
+
 ## Sidebar Subscription Status Display
 
 The sidebar features a dedicated component that displays:
@@ -169,14 +235,8 @@ This display automatically updates (using a polling mechanism) to reflect usage 
 Ensure the database schema includes:
 - The teams table with `messageLimit` and `currentMessages` columns.
 - Correct associations for users, team members, activity logs, invitations, and messages as defined in **packages/db/src/schema.ts**.
-  
-Run the seed script using:
-  
-```bash
-pnpm db:seed
-```
 
-This creates a default user and team, initializing the free plan appropriately.
+The seed script (`pnpm db:seed`, see step 5 under [Getting Started](#getting-started)) creates a default user and team on the free plan, signed in with `test@test.com` / `admin123`.
 
 ## Running in Production
 
