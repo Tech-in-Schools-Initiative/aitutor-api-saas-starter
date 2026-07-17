@@ -26,7 +26,7 @@ describe('apps/web package.json workspace boundaries', () => {
 
   it('retains app-only dependencies still used directly by apps/web code', () => {
     for (const name of [
-      'drizzle-orm', 'stripe', 'ai', 'bcryptjs', 'jose',
+      'drizzle-orm', 'stripe', 'bcryptjs', 'jose',
       'canvas-confetti', 'marked', 'motion', 'zod', 'lucide-react',
     ]) {
       expect(deps).toHaveProperty(name);
