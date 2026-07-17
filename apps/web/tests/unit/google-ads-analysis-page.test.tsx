@@ -34,48 +34,30 @@ function renderWithQueryClient(
   return { queryClient, ...render(<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>) };
 }
 
-const FIELD_LABELS: Record<string, RegExp> = {
-  campaign_name: /^campaign name$/i,
-  impressions: /^impressions$/i,
-  clicks: /^clicks$/i,
-  spend: /^spend$/i,
-  conversions: /^conversions$/i,
-  conversion_value: /^conversion value$/i,
-  top_keyword_data: /top keyword performance/i,
-};
-
 const SAMPLE_VALID_RESULT = {
-  performanceSummary: 'The campaign performed solidly with healthy ROAS and stable CTR.',
-  ctr: '5.25%',
-  cpc: '$1.80',
-  conversionRate: '4.78%',
-  roas: '4.26x',
-  workingWell: ['Strong CTR on non-brand terms', 'Conversion value trending up'],
-  underperforming: [
-    { issue: 'High CPC on mobile', rootCause: 'Weak mobile-specific ad copy' },
+  companyName: 'Notion Labs, Inc.',
+  industry: 'Productivity Software',
+  targetAudience: 'Small business owners and remote teams seeking an all-in-one workspace',
+  suggestedDailyBudget: '$75/day',
+  keywords: ['project management software', 'team wiki tool', 'all-in-one workspace'],
+  adVariations: [
+    {
+      headline: 'One Workspace. Every Team.',
+      description: 'Docs, projects, and wikis together. Try Notion free today.',
+    },
+    {
+      headline: 'Organize Your Team in Notion',
+      description: 'Replace scattered tools with one connected workspace.',
+    },
   ],
-  recommendedActions: ['1. Add mobile-preferred ad copy', '2. Pause low-QS keywords'],
-  nextTest: 'Test a mobile-specific headline variant against the current control.',
 };
 
-function fillAllFields(overrides: Partial<Record<string, string>> = {}) {
-  const values: Record<string, string> = {
-    campaign_name: 'Search - Non-Brand',
-    impressions: '48200',
-    clicks: '2532',
-    spend: '4545.24',
-    conversions: '121',
-    conversion_value: '19360.00',
-    top_keyword_data: "'project management software' - 640 clicks, 41 conversions",
-    ...overrides,
-  };
-  for (const [name, regex] of Object.entries(FIELD_LABELS)) {
-    fireEvent.change(screen.getByLabelText(regex), { target: { value: values[name] } });
-  }
-  return values;
+function fillUrl(value = 'https://www.notion.com') {
+  fireEvent.change(screen.getByLabelText(/^website url$/i), { target: { value } });
+  return value;
 }
 
-describe('Google Ads Campaign Analysis page', () => {
+describe('Google Ads Campaign Proposal page', () => {
   beforeEach(() => {
     vi.stubGlobal('fetch', vi.fn());
     delete historyHandlers.onSelectHistory;
@@ -86,11 +68,9 @@ describe('Google Ads Campaign Analysis page', () => {
     vi.unstubAllGlobals();
   });
 
-  it('renders all 7 fields with correct labels', () => {
+  it('renders the single Website URL field with correct label', () => {
     renderWithQueryClient(<GoogleAdsAnalysisPage />);
-    for (const regex of Object.values(FIELD_LABELS)) {
-      expect(screen.getByLabelText(regex)).toBeTruthy();
-    }
+    expect(screen.getByLabelText(/^website url$/i)).toBeTruthy();
   });
 
   it('passes workflowKey="google-ads-analysis" to the history drawer', () => {
@@ -100,44 +80,43 @@ describe('Google Ads Campaign Analysis page', () => {
     );
   });
 
-  it('disables submit until all 7 fields are filled', () => {
+  it('disables submit until the field is filled', () => {
     renderWithQueryClient(<GoogleAdsAnalysisPage />);
-    const submitButton = screen.getByRole('button', { name: /analyze campaign/i }) as HTMLButtonElement;
+    const submitButton = screen.getByRole('button', { name: /propose campaign/i }) as HTMLButtonElement;
     expect(submitButton.disabled).toBe(true);
 
-    fireEvent.change(screen.getByLabelText(FIELD_LABELS.campaign_name), {
-      target: { value: 'Search - Non-Brand' },
-    });
-    expect(submitButton.disabled).toBe(true);
-
-    fillAllFields();
+    fillUrl();
     expect(submitButton.disabled).toBe(false);
   });
 
-  it('loads all 7 sample values when "Load sample" is clicked', () => {
+  it('keeps submit disabled for whitespace-only input', () => {
+    renderWithQueryClient(<GoogleAdsAnalysisPage />);
+    const submitButton = screen.getByRole('button', { name: /propose campaign/i }) as HTMLButtonElement;
+    fillUrl('   ');
+    expect(submitButton.disabled).toBe(true);
+  });
+
+  it('fills the field when "Load sample" is clicked', () => {
     renderWithQueryClient(<GoogleAdsAnalysisPage />);
     fireEvent.click(screen.getByRole('button', { name: /load sample/i }));
 
-    expect((screen.getByLabelText(FIELD_LABELS.campaign_name) as HTMLInputElement).value).not.toBe('');
-    expect((screen.getByLabelText(FIELD_LABELS.impressions) as HTMLInputElement).value).not.toBe('');
-    expect((screen.getByLabelText(FIELD_LABELS.clicks) as HTMLInputElement).value).not.toBe('');
-    expect((screen.getByLabelText(FIELD_LABELS.spend) as HTMLInputElement).value).not.toBe('');
-    expect((screen.getByLabelText(FIELD_LABELS.conversions) as HTMLInputElement).value).not.toBe('');
-    expect((screen.getByLabelText(FIELD_LABELS.conversion_value) as HTMLInputElement).value).not.toBe('');
-    expect((screen.getByLabelText(FIELD_LABELS.top_keyword_data) as HTMLTextAreaElement).value).not.toBe('');
-
-    expect((screen.getByRole('button', { name: /analyze campaign/i }) as HTMLButtonElement).disabled).toBe(false);
+    const input = screen.getByLabelText(/^website url$/i) as HTMLInputElement;
+    expect(input.value).not.toBe('');
+    expect(input.value.trim().length).toBeGreaterThan(0);
+    expect((screen.getByRole('button', { name: /propose campaign/i }) as HTMLButtonElement).disabled).toBe(
+      false
+    );
   });
 
-  it('submits { workflowKey, variables } with all 7 keys to /api/run', async () => {
+  it('submits { workflowKey, variables: { website_url } } to /api/run', async () => {
     (fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
       ok: true,
       json: async () => ({ result: JSON.stringify(SAMPLE_VALID_RESULT) }),
     });
 
     renderWithQueryClient(<GoogleAdsAnalysisPage />);
-    const values = fillAllFields();
-    fireEvent.click(screen.getByRole('button', { name: /analyze campaign/i }));
+    const value = fillUrl();
+    fireEvent.click(screen.getByRole('button', { name: /propose campaign/i }));
 
     await waitFor(() => {
       expect(fetch).toHaveBeenCalled();
@@ -149,7 +128,7 @@ describe('Google Ads Campaign Analysis page', () => {
         method: 'POST',
         body: JSON.stringify({
           workflowKey: 'google-ads-analysis',
-          variables: values,
+          variables: { website_url: value },
         }),
       })
     );
@@ -162,22 +141,20 @@ describe('Google Ads Campaign Analysis page', () => {
     });
 
     renderWithQueryClient(<GoogleAdsAnalysisPage />);
-    fillAllFields();
-    fireEvent.click(screen.getByRole('button', { name: /analyze campaign/i }));
+    fillUrl();
+    fireEvent.click(screen.getByRole('button', { name: /propose campaign/i }));
 
     await waitFor(() => {
-      expect(screen.getByText(SAMPLE_VALID_RESULT.performanceSummary)).toBeTruthy();
+      expect(screen.getByText(SAMPLE_VALID_RESULT.companyName)).toBeTruthy();
     });
 
-    expect(screen.getByText('5.25%')).toBeTruthy();
-    expect(screen.getByText('$1.80')).toBeTruthy();
-    expect(screen.getByText('4.78%')).toBeTruthy();
-    expect(screen.getByText('4.26x')).toBeTruthy();
-    expect(screen.getByText('Strong CTR on non-brand terms')).toBeTruthy();
-    expect(screen.getByText('High CPC on mobile')).toBeTruthy();
-    expect(screen.getByText('Weak mobile-specific ad copy')).toBeTruthy();
-    expect(screen.getByText('1. Add mobile-preferred ad copy')).toBeTruthy();
-    expect(screen.getByText(SAMPLE_VALID_RESULT.nextTest)).toBeTruthy();
+    expect(screen.getByText(SAMPLE_VALID_RESULT.industry)).toBeTruthy();
+    expect(screen.getByText(SAMPLE_VALID_RESULT.targetAudience)).toBeTruthy();
+    expect(screen.getByText(SAMPLE_VALID_RESULT.suggestedDailyBudget)).toBeTruthy();
+    expect(screen.getByText(SAMPLE_VALID_RESULT.keywords[0])).toBeTruthy();
+    expect(screen.getByText(SAMPLE_VALID_RESULT.adVariations[0].headline)).toBeTruthy();
+    expect(screen.getByText(SAMPLE_VALID_RESULT.adVariations[0].description)).toBeTruthy();
+    expect(screen.getByText(SAMPLE_VALID_RESULT.adVariations[1].headline)).toBeTruthy();
 
     expect(mockWorkflowResultDisplay).not.toHaveBeenCalled();
     expect(screen.queryByTestId('workflow-result-fallback')).toBeNull();
@@ -186,19 +163,19 @@ describe('Google Ads Campaign Analysis page', () => {
   it('falls back to WorkflowResultDisplay when result.result is not valid JSON', async () => {
     (fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
       ok: true,
-      json: async () => ({ result: '## Performance Summary\nSome markdown text.' }),
+      json: async () => ({ result: '## Campaign Proposal\nSome markdown text.' }),
     });
 
     renderWithQueryClient(<GoogleAdsAnalysisPage />);
-    fillAllFields();
-    fireEvent.click(screen.getByRole('button', { name: /analyze campaign/i }));
+    fillUrl();
+    fireEvent.click(screen.getByRole('button', { name: /propose campaign/i }));
 
     await waitFor(() => {
       expect(screen.getByTestId('workflow-result-fallback')).toBeTruthy();
     });
 
     expect(mockWorkflowResultDisplay).toHaveBeenCalledWith(
-      expect.objectContaining({ title: 'Campaign Analysis' })
+      expect.objectContaining({ title: 'Campaign Proposal' })
     );
   });
 
@@ -209,8 +186,26 @@ describe('Google Ads Campaign Analysis page', () => {
     });
 
     renderWithQueryClient(<GoogleAdsAnalysisPage />);
-    fillAllFields();
-    fireEvent.click(screen.getByRole('button', { name: /analyze campaign/i }));
+    fillUrl();
+    fireEvent.click(screen.getByRole('button', { name: /propose campaign/i }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('workflow-result-fallback')).toBeTruthy();
+    });
+    expect(mockWorkflowResultDisplay).toHaveBeenCalled();
+  });
+
+  it('falls back to WorkflowResultDisplay when adVariations is an empty array', async () => {
+    (fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        result: JSON.stringify({ ...SAMPLE_VALID_RESULT, adVariations: [] }),
+      }),
+    });
+
+    renderWithQueryClient(<GoogleAdsAnalysisPage />);
+    fillUrl();
+    fireEvent.click(screen.getByRole('button', { name: /propose campaign/i }));
 
     await waitFor(() => {
       expect(screen.getByTestId('workflow-result-fallback')).toBeTruthy();
@@ -228,8 +223,8 @@ describe('Google Ads Campaign Analysis page', () => {
     const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
 
     renderWithQueryClient(<GoogleAdsAnalysisPage />, queryClient);
-    fillAllFields();
-    fireEvent.click(screen.getByRole('button', { name: /analyze campaign/i }));
+    fillUrl();
+    fireEvent.click(screen.getByRole('button', { name: /propose campaign/i }));
 
     await waitFor(() => {
       expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['team-limit'] });
@@ -244,25 +239,25 @@ describe('Google Ads Campaign Analysis page', () => {
     });
 
     renderWithQueryClient(<GoogleAdsAnalysisPage />);
-    fillAllFields();
-    fireEvent.click(screen.getByRole('button', { name: /analyze campaign/i }));
+    fillUrl();
+    fireEvent.click(screen.getByRole('button', { name: /propose campaign/i }));
 
     await waitFor(() => {
       expect(screen.getByText(/temporarily unavailable/i)).toBeTruthy();
     });
   });
 
-  it('renders a past history item\'s structured output without refilling the form fields', () => {
+  it("renders a past history item's structured output without refilling the URL field", () => {
     renderWithQueryClient(<GoogleAdsAnalysisPage />);
 
     act(() => {
       historyHandlers.onSelectHistory?.(
-        'campaign_name: Old Campaign\nimpressions: 1000',
+        'website_url: https://old-example.com',
         JSON.stringify(SAMPLE_VALID_RESULT)
       );
     });
 
-    expect(screen.getByText(SAMPLE_VALID_RESULT.performanceSummary)).toBeTruthy();
-    expect((screen.getByLabelText(FIELD_LABELS.campaign_name) as HTMLInputElement).value).toBe('');
+    expect(screen.getByText(SAMPLE_VALID_RESULT.companyName)).toBeTruthy();
+    expect((screen.getByLabelText(/^website url$/i) as HTMLInputElement).value).toBe('');
   });
 });
